@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>SciCoproof</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link href="css/shell.css" rel="stylesheet">
+<style>
+  /* ── Upload stage ──────────────────────────────────────────────────────── */
+  .upload-col { max-width: 680px; margin: auto; padding: 32px 24px }
+  .page-title { display: flex; justify-content: center; margin-bottom: 28px; font-size: 2rem }
+  .upload-desc { color: var(--muted); font-size: .95rem; margin: 0 0 22px; line-height: 1.7 }
+  .upload-desc code { background: #f0f0f0; border-radius: 4px; padding: 1px 5px; font-size: .9em }
+
+  /* ── Review stage ──────────────────────────────────────────────────────── */
+  .review-section { margin-bottom: 22px }
+  .review-section h3 { font-size: .9rem; font-weight: 700; text-transform: uppercase;
+                       letter-spacing: .06em; color: var(--muted); margin: 0 0 10px }
+  .tex-list { margin: 8px 0 0; padding: 0; list-style: none }
+  .tex-list li { font-size: .9rem; font-family: monospace; padding: 4px 0; color: var(--ink) }
+  .tex-list li::before { content: "· "; color: var(--muted) }
+
+  /* ── Running stage ─────────────────────────────────────────────────────── */
+  .run-stat { font-size: .9rem; color: var(--muted); margin: 6px 0 }
+  .run-stat b { color: var(--ink); font-weight: 600 }
+  .proof-history { margin-top: 22px }
+  .proof-history h3 { font-size: .85rem; font-weight: 700; text-transform: uppercase;
+                      letter-spacing: .06em; color: var(--muted); margin: 0 0 10px }
+  .proof-item { margin-bottom: 14px }
+  .proof-item .pi-header { font-size: .86rem; color: var(--muted); margin-bottom: 4px }
+  .proof-item .pi-header b { color: var(--ink) }
+
+  /* ── Results stage ─────────────────────────────────────────────────────── */
+  .result-summary { border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 14px 0 }
+  .result-summary .rs-row { display: flex; justify-content: space-between; font-size: .93rem;
+                             padding: 7px 0; border-bottom: 1px solid #f0f0f0 }
+  .result-summary .rs-row:last-child { border-bottom: 0 }
+  .result-summary .rs-row .rs-label { color: var(--muted) }
+  .result-summary .rs-row .rs-val { font-weight: 600; color: var(--ink) }
+
+  /* Privacy page */
+  .privacy-wrap { max-width: 780px; margin: 48px auto; padding: 40px 28px;
+                  border: 1px solid var(--line); border-radius: 16px; background: #fafaf8 }
+  .privacy-wrap h1 { color: var(--blue); font-size: 1.8rem; text-align: center; margin-bottom: 24px }
+  .privacy-wrap p { color: var(--muted); line-height: 1.7 }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <button class="sb-expand" id="sbExpand" title="Show sidebar"><span class="mi">chevron_right</span></button>
+
+  <main class="main">
+    <div class="content" id="mainContent">
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           STAGE: UPLOAD
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div id="stageUpload" class="stage-pane upload-col">
+        <div class="page-title scicoproof-title"></div>
+
+        <p class="upload-desc">
+          Upload any of:<br>
+          · a <b>ZIP package</b> or a single <code>.tex</code> file — full LaTeX proofreading with <code>latexdiff</code> tracked versions<br>
+          · a <code>.docx</code>, <code>.txt</code>/<code>.md</code>, or <code>.rtf</code> document — prose proofreading with <b>native Word tracked changes</b>
+          <br><br>
+          SciCoproof produces a clean corrected file plus a tracked-changes version you can review.
+        </p>
+
+        <div class="dropzone" id="dropzone" title="Click to select a file or drag-and-drop">
+          <div class="dz-icon"><span class="mi">upload_file</span></div>
+          <div class="dz-label">Drag &amp; drop or click to upload</div>
+          <div class="dz-sub">ZIP · TEX · DOCX · TXT · MD · RTF</div>
+          <div class="dz-file" id="dzFileName"></div>
+        </div>
+        <input type="file" id="fileInput" accept=".zip,.tex,.docx,.txt,.md,.rtf">
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btnReview" disabled>
+            <span class="mi">search</span> Review Package
+          </button>
+        </div>
+        <div id="uploadError" class="alert alert-err" style="display:none"></div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           STAGE: REVIEW
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div id="stageReview" class="stage-pane" style="display:none">
+        <h2 id="reviewTitle">Review Package</h2>
+
+        <!-- metric cards -->
+        <div class="metric-grid" id="reviewMetrics"></div>
+
+        <!-- tool readiness (LaTeX only) -->
+        <div id="reviewReadiness" class="review-section" style="display:none">
+          <h3>Tool Readiness</h3>
+          <div class="readiness">
+            <div class="readiness-h">Required tools</div>
+            <div id="readinessRows"></div>
+          </div>
+        </div>
+
+        <!-- TeX file list (LaTeX only) -->
+        <div id="reviewTexFiles" class="review-section" style="display:none">
+          <h3>TeX Files</h3>
+          <ul class="tex-list" id="texFileList"></ul>
+        </div>
+
+        <!-- Large-file warning (LaTeX only) -->
+        <div id="reviewChunkWarn" style="display:none"></div>
+
+        <!-- Readiness info (prose) -->
+        <div id="reviewProseInfo" class="alert alert-info" style="display:none">
+          Output: a clean corrected file plus a <code>.docx</code> with <b>native Word tracked changes</b> (Accept/Reject in Word).
+        </div>
+
+        <!-- Warnings -->
+        <div id="reviewWarnings"></div>
+
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btnBackToUpload"><span class="mi">arrow_back</span> Back</button>
+          <button class="btn btn-primary" id="btnStartProof" disabled>
+            <span class="mi">play_arrow</span> Start Proofreading
+          </button>
+        </div>
+        <div id="reviewError" class="alert alert-err" style="display:none"></div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           STAGE: RUNNING
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div id="stageRunning" class="stage-pane" style="display:none">
+        <h2>Proofreading Run</h2>
+
+        <div class="pbar-wrap">
+          <div class="pbar-label" id="runOverallLabel">Overall progress</div>
+          <div class="pbar"><div class="pfill" id="runOverallFill"></div></div>
+        </div>
+
+        <div class="pbar-wrap" id="fileProgressWrap" style="display:none">
+          <div class="pbar-label" id="runFileLabel">Active file</div>
+          <div class="pbar"><div class="pfill" id="runFileFill"></div></div>
+        </div>
+
+        <div class="stage-box">
+          <span class="mi" id="stageIcon">hourglass_empty</span>
+          <div>
+            <div class="stage-title" id="stageTitle">Starting…</div>
+            <div class="stage-sub" id="stageSub"></div>
+          </div>
+        </div>
+
+        <div id="runStats"></div>
+
+        <div id="runPreview" style="display:none">
+          <p class="run-stat" id="runPreviewLabel"></p>
+          <div class="trackchange-preview" id="runPreviewHtml"></div>
+        </div>
+
+        <div class="proof-history" id="proofHistory" style="display:none">
+          <h3>Completed files</h3>
+          <div id="proofHistoryList"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           STAGE: RESULTS
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div id="stageResults" class="stage-pane" style="display:none">
+        <h2>Results</h2>
+
+        <div id="resultStatus"></div>
+
+        <div class="result-summary" id="resultSummary" style="display:none">
+          <div id="summaryRows"></div>
+        </div>
+
+        <div id="resultWarnings"></div>
+
+        <!-- Downloads -->
+        <div id="dlLatex" style="display:none">
+          <div class="dl-row">
+            <button class="dl-btn full" id="dlZip">
+              <span class="mi">download</span> Download Proofread ZIP
+            </button>
+          </div>
+        </div>
+
+        <div id="dlProse" style="display:none">
+          <div class="dl-row">
+            <button class="dl-btn" id="dlClean"><span class="mi">description</span> Download Clean File</button>
+            <button class="dl-btn" id="dlTracked"><span class="mi">track_changes</span> Download Tracked Changes (.docx)</button>
+            <button class="dl-btn full" id="dlBothZip"><span class="mi">download</span> Download Both as ZIP</button>
+          </div>
+          <p style="font-size:.86rem;color:var(--muted);margin:8px 0 0">
+            Open the tracked-changes file in Word and use <b>Review → Accept/Reject</b> to finalise edits.
+          </p>
+        </div>
+
+        <!-- Recent tracked-change previews from this run -->
+        <div id="resultPreviews"></div>
+
+        <div class="btn-row" style="margin-top:28px">
+          <button class="btn btn-primary" id="btnNewRun">
+            <span class="mi">add</span> Start a New Proofreading Run
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════════════
+           PRIVACY PAGE  (?page=privacy)
+           ═══════════════════════════════════════════════════════════════════ -->
+      <div id="stagePrivacy" class="stage-pane" style="display:none">
+        <div class="privacy-wrap">
+          <h1>SciCoproof Privacy Policy</h1>
+          <p>SciCoproof uses Google Sign-In solely to authenticate you and associate your proofreading runs with your account. We collect your email address, display name, and avatar URL from Google.</p>
+          <p>Your uploaded LaTeX sources, Word documents, and text files are processed transiently to generate the proofread output and are not stored beyond your current session. Files are not shared with third parties, and are not used to train any model.</p>
+          <p>Session tokens are stored in your browser's <code>localStorage</code> and expire after 30 days.</p>
+          <p>Contact: <a href="mailto:contact@productwatch.io">contact@productwatch.io</a></p>
+          <div class="btn-row"><button class="btn btn-ghost" onclick="history.back()">← Back</button></div>
+        </div>
+      </div>
+
+    </div><!-- /mainContent -->
+  </main>
+</div><!-- /app -->
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/logo.js"></script>
+<script src="js/shell.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   App state & helpers
+   ═══════════════════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let _stage = "upload";   // upload | review | running | results | privacy
+let _file  = null;       // the File object chosen by the user
+let _reviewData = null;  // analysis response from /analyze
+let _jobId = null;       // running job id
+let _jobData = null;     // done event data
+let _previews = [];      // proof history items [{path, html, model, requests}]
+
+function showStage(name) {
+  _stage = name;
+  ["Upload","Review","Running","Results","Privacy"].forEach(s => {
+    $("stage"+s).style.display = (s.toLowerCase() === name) ? "" : "none";
+  });
+}
+
+function metricCard(label, value) {
+  return `<div class="metric-card"><div class="mc-label">${esc(label)}</div><div class="mc-value">${esc(String(value))}</div></div>`;
+}
+
+function readinessRow(label, ok, warnMsg) {
+  const icon = ok ? "check_circle" : "cancel";
+  const cls  = ok ? "ok-ico" : "err-ico";
+  const text = ok ? "Available" : (warnMsg || "Missing");
+  return `<div class="readiness-row"><span class="mi fill ${cls}">${icon}</span><span>${esc(label)}: <b>${esc(text)}</b></span></div>`;
+}
+
+function setProgress(fillId, pct) {
+  $(fillId).style.width = Math.min(100, Math.max(0, pct * 100)) + "%";
+}
+
+function saveBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Privacy page shortcut
+   ═══════════════════════════════════════════════════════════════════════════ */
+if (new URLSearchParams(location.search).get("page") === "privacy") {
+  showStage("privacy");
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sidebar init (auth guard fires inside Shell.init)
+   ═══════════════════════════════════════════════════════════════════════════ */
+(async function () {
+  // Handle OAuth callback if ?code= is present
+  if (new URLSearchParams(location.search).has("code")) {
+    try {
+      await window.SciCoProofAuth.handleCallback();
+    } catch (err) {
+      console.error("OAuth callback failed:", err);
+      location.href = "index.html";
+      return;
+    }
+  }
+  Shell.init();
+})();
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UPLOAD stage
+   ═══════════════════════════════════════════════════════════════════════════ */
+const dropzone  = $("dropzone");
+const fileInput = $("fileInput");
+const btnReview = $("btnReview");
+
+dropzone.addEventListener("click", () => fileInput.click());
+
+dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("drag-over"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag-over"));
+dropzone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropzone.classList.remove("drag-over");
+  if (e.dataTransfer.files.length) selectFile(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener("change", () => {
+  if (fileInput.files.length) selectFile(fileInput.files[0]);
+});
+
+function selectFile(file) {
+  _file = file;
+  $("dzFileName").textContent = file.name;
+  btnReview.disabled = false;
+  $("uploadError").style.display = "none";
+}
+
+btnReview.addEventListener("click", async () => {
+  if (!_file) return;
+  btnReview.disabled = true;
+  btnReview.innerHTML = '<span class="mi">hourglass_empty</span> Analysing…';
+  $("uploadError").style.display = "none";
+  try {
+    _reviewData = await window.SciCoProofAPI.analyze(_file);
+    renderReview();
+    showStage("review");
+  } catch (err) {
+    $("uploadError").textContent = "Could not analyse file: " + (err.message || "unknown error");
+    $("uploadError").style.display = "";
+  } finally {
+    btnReview.disabled = false;
+    btnReview.innerHTML = '<span class="mi">search</span> Review Package';
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REVIEW stage
+   ═══════════════════════════════════════════════════════════════════════════ */
+function renderReview() {
+  const r = _reviewData;
+  $("reviewError").style.display = "none";
+
+  if (r.kind === "latex") {
+    $("reviewTitle").textContent = "Review Package";
+    const ta = r.tool_availability || {};
+    $("reviewMetrics").innerHTML = [
+      metricCard("ZIP", r.zip_name),
+      metricCard("TeX Files", r.tex_file_count),
+      metricCard("Bib Files", r.bib_file_count),
+      metricCard("Figures", r.figure_file_count),
+      metricCard("Style Files", r.style_file_count),
+      metricCard("Projected Requests", r.projected_request_count),
+      metricCard("Large Files", (r.fallback_chunked_files || []).length),
+      metricCard("Engine State", (r.model_state_path || "").split("/").pop()),
+    ].join("");
+
+    $("readinessRows").innerHTML = [
+      readinessRow("Git", ta.git_available),
+      readinessRow("latexdiff-vc", ta.latexdiff_vc_available),
+      readinessRow("AI API Key", r.api_key_present),
+    ].join("");
+    $("reviewReadiness").style.display = "";
+
+    if (r.tex_files && r.tex_files.length) {
+      $("texFileList").innerHTML = r.tex_files.map(f => `<li>${esc(f)}</li>`).join("");
+      $("reviewTexFiles").style.display = "";
+    } else {
+      $("reviewTexFiles").style.display = "none";
+    }
+
+    const chunks = r.fallback_chunked_files || [];
+    $("reviewChunkWarn").innerHTML = chunks.map(f =>
+      `<div class="alert alert-warn">Large file may need multiple requests: <code>${esc(f)}</code></div>`
+    ).join("");
+    $("reviewChunkWarn").style.display = chunks.length ? "" : "none";
+    $("reviewProseInfo").style.display = "none";
+
+    $("btnStartProof").disabled = !r.ready;
+
+  } else {
+    // prose
+    $("reviewTitle").textContent = "Review Document";
+    const fmtLabel = { docx: "Word (.docx)", rtf: "Rich text (.rtf)", txt: "Plain text" }[r.fmt] || r.fmt;
+    $("reviewMetrics").innerHTML = [
+      metricCard("File", r.file_name),
+      metricCard("Format", fmtLabel),
+      metricCard("Paragraphs", r.paragraph_count),
+      metricCard("Projected Requests", r.projected_request_count),
+      metricCard("Characters", r.char_count),
+      metricCard("AI API Key", r.api_key_present ? "Present" : "Missing"),
+    ].join("");
+    $("reviewReadiness").style.display = "none";
+    $("reviewTexFiles").style.display = "none";
+    $("reviewChunkWarn").style.display = "none";
+    $("reviewProseInfo").style.display = "";
+    $("btnStartProof").disabled = !r.ready;
+  }
+
+  $("reviewWarnings").innerHTML = (r.warnings || []).map(w =>
+    `<div class="alert alert-warn">${esc(w)}</div>`
+  ).join("");
+}
+
+$("btnBackToUpload").addEventListener("click", () => { _reviewData = null; showStage("upload"); });
+
+$("btnStartProof").addEventListener("click", async () => {
+  $("btnStartProof").disabled = true;
+  $("reviewError").style.display = "none";
+  try {
+    const { job_id } = await window.SciCoProofAPI.run(_file);
+    _jobId = job_id;
+    _previews = [];
+    initRunningStage();
+    showStage("running");
+    streamJob(job_id);
+  } catch (err) {
+    $("reviewError").textContent = "Could not start run: " + (err.message || "unknown error");
+    $("reviewError").style.display = "";
+    $("btnStartProof").disabled = false;
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RUNNING stage
+   ═══════════════════════════════════════════════════════════════════════════ */
+function initRunningStage() {
+  setProgress("runOverallFill", 0);
+  setProgress("runFileFill", 0);
+  $("fileProgressWrap").style.display = "none";
+  $("stageTitle").textContent = "Starting…";
+  $("stageSub").textContent = "";
+  $("stageIcon").textContent = "hourglass_empty";
+  $("runStats").innerHTML = "";
+  $("runPreview").style.display = "none";
+  $("runPreviewHtml").innerHTML = "";
+  $("proofHistory").style.display = "none";
+  $("proofHistoryList").innerHTML = "";
+}
+
+const STAGE_PROGRESS = {
+  validation: .08, extracting: .15, proofreading: .25,
+  trackchanges: .88, packaging: .96, completed: 1.0,
+};
+let _requestsUsed = 0;
+let _requestsProjected = (_reviewData && _reviewData.projected_request_count) || 0;
+
+function streamJob(jobId) {
+  _requestsUsed = 0;
+  _requestsProjected = (_reviewData && _reviewData.projected_request_count) || 0;
+
+  window.SciCoProofAPI.streamJob(jobId, {
+    onEvent(type, data) {
+      if (type === "stage") {
+        const p = STAGE_PROGRESS[data.stage] || 0;
+        setProgress("runOverallFill", p);
+        $("stageTitle").textContent = "Stage: " + data.stage;
+        $("stageSub").textContent = data.message || "";
+        if (data.stage === "proofreading") $("stageIcon").textContent = "auto_fix_high";
+        else if (data.stage === "trackchanges") $("stageIcon").textContent = "edit_document";
+        else if (data.stage === "packaging") $("stageIcon").textContent = "archive";
+        else if (data.stage === "completed") $("stageIcon").textContent = "check_circle";
+        else $("stageIcon").textContent = "travel_explore";
+
+      } else if (type === "file") {
+        const pct = .25 + .6 * ((data.current - 1) / Math.max(data.total, 1));
+        setProgress("runOverallFill", pct);
+        setProgress("runFileFill", 0);
+        $("fileProgressWrap").style.display = "";
+        $("runFileLabel").textContent = `File ${data.current}/${data.total}: ${data.path}`;
+        $("stageSub").textContent = `Proofreading ${data.path} (${data.current}/${data.total})`;
+        $("runPreview").style.display = "none";
+
+      } else if (type === "request") {
+        _requestsUsed++;
+        const part = data.part || 0;
+        const partTotal = data.part_total || 1;
+        const filePct = part / Math.max(partTotal, 1);
+        const overallBase = +($("runOverallFill").style.width) / 100 || .25;
+        setProgress("runFileFill", filePct);
+        $("runStats").innerHTML =
+          `<p class="run-stat">Requests used: <b>${_requestsUsed}</b> / projected <b>${_requestsProjected}</b></p>` +
+          (data.part_total > 1 ? `<p class="run-stat">File part: <b>${data.part}/${data.part_total}</b></p>` : "");
+        if (data.html) {
+          $("runPreview").style.display = "";
+          $("runPreviewLabel").textContent = data.path
+            ? `Live preview — ${data.path} (part ${data.part}/${data.part_total})`
+            : `Batch ${data.part}/${data.part_total}`;
+          $("runPreviewHtml").innerHTML = data.html;
+        }
+
+      } else if (type === "proof") {
+        if (data.html) {
+          _previews.unshift({ path: data.path, html: data.html, model: data.model, requests: data.requests });
+          _previews = _previews.slice(0, 5);
+          renderProofHistory();
+        }
+
+      } else if (type === "done") {
+        _jobData = data;
+        setProgress("runOverallFill", 1);
+        renderResults(data, false);
+        showStage("results");
+
+      } else if (type === "error") {
+        renderResults(data, true);
+        showStage("results");
+      }
+    },
+    onError(err) {
+      renderResults({ message: "Stream error (code " + (err.code||"?") + ")" }, true);
+      showStage("results");
+    },
+  });
+}
+
+function renderProofHistory() {
+  if (!_previews.length) return;
+  $("proofHistory").style.display = "";
+  $("proofHistoryList").innerHTML = _previews.map(item => `
+    <div class="proof-item">
+      <div class="pi-header"><b>${esc(item.path || "")}</b> · ${item.requests} AI request(s)</div>
+      <div class="trackchange-preview">${item.html}</div>
+    </div>`
+  ).join("");
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESULTS stage
+   ═══════════════════════════════════════════════════════════════════════════ */
+function renderResults(data, isError) {
+  const isPartial = data && data.partial;
+  const isProse   = _reviewData && _reviewData.kind === "prose";
+
+  if (isError && !isPartial) {
+    $("resultStatus").innerHTML =
+      `<div class="alert alert-err">Proofreading failed.<br><code>${esc((data && data.message) || "Unknown error")}</code></div>`;
+  } else if (isPartial) {
+    $("resultStatus").innerHTML =
+      `<div class="alert alert-warn">Proofreading stopped early — partial output saved.</div>`;
+  } else {
+    $("resultStatus").innerHTML =
+      `<div class="alert alert-ok"><span class="mi fill ok-ico">check_circle</span> Proofreading completed successfully.</div>`;
+  }
+
+  // Summary rows
+  const rows = [];
+  if (data) {
+    if (data.files_processed != null)
+      rows.push(["Files processed", `${data.files_processed} / ${data.total_files}`]);
+    if (data.paragraphs != null)
+      rows.push(["Paragraphs proofread", data.paragraphs]);
+    if (data.requests != null)
+      rows.push(["Requests used", `${data.requests} (projected ${data.projected || "?"})`]);
+    if (data.duration != null)
+      rows.push(["Duration", data.duration.toFixed(1) + " s"]);
+    if (data.model_usage) {
+      const total = Object.values(data.model_usage).reduce((a, b) => a + b, 0);
+      rows.push(["AI requests", total]);
+    }
+    if (isPartial && data.error)
+      rows.push(["Error", data.error]);
+  }
+  if (rows.length) {
+    $("resultSummary").style.display = "";
+    $("summaryRows").innerHTML = rows.map(([l,v]) =>
+      `<div class="rs-row"><span class="rs-label">${esc(l)}</span><span class="rs-val">${esc(String(v))}</span></div>`
+    ).join("");
+  } else {
+    $("resultSummary").style.display = "none";
+  }
+
+  $("resultWarnings").innerHTML = ((data && data.warnings) || []).map(w =>
+    `<div class="alert alert-warn">${esc(w)}</div>`
+  ).join("");
+
+  if (isProse) {
+    $("dlLatex").style.display = "none";
+    $("dlProse").style.display = "";
+  } else {
+    $("dlLatex").style.display = "";
+    $("dlProse").style.display = "none";
+  }
+
+  // Proof history previews
+  if (_previews.length) {
+    $("resultPreviews").innerHTML = `
+      <h3 style="margin:22px 0 10px;font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">
+        Completed file previews
+      </h3>` +
+      _previews.slice(0, 3).map(item => `
+        <div class="proof-item">
+          <div class="pi-header"><b>${esc(item.path || "")}</b> · ${item.requests} AI request(s)</div>
+          <div class="trackchange-preview">${item.html}</div>
+        </div>`
+      ).join("");
+  } else {
+    $("resultPreviews").innerHTML = "";
+  }
+}
+
+// Download buttons
+function attachDownload(btnId, kind, filename) {
+  $(btnId) && $(btnId).addEventListener("click", async () => {
+    if (!_jobId) return;
+    try {
+      const blob = await window.SciCoProofAPI.downloadResult(_jobId, kind);
+      saveBlob(blob, filename || "scicoproof_output.zip");
+    } catch (err) {
+      alert("Download failed: " + (err.message || "unknown error"));
+    }
+  });
+}
+
+attachDownload("dlZip",      "result",  "scicoproof_output.zip");
+attachDownload("dlClean",    "clean",   "scicoproof_clean");
+attachDownload("dlTracked",  "tracked", "scicoproof_tracked.docx");
+attachDownload("dlBothZip",  "result",  "scicoproof_output.zip");
+
+// New run button
+const btnNewRun = $("btnNewRun");
+if (btnNewRun) btnNewRun.addEventListener("click", resetToUpload);
+
+function resetToUpload() {
+  _file = null; _reviewData = null; _jobId = null; _jobData = null; _previews = [];
+  $("dzFileName").textContent = "";
+  $("fileInput").value = "";
+  btnReview.disabled = true;
+  $("uploadError").style.display = "none";
+  showStage("upload");
+}
+
+// Expose for sidebar "New Proofreading Run" button
+window.App = { resetToUpload };
+</script>
+</body>
+</html>

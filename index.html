@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SciCoproof — AI Proofreading for Scientific Manuscripts</title>
+<meta name="description" content="SciCoproof reads your LaTeX, Word, plain-text, or RTF manuscript like a meticulous co-author — catching unit, notation, and sign errors most spell-checkers miss, with a full tracked-changes review.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+/* ── KaTeX_Main font (same as Streamlit/LaTeX title) ─────────────────────── */
+@font-face{font-family:"KaTeX_Main";font-style:normal;font-weight:400;
+  src:url("https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/KaTeX_Main-Regular.woff2")format("woff2");font-display:swap}
+@font-face{font-family:"KaTeX_Main";font-style:normal;font-weight:700;
+  src:url("https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/KaTeX_Main-Bold.woff2")format("woff2");font-display:swap}
+@font-face{font-family:"KaTeX_Main";font-style:italic;font-weight:400;
+  src:url("https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/KaTeX_Main-Italic.woff2")format("woff2");font-display:swap}
+
+:root{
+  --bg:#faf6ee; --bg-alt:#f3ecdd; --surface:#fffdf8; --border:#e3d4b4;
+  --text:#2c2416; --muted:#6f6452;
+  --accent:#5576a6; --accent-dark:#3e5c85;
+  --del-bg:#fbe1e1; --del-text:#b23a3a;
+  --ins-bg:#dcf3dd; --ins-text:#2f7a33;
+  --shadow:0 8px 24px -12px rgba(44,36,22,.25);
+  --radius:16px;
+  --font-serif:"Lora",Georgia,"Times New Roman",serif;
+  --font-sans:"Inter",-apple-system,"Segoe UI",sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);
+     line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+sup,sub{font-size:.7em}
+code{font-family:"SFMono-Regular",Consolas,monospace;background:var(--bg-alt);
+     border:1px solid var(--border);border-radius:4px;padding:.05em .35em;font-size:.9em}
+img,svg{display:block;max-width:100%}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4em;
+     font-family:var(--font-sans);font-weight:600;text-decoration:none;border-radius:999px;
+     border:1px solid transparent;transition:transform .15s,box-shadow .15s,background-color .15s,color .15s;white-space:nowrap}
+.btn--primary{background:var(--accent);color:#fff;box-shadow:0 6px 16px -8px rgba(85,118,166,.6)}
+.btn--primary:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.btn--ghost{background:transparent;border-color:var(--border);color:var(--text)}
+.btn--ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.btn--lg{padding:.85rem 1.7rem;font-size:1rem}
+.btn--sm{padding:.5rem 1.1rem;font-size:.85rem}
+
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(250,246,238,.7);
+     backdrop-filter:blur(10px);border-bottom:1px solid transparent;
+     transition:border-color .25s,box-shadow .25s}
+.nav--scrolled{border-bottom-color:var(--border);box-shadow:0 4px 20px -16px rgba(44,36,22,.4)}
+.nav__inner{max-width:1100px;margin:0 auto;padding:1rem 1.5rem;
+            display:flex;align-items:center;justify-content:space-between;gap:1.5rem}
+.nav__links{display:flex;align-items:center;gap:1.75rem;font-size:.95rem;font-weight:500}
+.nav__links a{color:var(--muted);transition:color .15s}
+.nav__links a:hover{color:var(--accent)}
+.nav__cta{color:#fff!important}
+.nav__toggle{display:none;flex-direction:column;justify-content:center;gap:5px;
+             width:36px;height:36px;background:transparent;border:1px solid var(--border);
+             border-radius:8px;cursor:pointer}
+.nav__toggle span{display:block;height:2px;width:18px;margin:0 auto;
+                  background:var(--text);transition:transform .2s,opacity .2s}
+
+/* ── Brand wordmark ──────────────────────────────────────────────────────── */
+.brand-mark{display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;
+            font-family:"KaTeX_Main",var(--font-serif);font-weight:700;
+            font-size:clamp(2.6rem,9vw,5.2rem);line-height:1;color:var(--text);margin-bottom:1.5rem}
+.brand-scripts{display:inline-flex;flex-direction:column;align-items:flex-start;
+               margin-left:.18em;font-size:.36em;line-height:1.35}
+.brand-sup{color:#525252;font-weight:600}
+.brand-sub{color:#5576a6;font-weight:600}
+.brand-mark--mini{font-size:1.9rem;margin-bottom:0;flex-wrap:nowrap;justify-content:flex-start}
+.brand-mark.brand-mark--mini .del-wrap{color:#d13d3d}
+.brand-mark.brand-mark--mini .strike-line{transform:scaleX(1)}
+.brand-mark.brand-mark--mini .ins-wrap{width:auto!important;opacity:1!important}
+
+/* ── Diff animation primitives ───────────────────────────────────────────── */
+.diff-token,.diff-letter{display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
+.del-wrap{position:relative;display:inline-block;color:var(--del-text);
+          background:var(--del-bg);border-radius:4px;padding:0 .12em}
+.strike-line{position:absolute;left:2%;right:2%;top:50%;height:2px;background:var(--del-text);
+             transform:scaleX(0);transform-origin:left center}
+.ins-wrap{display:inline-block;color:var(--ins-text);background:var(--ins-bg);
+          border-radius:4px;padding:0 .12em;opacity:0;transform:translateY(5px) scale(.92)}
+
+/* Brand mark: no color boxes in initial state */
+.brand-mark .diff-letter{gap:0}
+.brand-mark .del-wrap,.brand-mark .ins-wrap{background:none;border-radius:0;padding:0}
+.brand-mark .del-wrap{color:#525252}
+.brand-mark .strike-line{background:#d13d3d}
+.brand-mark .ins-wrap{color:#6ca65d;width:0;overflow:hidden;opacity:0;transform:none}
+
+/* diff-play triggers the brand animation sequence */
+.brand-mark.diff-play .del-wrap{animation:deColorize .35s ease-out .35s forwards}
+.brand-mark.diff-play .strike-line{animation:strike .4s cubic-bezier(.4,0,.2,1) .35s forwards}
+.brand-mark.diff-play .ins-wrap{animation:expandIns .45s cubic-bezier(.4,0,.2,1) .85s forwards}
+
+/* diff-play for standalone diff cards */
+.diff-play .strike-line{animation:strike .45s cubic-bezier(.4,0,.2,1) .35s forwards}
+.diff-play .ins-wrap{animation:insPop .45s cubic-bezier(.2,.8,.2,1) .85s forwards}
+.diff-play .verdict{animation:fadeUp .45s ease-out 1.35s forwards}
+
+@keyframes strike{to{transform:scaleX(1)}}
+@keyframes insPop{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes deColorize{to{color:#d13d3d}}
+@keyframes expandIns{to{width:var(--ins-w,.7em);opacity:1}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* ── Scroll-reveal ───────────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease-out,transform .7s ease-out}
+.reveal.in-view{opacity:1;transform:translateY(0)}
+.hero .reveal:nth-child(1){transition-delay:0s}
+.hero .reveal:nth-child(2){transition-delay:.05s}
+.hero .reveal:nth-child(3){transition-delay:.1s}
+.hero .reveal:nth-child(4){transition-delay:.15s}
+.hero .reveal:nth-child(5){transition-delay:.2s}
+.hero .reveal:nth-child(6){transition-delay:.25s}
+.verdict{opacity:0;transform:translateY(8px)}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.hero{position:relative;overflow:hidden;padding:5rem 1.5rem 5.5rem;
+      border-bottom:1px solid var(--border)}
+.hero__inner{position:relative;z-index:1;max-width:760px;margin:0 auto;text-align:center}
+
+/* ── Journal-article background watermark ────────────────────────────────── */
+/* Two-column layout mimics a typeset paper behind the hero content.         */
+/* Base prose is near-invisible; del/ins corrections pop with colour.        */
+.hero__bgtext{position:absolute;inset:0;z-index:0;overflow:hidden;
+              pointer-events:none;user-select:none;
+              padding:1.5rem 3.5rem;
+              display:flex;gap:2.5rem}
+.hero__bgcol{flex:1;overflow:hidden}
+.hero__bgpara{font-family:var(--font-serif);font-size:.73rem;line-height:1.85;
+              color:rgba(44,36,22,.09);margin-bottom:.7rem;text-align:justify}
+.hwm-del{text-decoration:line-through;color:rgba(178,58,58,.30)}
+.hwm-ins{color:rgba(47,122,51,.30);margin-left:.1em}
+.hero__eyebrow{display:inline-block;font-size:.85rem;font-weight:600;letter-spacing:.12em;
+               text-transform:uppercase;color:var(--accent);margin-bottom:1.25rem}
+.hero__tagline{font-family:var(--font-serif);font-size:clamp(1.15rem,2.4vw,1.5rem);
+               font-style:italic;color:var(--text);margin-bottom:1rem}
+.hero__desc{font-size:1.02rem;color:var(--muted);max-width:600px;margin:0 auto 2rem}
+.hero__actions{display:flex;flex-wrap:wrap;justify-content:center;gap:.9rem;margin-bottom:2.25rem}
+.hero__formats{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.format-pill{font-size:.8rem;font-weight:600;color:var(--muted);background:var(--surface);
+             border:1px solid var(--border);border-radius:999px;padding:.3rem .85rem}
+
+/* ── Shared section ──────────────────────────────────────────────────────── */
+section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76px}
+.section-title{font-family:var(--font-serif);font-size:clamp(1.7rem,4vw,2.4rem);
+               text-align:center;margin-bottom:.75rem}
+.section-sub{text-align:center;color:var(--muted);max-width:650px;margin:0 auto 3rem;font-size:1rem}
+.del-sample{font-weight:700;border-radius:4px;padding:0 .25em;color:var(--del-text);background:var(--del-bg)}
+.ins-sample{font-weight:700;border-radius:4px;padding:0 .25em;color:var(--ins-text);background:var(--ins-bg)}
+.replay-sample{display:inline-block;font-weight:700;color:var(--accent)}
+
+/* ── ═══════════════════════════════════════════════════════════════════════
+       SHOWCASE: 3-panel animated demo
+   ═══════════════════════════════════════════════════════════════════════ */
+.showcase-wrap{background:var(--bg-alt);border-radius:28px;padding:3rem 2rem}
+.showcase-wrap .section-title{margin-bottom:.5rem}
+.showcase-wrap .section-sub{margin-bottom:2rem}
+
+.workflow-panels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;margin-top:1rem}
+
+.wp{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:1.25rem 1.25rem 1.5rem;min-height:300px;display:flex;flex-direction:column;
+    gap:.75rem;position:relative;overflow:hidden;transition:box-shadow .3s,border-color .3s}
+.wp.wf-active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(85,118,166,.15),var(--shadow)}
+.wp.wf-done{border-color:#7abf7c;box-shadow:0 0 0 2px rgba(47,122,51,.1)}
+
+.wp-header{display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-weight:700;
+           letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.wp-num{width:1.5rem;height:1.5rem;border-radius:50%;background:var(--accent);
+        color:#fff;font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;
+        justify-content:center;font-family:var(--font-serif);flex:0 0 auto}
+.wp-num.done{background:#2f7a33}
+.wp-body{flex:1;display:flex;flex-direction:column;gap:.6rem}
+
+/* Upload panel */
+.dz-demo{border:2px dashed var(--border);border-radius:10px;padding:1rem;text-align:center;
+          transition:border-color .4s,background .4s;min-height:90px;
+          display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem}
+.dz-demo.wf-active-dz{border-color:var(--accent);background:rgba(85,118,166,.04)}
+.dz-demo.wf-ready{border-color:#7abf7c;background:rgba(47,122,51,.04);border-style:solid}
+.dz-file-icon{font-size:1.7rem;transform:translateY(-24px);opacity:0;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .4s}
+.dz-file-icon.landed{transform:translateY(0);opacity:1}
+.dz-idle-text{font-size:.82rem;color:var(--muted)}
+.dz-file-name{font-size:.82rem;font-weight:600;color:var(--text);opacity:0;transition:opacity .4s .2s}
+.dz-file-name.show{opacity:1}
+.dz-meta{font-size:.75rem;color:var(--muted);opacity:0;transition:opacity .4s .3s}
+.dz-meta.show{opacity:1}
+
+.up-btn{display:inline-flex;align-items:center;gap:.4rem;background:var(--accent);color:#fff;
+        border-radius:8px;padding:.45rem .9rem;font-size:.8rem;font-weight:600;
+        border:0;cursor:default;opacity:0;transform:translateY(6px);
+        transition:opacity .4s .4s,transform .4s .4s}
+.up-btn.show{opacity:1;transform:translateY(0)}
+.up-analyse{font-size:.78rem;color:var(--muted);opacity:0;transition:opacity .3s}
+.up-analyse.show{opacity:1}
+
+/* Analysis result row */
+.up-metric-row{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;
+               opacity:0;transform:translateY(4px);transition:opacity .4s,transform .4s}
+.up-metric-row.show{opacity:1;transform:translateY(0)}
+.up-metric{background:linear-gradient(180deg,#fffdfa,#f6efe4);border:1px solid #e7d3b3;
+           border-radius:8px;padding:.4rem .6rem}
+.up-metric .lbl{font-size:.64rem;text-transform:uppercase;letter-spacing:.05em;color:#7a5b3f}
+.up-metric .val{font-size:.82rem;font-weight:700;color:#2c2416}
+
+/* Proofreading panel */
+.pf-progress{display:flex;flex-direction:column;gap:.3rem}
+.pf-stage{font-size:.78rem;font-weight:600;color:var(--accent);min-height:1.1em;transition:opacity .2s}
+.pf-bar{height:5px;background:#e7eaee;border-radius:99px;overflow:hidden}
+.pf-fill{height:100%;background:var(--accent);border-radius:99px;width:0;transition:width .6s ease-out}
+.pf-file{font-size:.72rem;color:var(--muted);min-height:1em}
+.pf-req{font-size:.72rem;color:var(--muted)}
+
+/* Live diff in proofreading panel */
+.pf-diff-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:10px;
+             padding:.65rem .8rem;font-family:var(--font-serif);font-size:.84rem;line-height:1.7;
+             min-height:68px;position:relative;overflow:hidden}
+.pf-diff-example{position:absolute;inset:0;padding:.65rem .8rem;opacity:0;
+                 background:var(--bg-alt);
+                 transition:opacity .35s;display:flex;align-items:center}
+.pf-diff-example.pf-active{opacity:1}
+.pf-diff-tag{font-family:var(--font-sans);font-size:.65rem;font-weight:700;letter-spacing:.07em;
+             text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.3rem}
+
+/* Proof panel: no gap before corrected word — expands from zero width */
+.pf-diff-box .ins-wrap{width:0;overflow:hidden;opacity:0;transform:none}
+.pf-diff-box .diff-play .ins-wrap{animation:expandIns .45s cubic-bezier(.4,0,.2,1) .85s forwards}
+.pf-diff-box .diff-play .strike-line{animation:strike .45s cubic-bezier(.4,0,.2,1) .35s forwards}
+
+/* Shimmer skeleton shown while proof box is idle or transitioning */
+.pf-skel-wrap{display:flex;flex-direction:column;gap:7px;padding:.1rem 0}
+.pf-skel{height:11px;border-radius:6px;
+         background:linear-gradient(90deg,#e5dccf 25%,#f2ede5 50%,#e5dccf 75%);
+         background-size:200% 100%;animation:pfShimmer 1.5s infinite}
+@keyframes pfShimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* Download panel */
+.dl-check{font-size:2.4rem;text-align:center;opacity:0;transform:scale(.4);
+          transition:opacity .5s,transform .5s cubic-bezier(.2,.8,.2,1)}
+.dl-check.show{opacity:1;transform:scale(1)}
+.dl-stats{display:flex;flex-direction:column;gap:.35rem;opacity:0;
+          transition:opacity .4s .2s}
+.dl-stats.show{opacity:1}
+.dl-stat-row{display:flex;justify-content:space-between;font-size:.8rem;padding:.25rem 0;
+             border-bottom:1px solid #f0f0f0;color:var(--muted)}
+.dl-stat-row b{color:var(--text)}
+.dl-buttons{display:flex;flex-direction:column;gap:.45rem;opacity:0;
+            transition:opacity .5s .4s}
+.dl-buttons.show{opacity:1}
+.dl-btn-demo{display:flex;align-items:center;gap:.5rem;border:1px solid var(--border);
+             border-radius:8px;padding:.5rem .75rem;font-size:.78rem;font-weight:600;
+             background:#fff;cursor:default;transition:border-color .2s,color .2s}
+.dl-btn-demo:hover{border-color:var(--accent);color:var(--accent)}
+.dl-btn-demo.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.dl-icon{font-size:1rem}
+
+/* ── Diff cards (showcase below) ─────────────────────────────────────────── */
+.diff-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+.diff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+           padding:1.5rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:1rem}
+.diff-card__top{display:flex;align-items:center;justify-content:space-between}
+.diff-card__tag{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+                color:var(--accent)}
+.diff-card__replay{display:inline-flex;align-items:center;justify-content:center;
+                   width:2rem;height:2rem;border-radius:50%;border:1px solid var(--border);
+                   background:transparent;color:var(--muted);font-size:1rem;cursor:pointer;
+                   transition:color .15s,border-color .15s,transform .4s}
+.diff-card__replay:hover{color:var(--accent);border-color:var(--accent)}
+.diff-card__replay:active{transform:rotate(-180deg)}
+.diff-card__text{font-family:var(--font-serif);font-size:1.05rem;line-height:1.75;flex-grow:1}
+.diff-card__verdict{font-size:.9rem;color:var(--muted);border-top:1px dashed var(--border);padding-top:.9rem}
+.verdict-icon{display:inline-flex;align-items:center;justify-content:center;
+              width:1.3rem;height:1.3rem;border-radius:50%;background:var(--ins-bg);
+              color:var(--ins-text);font-size:.8rem;margin-right:.3rem}
+.diff-card__verdict strong{color:var(--text)}
+
+/* ── How it works ─────────────────────────────────────────────────────────── */
+.how__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.75rem;margin-top:1rem}
+.how__step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem}
+.how__step:nth-child(2){transition-delay:.1s}
+.how__step:nth-child(3){transition-delay:.2s}
+.how__num{display:inline-flex;align-items:center;justify-content:center;width:2.2rem;height:2.2rem;
+          border-radius:50%;background:var(--accent);color:#fff;font-weight:700;
+          font-family:var(--font-serif);margin-bottom:1rem}
+.how__step h3{font-family:var(--font-serif);font-size:1.15rem;margin-bottom:.5rem}
+.how__step p{color:var(--muted);font-size:.95rem}
+
+/* ── Features ─────────────────────────────────────────────────────────────── */
+.features__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:1rem}
+.feature-card{border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem;
+              background:var(--surface);transition:transform .2s,box-shadow .2s}
+.feature-card:nth-child(2){transition-delay:.05s}
+.feature-card:nth-child(3){transition-delay:.1s}
+.feature-card:nth-child(4){transition-delay:.15s}
+.feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.feature-card h3{font-family:var(--font-serif);font-size:1.1rem;margin-bottom:.5rem}
+.feature-card p{color:var(--muted);font-size:.95rem}
+
+/* ── CTA ──────────────────────────────────────────────────────────────────── */
+.cta__inner{text-align:center;background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+            border-radius:24px;padding:3.5rem 2rem;color:#fff}
+.cta__inner h2{font-family:var(--font-serif);font-size:clamp(1.5rem,3.5vw,2.1rem);margin-bottom:.5rem}
+.cta__inner p{opacity:.9;margin-bottom:1.75rem}
+.cta__inner .btn--primary{background:#fff;color:var(--accent-dark)}
+.cta__inner .btn--primary:hover{background:var(--bg)}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.footer{border-top:1px solid var(--border);padding:2rem 1.5rem}
+.footer__inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;
+               align-items:center;justify-content:space-between;gap:.75rem}
+.footer__copy{color:var(--muted);font-size:.9rem}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media(max-width:820px){
+  .workflow-panels{grid-template-columns:1fr}
+  .wp{min-height:auto}
+}
+@media(max-width:760px){
+  .nav__links{position:absolute;top:100%;left:0;right:0;background:var(--surface);
+              border-bottom:1px solid var(--border);flex-direction:column;
+              align-items:stretch;gap:1rem;padding:1.25rem 1.5rem;display:none}
+  .nav--open .nav__links{display:flex}
+  .nav__links a{text-align:center}
+  .nav__cta{justify-content:center}
+  .nav__toggle{display:flex}
+  .nav--open .nav__toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav--open .nav__toggle span:nth-child(2){opacity:0}
+  .nav--open .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  section{padding:3.5rem 1.25rem}
+  .hero{padding:3.5rem 1.25rem 4rem}
+  .diff-card__text{font-size:.98rem}
+  .showcase-wrap{padding:2rem 1rem}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal,.strike-line,.ins-wrap,.verdict{
+    transition:none!important;animation:none!important;
+    opacity:1!important;transform:none!important}
+  .strike-line{transform:scaleX(1)!important}
+  .ins-wrap{width:auto!important}
+  .brand-mark .del-wrap{color:#d13d3d!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────── -->
+<header class="nav" id="top">
+  <div class="nav__inner">
+    <a href="#top" class="nav__logo brand-mark brand-mark--mini" aria-label="SciCoproof">
+      <span class="brand-base">SciCo</span>
+      <span class="brand-scripts">
+        <span class="brand-sup">
+          <span class="diff-letter">
+            <span class="del-wrap"><span class="del-text">A</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">Å</span>
+          </span>ngstr<span class="diff-letter">
+            <span class="del-wrap"><span class="del-text">o</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">ö</span>
+          </span>m
+        </span>
+        <span class="brand-sub">proofreading</span>
+      </span>
+    </a>
+    <nav class="nav__links" id="nav-links">
+      <a href="#showcase">Demo</a>
+      <a href="#examples">Examples</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#features">Features</a>
+      <a class="btn btn--primary btn--sm nav__cta" href="app.html">Try it free →</a>
+    </nav>
+    <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <!-- Two-column journal article background. Real sentences from the thesis,
+       with introduced mistakes shown corrected inline.                       -->
+  <div class="hero__bgtext" aria-hidden="true">
+
+  <div class="hero__bgcol">
+    <p class="hero__bgpara">
+      Biology is inherently
+      <span class="hwm-del">fasinating</span><span class="hwm-ins">fascinating</span>
+      because its underlying components are in a state of constant flux. As products
+      of these same biological systems, we are naturally drawn to change; that which is
+      static rarely captures our curiosity. The timescales of these changes are dictated
+      by their complexity: more intricate transitions typically require higher activation
+      energies, necessitating longer waiting times. These slow, rate-limiting events
+      <span class="hwm-del">is</span><span class="hwm-ins">are</span>
+      often the most crucial, acting as primary determinants for the biological processes
+      that sustain life. As Aristotle's paradox suggests, the mechanics of life rely
+      entirely on this principle: it is fundamentally necessary, and therefore ultimately
+      likely, that these statistically unlikely rare events occur.
+    </p>
+
+    <p class="hero__bgpara">
+      Biological macromolecules are not static entities; they are dynamic systems that
+      traverse complex energy landscapes. The functional versatility of proteins and
+      nucleic acids
+      <span class="hwm-del">emerge</span><span class="hwm-ins">emerges</span>
+      from a hierarchy of motions spanning over 15 orders of magnitude in time. While
+      rapid picosecond atomic fluctuations provide the basis for internal entropy, it is
+      the microsecond
+      (<span class="hwm-del">us</span><span class="hwm-ins">µs</span>)
+      to millisecond (ms) transitions that typically define functional cycles — enzymatic
+      catalysis, signal transduction, and ion transport. Pathological states often arise
+      not from static structural deletions, but from the perturbation of these dynamical
+      landscapes, where mutations alter the populations and exchange rates of functional states.
+    </p>
+
+    <p class="hero__bgpara">
+      HDX-MS monitors the rate at which backbone amide hydrogens are replaced by
+      deuterium in a
+      <span class="hwm-del">D2O</span><span class="hwm-ins">D₂O</span>
+      solvent. In a folded protein, this exchange is hindered by protection — the
+      structural and chemical barriers that sequester amides from the solvent. This
+      protection arises primarily from two sources: the involvement of the amide in
+      stable hydrogen-bonding networks (such as
+      <span class="hwm-del">alpha-helices</span><span class="hwm-ins">α-helices</span>
+      or β-sheets) and
+      <span class="hwm-del">it's</span><span class="hwm-ins">its</span>
+      physical burial within the protein's hydrophobic core. For exchange to occur,
+      these protections must be transiently lost through breathing motions or local
+      unfolding events, enabling spatiotemporally resolved maps of conformational dynamics.
+    </p>
+
+    <p class="hero__bgpara">
+      Biomolecular processes are characterized by complexities spanning multiple
+      structural and functional hierarchies. Any biological process can be viewed as a
+      collection of correlated events
+      <span class="hwm-del">occuring</span><span class="hwm-ins">occurring</span>
+      across a wide range of timescales. These events are traditionally defined as slow
+      and rate-limiting, where the system spends the vast majority of its time waiting
+      for a sufficient thermal fluctuation
+      <span class="hwm-del">,</span><span class="hwm-ins">;</span>
+      the actual traversal of the high-energy barrier occurs on a much faster, nearly
+      elusive timescale. The height of the barrier serves as a kinetic bottleneck that
+      dictates the characteristic timescale of the transition event.
+    </p>
+  </div>
+
+  <div class="hero__bgcol">
+    <p class="hero__bgpara">
+      The principles of parsimony are not merely philosophical axioms; they represent
+      a fundamental imperative in modern computational
+      <span class="hwm-del">biophyics</span><span class="hwm-ins">biophysics</span>.
+      Forcing a simulated molecular system to explicitly traverse massive thermodynamic
+      barriers through brute-force sampling is frequently
+      <span class="hwm-del">computationaly</span><span class="hwm-ins">computationally</span>
+      wasteful, attempting to do with more what can theoretically be achieved with fewer.
+      Rather than exhaustively simulating rare transition events, advanced methodologies
+      strive to reconstruct the macroscopic free energy landscape from strictly necessary,
+      localized conformational data — fulfilling the ultimate scientific mandate of
+      Occam's Razor.
+    </p>
+
+    <p class="hero__bgpara">
+      The differential catalytic activities observed in tyrosine kinases are generally
+      attributed to the cooperative assembly of key structural elements: the activation
+      loop, the Asp-Phe-Gly (DFG) motif, the phosphate-binding loop, and the
+      <span class="hwm-del">aC-helix</span><span class="hwm-ins">αC-helix</span>.
+      These rearrangements are associated with rate-limiting energy barriers of
+      approximately 15
+      <span class="hwm-del">kcal.mol-1</span><span class="hwm-ins">kcal mol⁻¹</span>,
+      in close agreement with experimental NMR estimates. Regulatory disruptions within
+      Abl can lead to hyperactivity, promoting a spectrum of malignancies; a common
+      scenario involves the constitutive activity resulting from fusion with the
+      breakpoint cluster region gene, leading to formation of the Philadelphia chromosome.
+    </p>
+
+    <p class="hero__bgpara">
+      While established enhanced sampling techniques — Metadynamics, Umbrella Sampling,
+      and Replica Exchange Molecular Dynamics — have been instrumental in bridging this
+      gap, they frequently
+      <span class="hwm-del">encounters</span><span class="hwm-ins">encounter</span>
+      a rigid accuracy-cost trade-off. These methods often require either exorbitant
+      computational resources or rely heavily on the subjective, a priori selection of
+      low-dimensional collective variables, which can
+      <span class="hwm-del">inadvertantly</span><span class="hwm-ins">inadvertently</span>
+      mask critical orthogonal degrees of freedom. Consequently, there remains a pressing
+      need for more efficient, objective, and statistically rigorous methodologies capable
+      of exploring these high-dimensional landscapes without sacrificing atomistic resolution.
+    </p>
+
+    <p class="hero__bgpara">
+      The fundamental objective of modern computational biophysics is to decode the
+      complex thermo-kinetic rules that govern biomolecular function. While the underlying
+      atomic fluctuations occur on the femtosecond timescale, macroscopic conformational
+      changes dictating biological function often unfold over microseconds to milliseconds.
+      This temporal chasm creates the central sampling problem in standard Molecular
+      Dynamics simulations, where trajectories remain kinetically
+      <span class="hwm-del">traped</span><span class="hwm-ins">trapped</span>
+      within deep local energy minima, separated by substantial thermodynamic barriers
+      that are rarely crossed on accessible simulation timescales without deliberate
+      <span class="hwm-del">intervention,</span><span class="hwm-ins">intervention.</span>
+      Enhanced sampling methods fundamentally alter this exploration strategy by investing
+      energy in a controlled manner, thereby enabling the system to access otherwise
+      <span class="hwm-del">inaccessable</span><span class="hwm-ins">inaccessible</span>
+      regions of the landscape within feasible computational times.
+    </p>
+  </div>
+
+  </div>
+
+  <div class="hero__inner">
+    <p class="hero__eyebrow reveal">AI proofreading for scientific writing</p>
+
+    <h1 class="brand-mark reveal" aria-label="SciCoproof">
+      <span class="brand-base">SciCo</span>
+      <span class="brand-scripts">
+        <span class="brand-sup">
+          <span class="diff-letter">
+            <span class="del-wrap"><span class="del-text">A</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">Å</span>
+          </span>ngstr<span class="diff-letter">
+            <span class="del-wrap"><span class="del-text">o</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">ö</span>
+          </span>m
+        </span>
+        <span class="brand-sub">proofreading</span>
+      </span>
+    </h1>
+
+    <p class="hero__tagline reveal">Reads your manuscript like a meticulous co-author<br>not just a grammar/spell-checker.</p>
+
+    <p class="hero__desc reveal">
+      SciCoproof reviews LaTeX, Word, plain-text, and RTF manuscripts with full scientific
+      context — units, equations, and terminology — then hands back a clean copy and a
+      complete tracked-changes review.
+    </p>
+
+    <div class="hero__actions reveal">
+      <a class="btn btn--primary btn--lg" href="app.html">Try SciCoproof →</a>
+      <a class="btn btn--ghost btn--lg" href="#showcase">See it in action</a>
+    </div>
+
+    <div class="hero__formats reveal" aria-label="Supported file formats">
+      <span class="format-pill">.tex</span>
+      <span class="format-pill">.zip</span>
+      <span class="format-pill">.docx</span>
+      <span class="format-pill">.txt</span>
+      <span class="format-pill">.md</span>
+      <span class="format-pill">.rtf</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3-panel animated showcase ─────────────────────────────────────────── -->
+<section id="showcase" style="padding:5rem 1.5rem">
+  <div class="showcase-wrap reveal">
+    <h2 class="section-title">Upload. Proofread. Download.</h2>
+    <p class="section-sub">
+      Watch the full workflow live — a manuscript goes from raw file to a tracked-changes
+      review in three steps.
+    </p>
+
+    <div class="workflow-panels">
+
+      <!-- Panel 1: Upload -->
+      <div class="wp" id="wp1">
+        <div class="wp-header">
+          <span class="wp-num" id="wp1num">1</span>
+          <span>Upload</span>
+        </div>
+        <div class="wp-body">
+          <div class="dz-demo" id="dzDemo">
+            <div class="dz-file-icon" id="dzIcon">📄</div>
+            <div class="dz-idle-text" id="dzIdleText">Drop your manuscript here</div>
+            <div class="dz-file-name" id="dzFileName"></div>
+            <div class="dz-meta" id="dzMeta"></div>
+          </div>
+          <button class="up-btn" id="upBtn">Search &nbsp;Review Package</button>
+          <div class="up-analyse" id="upAnalyse"></div>
+          <div class="up-metric-row" id="upMetrics">
+            <div class="up-metric"><div class="lbl">TeX Files</div><div class="val">3</div></div>
+            <div class="up-metric"><div class="lbl">Bib Files</div><div class="val">1</div></div>
+            <div class="up-metric"><div class="lbl">Figures</div><div class="val">8</div></div>
+            <div class="up-metric"><div class="lbl">Est. Requests</div><div class="val">14</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Proofreading -->
+      <div class="wp" id="wp2">
+        <div class="wp-header">
+          <span class="wp-num" id="wp2num">2</span>
+          <span>AI Proofreading</span>
+        </div>
+        <div class="wp-body">
+          <div class="pf-progress">
+            <div class="pf-stage" id="pfStage">Waiting…</div>
+            <div class="pf-bar"><div class="pf-fill" id="pfFill"></div></div>
+            <div class="pf-file" id="pfFile"></div>
+          </div>
+          <div class="pf-diff-box" id="pfDiffBox">
+            <!-- populated by JS -->
+          </div>
+          <div class="pf-req" id="pfReq"></div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Download -->
+      <div class="wp" id="wp3">
+        <div class="wp-header">
+          <span class="wp-num" id="wp3num">3</span>
+          <span>Download</span>
+        </div>
+        <div class="wp-body">
+          <div class="dl-check" id="dlCheck">✓</div>
+          <div class="dl-stats" id="dlStats">
+            <div class="dl-stat-row"><span>Files processed</span><b>3 / 3</b></div>
+            <div class="dl-stat-row"><span>Requests used</span><b>18</b></div>
+            <div class="dl-stat-row"><span>Duration</span><b>47 s</b></div>
+            <div class="dl-stat-row"><span>AI engine</span><b>context-aware</b></div>
+          </div>
+          <div class="dl-buttons" id="dlButtons">
+            <div class="dl-btn-demo primary">
+              <span class="dl-icon">⬇</span> Download Proofread ZIP
+            </div>
+            <div class="dl-btn-demo">
+              <span class="dl-icon">🔄</span> Start a New Run
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /workflow-panels -->
+  </div>
+</section>
+
+<!-- ── Diff cards (examples, shown individually below) ───────────────────── -->
+<section id="examples" style="background:var(--bg-alt);border-radius:28px;margin:0 1.5rem;max-width:none">
+  <div style="max-width:1100px;margin:0 auto;padding:5rem 2rem">
+    <div class="reveal" style="text-align:center;margin-bottom:3rem">
+      <h2 class="section-title">When one character changes everything</h2>
+      <p class="section-sub" style="margin-bottom:0">
+        Scroll to watch SciCoproof catch the kind of errors that survive every ordinary spell-check.
+        Each card is recreated exactly as it appears in a real tracked-changes review —
+        <span class="del-sample">red</span> for what was wrong,
+        <span class="ins-sample">green</span> for the fix.
+        Tap <span class="replay-sample" aria-hidden="true">⟲</span> to replay.
+      </p>
+    </div>
+
+    <div class="diff-cards">
+
+      <article class="diff-card reveal">
+        <div class="diff-card__top">
+          <span class="diff-card__tag">Materials Science · Units</span>
+          <button class="diff-card__replay" aria-label="Replay" title="Replay">⟲</button>
+        </div>
+        <p class="diff-card__text">
+          …the protein structure was minimized while restraining it with a force constant
+          of 100&nbsp;kcal&nbsp;mol<sup>−1</sup>
+          <span class="diff-token">
+            <span class="del-wrap"><span class="del-text">A</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">Å</span>
+          </span><sup>−2</sup>. Subsequent system minimization followed…
+        </p>
+        <p class="diff-card__verdict verdict">
+          <span class="verdict-icon">✓</span>
+          <strong>A → Å</strong> — a bare letter restored to the Ångström unit symbol.
+        </p>
+      </article>
+
+      <article class="diff-card reveal">
+        <div class="diff-card__top">
+          <span class="diff-card__tag">Author Names</span>
+          <button class="diff-card__replay" aria-label="Replay" title="Replay">⟲</button>
+        </div>
+        <p class="diff-card__text">
+          …the classical attention scheme, introduced by
+          <span class="diff-token">
+            <span class="del-wrap"><span class="del-text">Velickovic</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">Veličković</span>
+          </span>, defines the attention coefficient
+          <i>A</i><sub>ij</sub> between nodes…
+        </p>
+        <p class="diff-card__verdict verdict">
+          <span class="verdict-icon">✓</span>
+          <strong>Velickovic → Veličković</strong> — correct diacritics restored to an author's name.
+        </p>
+      </article>
+
+      <article class="diff-card reveal">
+        <div class="diff-card__top">
+          <span class="diff-card__tag">Chemical Notation</span>
+          <button class="diff-card__replay" aria-label="Replay" title="Replay">⟲</button>
+        </div>
+        <p class="diff-card__text">
+          Samples were equilibrated under a
+          <span class="diff-token">
+            <span class="del-wrap"><span class="del-text">CO2</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">CO<sub>2</sub></span>
+          </span>
+          atmosphere at 1&nbsp;atm and 310&nbsp;K before data collection…
+        </p>
+        <p class="diff-card__verdict verdict">
+          <span class="verdict-icon">✓</span>
+          <strong>CO2 → CO₂</strong> — proper subscript formatting restored to a chemical formula.
+        </p>
+      </article>
+
+      <article class="diff-card reveal">
+        <div class="diff-card__top">
+          <span class="diff-card__tag">Subject–Verb Agreement</span>
+          <button class="diff-card__replay" aria-label="Replay" title="Replay">⟲</button>
+        </div>
+        <p class="diff-card__text">
+          The results
+          <span class="diff-token">
+            <span class="del-wrap"><span class="del-text">shows</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">show</span>
+          </span>
+          a significant improvement in the convergence rate of the proposed algorithm.
+        </p>
+        <p class="diff-card__verdict verdict">
+          <span class="verdict-icon">✓</span>
+          <strong>shows → show</strong> — subject–verb agreement corrected ("results" is plural).
+        </p>
+      </article>
+
+      <article class="diff-card reveal">
+        <div class="diff-card__top">
+          <span class="diff-card__tag">Typo</span>
+          <button class="diff-card__replay" aria-label="Replay" title="Replay">⟲</button>
+        </div>
+        <p class="diff-card__text">
+          This
+          <span class="diff-token">
+            <span class="del-wrap"><span class="del-text">phenomemon</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">phenomenon</span>
+          </span>
+          is consistent with previous work on stochastic optimisation across domains.
+        </p>
+        <p class="diff-card__verdict verdict">
+          <span class="verdict-icon">✓</span>
+          <strong>phenomemon → phenomenon</strong> — double-transposition typo corrected.
+        </p>
+      </article>
+
+      <article class="diff-card reveal">
+        <div class="diff-card__top">
+          <span class="diff-card__tag">Preposition / Phrasing</span>
+          <button class="diff-card__replay" aria-label="Replay" title="Replay">⟲</button>
+        </div>
+        <p class="diff-card__text">
+          We
+          <span class="diff-token">
+            <span class="del-wrap"><span class="del-text">observed</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">observe</span>
+          </span>
+          that the loss decreases monotonically
+          <span class="diff-token">
+            <span class="del-wrap"><span class="del-text">in each</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">with each</span>
+          </span>
+          iteration, confirming theoretical predictions.
+        </p>
+        <p class="diff-card__verdict verdict">
+          <span class="verdict-icon">✓</span>
+          <strong>observed → observe</strong> &amp; <strong>in each → with each</strong> — tense and preposition both corrected in one pass.
+        </p>
+      </article>
+
+    </div><!-- /diff-cards -->
+  </div>
+</section>
+
+<!-- ── How it works ───────────────────────────────────────────────────────── -->
+<section class="how" id="how-it-works">
+  <h2 class="section-title reveal">How it works</h2>
+  <div class="how__grid">
+    <article class="how__step reveal">
+      <span class="how__num">1</span>
+      <h3>Upload your manuscript</h3>
+      <p>Drop in a <code>.tex</code> project (or a zipped LaTeX source), a Word <code>.docx</code>, plain text / Markdown, or <code>.rtf</code>. SciCoproof detects the format automatically.</p>
+    </article>
+    <article class="how__step reveal">
+      <span class="how__num">2</span>
+      <h3>AI proofreads with context</h3>
+      <p>A context-aware AI reads the full document — checking grammar, units, equations, and terminology, with automatic fallback so a transient outage never stalls your run.</p>
+    </article>
+    <article class="how__step reveal">
+      <span class="how__num">3</span>
+      <h3>Review &amp; download</h3>
+      <p>Get a clean, publication-ready copy plus a tracked-changes version. Accept or reject every single suggestion in Word or your LaTeX diff.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ── Features ───────────────────────────────────────────────────────────── -->
+<section class="features" id="features">
+  <h2 class="section-title reveal">Built for the way scientists actually write</h2>
+  <div class="features__grid">
+    <article class="feature-card reveal">
+      <h3>Every format scientists use</h3>
+      <p><code>.tex</code> projects, <code>.docx</code>, plain text, Markdown, and <code>.rtf</code> — auto-detected, no setup required.</p>
+    </article>
+    <article class="feature-card reveal">
+      <h3>Domain-aware corrections</h3>
+      <p>Knows the difference between <em>A</em> and <em>Å</em> and flags notation errors in equations — far beyond a generic grammar pass.</p>
+    </article>
+    <article class="feature-card reveal">
+      <h3>Real tracked changes</h3>
+      <p>Word-native Track Changes, or an inline LaTeX diff — review every edit, then accept or reject exactly as you would from a human co-author.</p>
+    </article>
+    <article class="feature-card reveal">
+      <h3>Resilient AI pipeline</h3>
+      <p>Automatic model fallback and rate-limit-aware retries — a resilient AI pipeline that keeps running even when one engine is busy.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────────────────── -->
+<section class="cta">
+  <div class="cta__inner reveal">
+    <h2>Give your manuscript a second pair of eyes.</h2>
+    <p>Free to try — upload a draft and see what SciCoproof finds.</p>
+    <a class="btn btn--primary btn--lg" href="app.html">Open SciCoproof →</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <span class="footer__logo brand-mark brand-mark--mini" aria-label="SciCoproof">
+      <span class="brand-base">SciCo</span>
+      <span class="brand-scripts">
+        <span class="brand-sup">
+          <span class="diff-letter">
+            <span class="del-wrap"><span class="del-text">A</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">Å</span>
+          </span>ngstr<span class="diff-letter">
+            <span class="del-wrap"><span class="del-text">o</span><span class="strike-line"></span></span>
+            <span class="ins-wrap">ö</span>
+          </span>m
+        </span>
+        <span class="brand-sub">proofreading</span>
+      </span>
+    </span>
+    <span class="footer__copy">An AI proofreading assistant for scientific writing.</span>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const pref = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Brand wordmark: measure corrected letters then loop ────────────── */
+  document.querySelectorAll('.brand-mark:not(.brand-mark--mini) .ins-wrap').forEach(el => {
+    el.style.setProperty('--ins-w', el.scrollWidth + 'px');
+  });
+
+  function replay(el) {
+    el.classList.remove('diff-play');
+    void el.offsetWidth;
+    requestAnimationFrame(() => el.classList.add('diff-play'));
+  }
+
+  const brand = document.querySelector('.brand-mark:not(.brand-mark--mini)');
+
+  /* ── Scroll-reveal ──────────────────────────────────────────────────── */
+  const revealObs = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); } });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+  /* ── Diff-play on scroll (brand + diff cards) ───────────────────────── */
+  const diffObs = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('diff-play'); obs.unobserve(e.target); } });
+  }, { threshold: 0.35 });
+  document.querySelectorAll('.diff-card, .brand-mark:not(.brand-mark--mini)').forEach(el => diffObs.observe(el));
+
+  /* Replay buttons on individual diff cards */
+  document.querySelectorAll('.diff-card__replay').forEach(btn => {
+    btn.addEventListener('click', () => replay(btn.closest('.diff-card')));
+  });
+
+  /* Loop the hero brand mark */
+  if (brand && !pref) setInterval(() => replay(brand), 6500);
+
+  /* ── Nav scroll shadow ──────────────────────────────────────────────── */
+  const nav = document.querySelector('.nav');
+  const onScroll = () => nav.classList.toggle('nav--scrolled', window.scrollY > 10);
+  onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ── Mobile nav toggle ──────────────────────────────────────────────── */
+  const toggle = document.getElementById('nav-toggle');
+  const links  = document.getElementById('nav-links');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('nav--open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  links.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => { nav.classList.remove('nav--open'); toggle.setAttribute('aria-expanded','false'); });
+  });
+
+  /* ── 3-panel showcase state machine ─────────────────────────────────── */
+  if (pref) return;
+
+  // Diff examples shown inside the proofreading panel
+  // Alternating: regular typo (odd indices 0,2,4,6) · sci-typo (even indices 1,3,5)
+  const DIFFS = [
+    {
+      tag: 'Typo',
+      html: `This
+             <span class="diff-token">
+               <span class="del-wrap"><span class="del-text">phenomemon</span><span class="strike-line"></span></span>
+               <span class="ins-wrap">phenomenon</span>
+             </span>
+             is consistent with prior observations…`,
+    },
+    {
+      tag: 'Scientific · Units',
+      html: `…force constant of 100&nbsp;kcal&nbsp;mol<sup>−1</sup>
+             <span class="diff-token">
+               <span class="del-wrap"><span class="del-text">A</span><span class="strike-line"></span></span>
+               <span class="ins-wrap">Å</span>
+             </span><sup>−2</sup>…`,
+    },
+    {
+      tag: 'Grammar · Subject–Verb',
+      html: `The results
+             <span class="diff-token">
+               <span class="del-wrap"><span class="del-text">shows</span><span class="strike-line"></span></span>
+               <span class="ins-wrap">show</span>
+             </span>
+             a significant improvement in convergence…`,
+    },
+    {
+      tag: 'Scientific · Chemical Notation',
+      html: `…equilibrated under a
+             <span class="diff-token">
+               <span class="del-wrap"><span class="del-text">CO2</span><span class="strike-line"></span></span>
+               <span class="ins-wrap">CO<sub>2</sub></span>
+             </span>
+             atmosphere at 310&nbsp;K…`,
+    },
+    {
+      tag: 'Word Choice · Preposition',
+      html: `…the loss decreases monotonically
+             <span class="diff-token">
+               <span class="del-wrap"><span class="del-text">in each</span><span class="strike-line"></span></span>
+               <span class="ins-wrap">with each</span>
+             </span>
+             iteration…`,
+    },
+    {
+      tag: 'Scientific · Author Diacritics',
+      html: `…introduced by
+             <span class="diff-token">
+               <span class="del-wrap"><span class="del-text">Velickovic</span><span class="strike-line"></span></span>
+               <span class="ins-wrap">Veličković</span>
+             </span>, defines the coefficient…`,
+    },
+    {
+      tag: 'Punctuation · Comma Splice',
+      html: `…training converged
+             <span class="diff-token">
+               <span class="del-wrap"><span class="del-text">quickly,</span><span class="strike-line"></span></span>
+               <span class="ins-wrap">quickly;</span>
+             </span>
+             however, the final accuracy…`,
+    },
+  ];
+
+  const SKEL_HTML = `<div class="pf-skel-wrap">
+    <div class="pf-skel" style="width:78%"></div>
+    <div class="pf-skel" style="width:55%"></div>
+    <div class="pf-skel" style="width:68%"></div>
+  </div>`;
+
+  const FILES = [
+    'main.tex (1/3)', 'methods.tex (2/3)', 'conclusion.tex (3/3)',
+    'main.tex · grammar', 'methods.tex · grammar', 'conclusion.tex · grammar',
+  ];
+  const STAGES = ['extracting', 'proofreading', 'proofreading', 'proofreading', 'proofreading', 'proofreading'];
+
+  // Panel element refs
+  const wp1 = document.getElementById('wp1');
+  const wp2 = document.getElementById('wp2');
+  const wp3 = document.getElementById('wp3');
+  const wp1num = document.getElementById('wp1num');
+  const wp2num = document.getElementById('wp2num');
+  const wp3num = document.getElementById('wp3num');
+
+  const dzDemo     = document.getElementById('dzDemo');
+  const dzIcon     = document.getElementById('dzIcon');
+  const dzIdleText = document.getElementById('dzIdleText');
+  const dzFileName = document.getElementById('dzFileName');
+  const dzMeta     = document.getElementById('dzMeta');
+  const upBtn      = document.getElementById('upBtn');
+  const upAnalyse  = document.getElementById('upAnalyse');
+  const upMetrics  = document.getElementById('upMetrics');
+
+  const pfStage   = document.getElementById('pfStage');
+  const pfFill    = document.getElementById('pfFill');
+  const pfFile    = document.getElementById('pfFile');
+  const pfDiffBox = document.getElementById('pfDiffBox');
+  const pfReq     = document.getElementById('pfReq');
+
+  const dlCheck   = document.getElementById('dlCheck');
+  const dlStats   = document.getElementById('dlStats');
+  const dlButtons = document.getElementById('dlButtons');
+
+  function setPanel(panelEl, numEl, state) {
+    panelEl.classList.remove('wf-active','wf-done');
+    numEl.classList.remove('done');
+    if (state === 'active') panelEl.classList.add('wf-active');
+    if (state === 'done')   { panelEl.classList.add('wf-done'); numEl.classList.add('done'); }
+  }
+
+  function setPfFill(pct, dur) {
+    pfFill.style.transition = `width ${dur || 0.6}s ease-out`;
+    pfFill.style.width = pct + '%';
+  }
+
+  // Inject a diff example into the proof panel and trigger its animation.
+  // Skeleton stays in the background so the example can fade in over it.
+  function showDiffExample(idx) {
+    const d = DIFFS[idx % DIFFS.length];
+    // Keep skeleton as background; overlay diff example on top (position:absolute)
+    pfDiffBox.innerHTML =
+      SKEL_HTML +
+      `<div class="pf-diff-example">` +
+        `<div><span class="pf-diff-tag">${d.tag}</span>${d.html}</div>` +
+      `</div>`;
+    const box = pfDiffBox.querySelector('.pf-diff-example');
+    // Measure ins-wrap natural width BEFORE CSS clamps it to 0
+    // (scrollWidth returns content width regardless of overflow:hidden)
+    box.querySelectorAll('.ins-wrap').forEach(el => {
+      el.style.setProperty('--ins-w', el.scrollWidth + 'px');
+    });
+    // Force reflow, then fade in the example and start animations
+    void box.offsetWidth;
+    box.classList.add('pf-active');
+    box.classList.add('diff-play');
+  }
+
+  // Full reset to idle state
+  function resetShowcase() {
+    setPanel(wp1, wp1num, '');
+    setPanel(wp2, wp2num, '');
+    setPanel(wp3, wp3num, '');
+
+    // Upload panel reset
+    dzDemo.classList.remove('wf-active-dz','wf-ready');
+    dzIcon.classList.remove('landed');
+    dzIcon.textContent = '📄';
+    dzIdleText.style.display = '';
+    dzFileName.className = 'dz-file-name';
+    dzFileName.textContent = '';
+    dzMeta.className = 'dz-meta';
+    dzMeta.textContent = '';
+    upBtn.className = 'up-btn';
+    upAnalyse.className = 'up-analyse';
+    upAnalyse.textContent = '';
+    upMetrics.className = 'up-metric-row';
+
+    // Proof panel reset
+    pfStage.textContent = 'Waiting…';
+    pfFile.textContent = '';
+    pfReq.textContent = '';
+    setPfFill(0, 0.1);
+    pfDiffBox.innerHTML = SKEL_HTML;
+
+    // Download panel reset
+    dlCheck.className = 'dl-check';
+    dlStats.className = 'dl-stats';
+    dlButtons.className = 'dl-buttons';
+  }
+
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function runDemo() {
+    resetShowcase();
+    await delay(300);
+
+    /* ── Phase 1: Upload (fast) ── */
+    setPanel(wp1, wp1num, 'active');
+    dzDemo.classList.add('wf-active-dz');
+    dzIdleText.textContent = 'Uploading…';
+    await delay(150);
+
+    dzIcon.classList.add('landed');
+    await delay(220);
+
+    dzIdleText.style.display = 'none';
+    dzFileName.textContent = 'manuscript.zip';
+    dzFileName.classList.add('show');
+    dzMeta.textContent = 'LaTeX package · 1.2 MB';
+    dzMeta.classList.add('show');
+    await delay(250);
+
+    upBtn.classList.add('show');
+    await delay(250);
+
+    upAnalyse.textContent = 'Analysing package…';
+    upAnalyse.classList.add('show');
+    await delay(300);
+
+    upAnalyse.textContent = '✓ Ready';
+    dzDemo.classList.remove('wf-active-dz');
+    dzDemo.classList.add('wf-ready');
+    upMetrics.classList.add('show');
+    await delay(350);
+
+    /* ── Phase 2: Proofread ── */
+    setPanel(wp1, wp1num, 'done');
+    setPanel(wp2, wp2num, 'active');
+
+    for (let i = 0; i < DIFFS.length; i++) {
+      const pct = 25 + Math.round(60 * i / DIFFS.length);
+      pfStage.textContent = `Stage: ${STAGES[i]}`;
+      pfFile.textContent  = FILES[i];
+      pfReq.textContent   = `AI requests used: ${(i+1)*3} / ${DIFFS.length * 3}`;
+      setPfFill(pct, 0.8);
+      showDiffExample(i);
+      await delay(2200);
+    }
+
+    pfStage.textContent = 'Stage: trackchanges';
+    pfFile.textContent  = 'Building latexdiff output…';
+    setPfFill(90, 0.7);
+    pfDiffBox.innerHTML = SKEL_HTML;
+    await delay(900);
+
+    pfStage.textContent = 'Stage: packaging';
+    setPfFill(100, 0.5);
+    await delay(700);
+
+    pfStage.textContent = '✓ Completed';
+    pfFile.textContent  = '';
+
+    /* ── Phase 3: Download ── */
+    setPanel(wp2, wp2num, 'done');
+    setPanel(wp3, wp3num, 'active');
+
+    dlCheck.classList.add('show');
+    await delay(200);
+    dlStats.classList.add('show');
+    await delay(200);
+    dlButtons.classList.add('show');
+    await delay(600);
+
+    setPanel(wp3, wp3num, 'done');
+    await delay(700);
+
+    // Loop
+    runDemo();
+  }
+
+  // Kick off the demo only once the showcase panel is in view
+  const showcaseObs = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        obs.disconnect();
+        runDemo();
+      }
+    });
+  }, { threshold: 0.3 });
+  showcaseObs.observe(document.getElementById('showcase'));
+});
+</script>
+</body>
+</html>
