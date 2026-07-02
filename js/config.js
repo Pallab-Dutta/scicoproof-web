@@ -3,7 +3,7 @@
    service-role credentials protect private data. */
 window.SCICOPROOF_CONFIG = {
   // HuggingFace Space API base URL (no trailing slash)
-  API_BASE: "https://pallab-dutta-1997-scicoproof-api.hf.space",
+  API_BASE: "https://pallab-dutta-1997-scico-proof-api.hf.space",
 
   // Shared SciCo Supabase project used by SciCo-Search.
   SUPABASE_URL: "https://gjwhhdlocxxycczlsfgy.supabase.co",
