@@ -7,15 +7,15 @@
   const cfg = window.SCICOPROOF_CONFIG || {};
   const BASE = (cfg.API_BASE || "").replace(/\/$/, "");
 
-  function headers() {
-    const token = window.SciCoProofAuth ? window.SciCoProofAuth.getToken() : null;
+  async function headers() {
+    const token = window.SciCoProofAuth ? await window.SciCoProofAuth.getToken() : null;
     const h = {};
     if (token) h["Authorization"] = "Bearer " + token;
     return h;
   }
 
   async function req(method, path, body) {
-    const opts = { method, headers: headers() };
+    const opts = { method, headers: await headers() };
     if (body) {
       opts.headers["Content-Type"] = "application/json";
       opts.body = JSON.stringify(body);
@@ -34,7 +34,7 @@
   async function upload(path, file) {
     const form = new FormData();
     form.append("file", file);
-    const res = await fetch(BASE + path, { method: "POST", headers: headers(), body: form });
+    const res = await fetch(BASE + path, { method: "POST", headers: await headers(), body: form });
     if (res.status === 401) throw { code: 401, message: "Please sign in." };
     let data = null;
     try { data = await res.json(); } catch (_) {}
@@ -46,7 +46,7 @@
   }
 
   async function download(path) {
-    const res = await fetch(BASE + path, { headers: headers() });
+    const res = await fetch(BASE + path, { headers: await headers() });
     if (!res.ok) throw { code: res.status, message: res.statusText };
     return res.blob();
   }
@@ -76,7 +76,7 @@
     async streamJob(jobId, handlers) {
       handlers = handlers || {};
       const res = await fetch(BASE + `/jobs/${encodeURIComponent(jobId)}/stream`, {
-        headers: headers(),
+        headers: await headers(),
       });
       if (!res.ok || !res.body) {
         if (handlers.onError) handlers.onError({ code: res.status });

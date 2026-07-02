@@ -377,7 +377,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <a href="#examples">Examples</a>
       <a href="#how-it-works">How it works</a>
       <a href="#features">Features</a>
-      <a class="btn btn--primary btn--sm nav__cta" href="app.html">Try it free →</a>
+      <button class="btn btn--primary btn--sm nav__cta js-signin" type="button">Sign in with Google</button>
     </nav>
     <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -546,7 +546,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     </p>
 
     <div class="hero__actions reveal">
-      <a class="btn btn--primary btn--lg" href="app.html">Try SciCoproof →</a>
+      <button class="btn btn--primary btn--lg js-signin" type="button">Sign in with Google</button>
       <a class="btn btn--ghost btn--lg" href="#showcase">See it in action</a>
     </div>
 
@@ -860,6 +860,28 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   </div>
 </footer>
 
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
+<script>
+  (function(){
+    async function enterProofread(){
+      try {
+        var user = await window.SciCoProofAuth.getUser();
+        if (user) {
+          location.href = 'app.html';
+          return;
+        }
+        await window.SciCoProofAuth.signInWithGoogle();
+      } catch (err) {
+        console.error('Google sign-in failed:', err);
+      }
+    }
+    document.querySelectorAll('.js-signin').forEach(function(button){
+      button.addEventListener('click', enterProofread);
+    });
+  })();
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const pref = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

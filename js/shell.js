@@ -74,8 +74,8 @@
       if (exp) exp.addEventListener("click", toggle);
 
       // Logout
-      document.getElementById("sbLogout").addEventListener("click", () => {
-        window.SciCoProofAuth.signOut();
+      document.getElementById("sbLogout").addEventListener("click", async () => {
+        try { await window.SciCoProofAuth.signOut(); } catch (_) {}
         location.href = "index.html";
       });
 
@@ -129,15 +129,17 @@
       // Auth guard + profile fill
       window.SciCoProofAuth.onChange(user => {
         if (!user) { location.href = "index.html"; return; }
-        const name = user.name || (user.email || "").split("@")[0];
+        const md = user.user_metadata || {};
+        const name = md.full_name || md.name || user.name || (user.email || "").split("@")[0];
         document.getElementById("sbName").textContent = name;
         document.getElementById("sbEmail").textContent = user.email || "";
         const av = document.getElementById("sbAvatar");
-        if (user.picture) {
+        const picture = md.avatar_url || md.picture || user.picture;
+        if (picture) {
           const img = document.createElement("img");
           img.className = "sb-avatar";
           img.id = "sbAvatar";
-          img.src = esc(user.picture);
+          img.src = esc(picture);
           img.alt = "";
           av.replaceWith(img);
         } else {

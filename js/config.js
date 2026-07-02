@@ -1,13 +1,14 @@
 /* SciCoproof frontend configuration.
-   Edit these values before deploying to GitHub Pages. */
+   Safe to expose: the Supabase anon key is public by design; RLS and backend
+   service-role credentials protect private data. */
 window.SCICOPROOF_CONFIG = {
   // HuggingFace Space API base URL (no trailing slash)
   API_BASE: "https://pallab-dutta-1997-scicoproof-api.hf.space",
 
-  // Google OAuth 2.0 Web client ID (safe to expose in browser code)
-  GOOGLE_CLIENT_ID: "946140876988-99fpstatbi4mnaai1nbvh9baottlgn66.apps.googleusercontent.com",
+  // Shared SciCo Supabase project used by SciCo-Search.
+  SUPABASE_URL: "https://gjwhhdlocxxycczlsfgy.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdqd2hoZGxvY3h4eWNjemxzZmd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MTU2NjYsImV4cCI6MjA5ODE5MTY2Nn0.vyj5PZyFZxspFzMqN4vwUjkQQXMk2qXB3zt1BQxs7Rw",
 
-  // Must be an Authorized redirect URI in the Google Cloud Console and match
-  // exactly where Google will send the user back after consent.
-  REDIRECT_URL: "https://pallab-dutta.github.io/SciCoproofread/app.html",
+  // Where Google OAuth returns to (must be registered in Supabase Auth URL config).
+  REDIRECT_URL: "https://proofread.scicoagent.com/app.html",
 };
