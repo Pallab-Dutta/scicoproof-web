@@ -63,8 +63,8 @@
 
         <p class="upload-desc">
           Upload any of:<br>
-          · a <b>ZIP package</b> or a single <code>.tex</code> file — full LaTeX proofreading with <code>latexdiff</code> tracked versions<br>
-          · a <code>.docx</code>, <code>.txt</code>/<code>.md</code>, or <code>.rtf</code> document — prose proofreading with <b>native Word tracked changes</b>
+          · a <b>ZIP package</b> or a single <code>.tex</code> file - full LaTeX proofreading with <code>latexdiff</code> tracked versions<br>
+          · a <code>.docx</code>, <code>.txt</code>/<code>.md</code>, or <code>.rtf</code> document - prose proofreading with <b>native Word tracked changes</b>
           <br><br>
           SciCoproof produces a clean corrected file plus a tracked-changes version you can review.
         </p>
@@ -315,7 +315,7 @@ fileInput.addEventListener("change", () => {
 
 function selectFile(file) {
   _file = file;
-  $("dzFileName").textContent = file.name;
+  $("dzFileName").innerHTML = `<span class="mi" style="font-size:1.1rem;vertical-align:middle;margin-right:5px">check_circle</span>${esc(file.name)}`;
   btnReview.disabled = false;
   $("uploadError").style.display = "none";
 }
@@ -488,7 +488,7 @@ function streamJob(jobId) {
         if (data.html) {
           $("runPreview").style.display = "";
           $("runPreviewLabel").textContent = data.path
-            ? `Live preview — ${data.path} (part ${data.part}/${data.part_total})`
+            ? `Live preview - ${data.path} (part ${data.part}/${data.part_total})`
             : `Batch ${data.part}/${data.part_total}`;
           $("runPreviewHtml").innerHTML = data.html;
         }
@@ -541,7 +541,7 @@ function renderResults(data, isError) {
       `<div class="alert alert-err">Proofreading failed.<br><code>${esc((data && data.message) || "Unknown error")}</code></div>`;
   } else if (isPartial) {
     $("resultStatus").innerHTML =
-      `<div class="alert alert-warn">Proofreading stopped early — partial output saved.</div>`;
+      `<div class="alert alert-warn">Proofreading stopped early - partial output saved.</div>`;
   } else {
     $("resultStatus").innerHTML =
       `<div class="alert alert-ok"><span class="mi fill ok-ico">check_circle</span> Proofreading completed successfully.</div>`;
@@ -627,7 +627,7 @@ if (btnNewRun) btnNewRun.addEventListener("click", resetToUpload);
 
 function resetToUpload() {
   _file = null; _reviewData = null; _jobId = null; _jobData = null; _previews = [];
-  $("dzFileName").textContent = "";
+  $("dzFileName").innerHTML = "";
   $("fileInput").value = "";
   btnReview.disabled = true;
   $("uploadError").style.display = "none";
