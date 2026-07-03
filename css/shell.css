@@ -364,10 +364,13 @@ body.sb-collapsed .sb-expand { display: inline-flex }
   margin-top: 14px;
   padding: 6px 12px;
   background: var(--blue-soft);
+  border: 1px solid rgba(85, 118, 166, .35);
   border-radius: 8px;
   display: inline-block;
   word-break: break-all;
 }
+/* No file yet → don't render the empty chip. */
+.dropzone .dz-file:empty { display: none }
 /* Once a file is chosen, the prompt text recedes and the filename takes over. */
 .dropzone.has-file .dz-label,
 .dropzone.has-file .dz-sub { opacity: .4 }
