@@ -315,7 +315,8 @@ fileInput.addEventListener("change", () => {
 
 function selectFile(file) {
   _file = file;
-  $("dzFileName").innerHTML = `<span class="mi" style="font-size:1.1rem;vertical-align:middle;margin-right:5px">check_circle</span>${esc(file.name)}`;
+  $("dzFileName").innerHTML = `<span class="mi" style="font-size:1.2rem;vertical-align:middle;margin-right:5px">check_circle</span>${esc(file.name)}`;
+  dropzone.classList.add("has-file");
   btnReview.disabled = false;
   $("uploadError").style.display = "none";
 }
@@ -628,6 +629,7 @@ if (btnNewRun) btnNewRun.addEventListener("click", resetToUpload);
 function resetToUpload() {
   _file = null; _reviewData = null; _jobId = null; _jobData = null; _previews = [];
   $("dzFileName").innerHTML = "";
+  dropzone.classList.remove("has-file");
   $("fileInput").value = "";
   btnReview.disabled = true;
   $("uploadError").style.display = "none";
