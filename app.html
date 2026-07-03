@@ -604,21 +604,31 @@ function renderResults(data, isError) {
   }
 }
 
-// Download buttons
+// Download buttons. `filename` may be a string or a function evaluated at
+// click time (used for the clean file, whose extension depends on the source
+// format — .docx / .rtf / .txt).
 function attachDownload(btnId, kind, filename) {
   $(btnId) && $(btnId).addEventListener("click", async () => {
     if (!_jobId) return;
     try {
       const blob = await window.SciCoProofAPI.downloadResult(_jobId, kind);
-      saveBlob(blob, filename || "scicoproof_output.zip");
+      const name = (typeof filename === "function" ? filename() : filename);
+      saveBlob(blob, name || "scicoproof_output.zip");
     } catch (err) {
       alert("Download failed: " + (err.message || "unknown error"));
     }
   });
 }
 
+// The clean file keeps the source format's extension, so name it accordingly;
+// without an extension the OS treats the download as a damaged/unknown file.
+function cleanFileName() {
+  const ext = { docx: "docx", rtf: "rtf", txt: "txt" }[_reviewData && _reviewData.fmt] || "docx";
+  return "scicoproof_clean." + ext;
+}
+
 attachDownload("dlZip",      "result",  "scicoproof_output.zip");
-attachDownload("dlClean",    "clean",   "scicoproof_clean");
+attachDownload("dlClean",    "clean",   cleanFileName);
 attachDownload("dlTracked",  "tracked", "scicoproof_tracked.docx");
 attachDownload("dlBothZip",  "result",  "scicoproof_output.zip");
 
