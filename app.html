@@ -585,21 +585,9 @@ function renderResults(data, isError) {
     $("dlProse").style.display = "none";
   }
 
-  // Proof history previews
-  if (_previews.length) {
-    $("resultPreviews").innerHTML = `
-      <h3 style="margin:22px 0 10px;font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">
-        Completed file previews
-      </h3>` +
-      _previews.slice(0, 3).map(item => `
-        <div class="proof-item">
-          <div class="pi-header"><b>${esc(item.path || "")}</b> · ${item.requests} AI request(s)</div>
-          <div class="trackchange-preview">${item.html}</div>
-        </div>`
-      ).join("");
-  } else {
-    $("resultPreviews").innerHTML = "";
-  }
+  // Completed-file previews intentionally not shown on the results page;
+  // downloads sit directly below the summary table.
+  $("resultPreviews").innerHTML = "";
 }
 
 // Download buttons. `filename` may be a string or a function evaluated at
