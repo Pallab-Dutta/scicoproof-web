@@ -347,7 +347,26 @@ btnReview.addEventListener("click", async () => {
 function renderReview() {
   const r = _reviewData;
   $("reviewError").style.display = "none";
+  if (r.is_admin) { renderReviewAdmin(r); return; }
 
+  // Standardized user view — same clean info for any file type, no infra leakage.
+  $("reviewTitle").textContent = r.kind === "latex" ? "Review Package" : "Review Document";
+  $("reviewMetrics").innerHTML = [
+    metricCard("File", r.file),
+    metricCard("Type", r.doc_type),
+    metricCard("Length", r.word_count != null ? `${Number(r.word_count).toLocaleString()} words` : "—"),
+  ].join("");
+  $("reviewReadiness").style.display = "none";
+  $("reviewTexFiles").style.display = "none";
+  $("reviewChunkWarn").style.display = "none";
+  $("reviewProseInfo").style.display = "";
+  $("reviewProseInfo").innerHTML = "You'll get a clean corrected file plus a tracked-changes version you can accept or reject.";
+  $("reviewWarnings").innerHTML = "";
+  $("btnStartProof").disabled = !r.ready;
+}
+
+// Admin-only: full technical review (readiness, engine state, warnings).
+function renderReviewAdmin(r) {
   if (r.kind === "latex") {
     $("reviewTitle").textContent = "Review Package";
     const ta = r.tool_availability || {};
@@ -357,42 +376,37 @@ function renderReview() {
       metricCard("Bib Files", r.bib_file_count),
       metricCard("Figures", r.figure_file_count),
       metricCard("Style Files", r.style_file_count),
+      metricCard("Words", r.word_count),
       metricCard("Projected Requests", r.projected_request_count),
       metricCard("Large Files", (r.fallback_chunked_files || []).length),
       metricCard("Engine State", (r.model_state_path || "").split("/").pop()),
     ].join("");
-
     $("readinessRows").innerHTML = [
       readinessRow("Git", ta.git_available),
       readinessRow("latexdiff-vc", ta.latexdiff_vc_available),
       readinessRow("AI API Key", r.api_key_present),
     ].join("");
     $("reviewReadiness").style.display = "";
-
     if (r.tex_files && r.tex_files.length) {
       $("texFileList").innerHTML = r.tex_files.map(f => `<li>${esc(f)}</li>`).join("");
       $("reviewTexFiles").style.display = "";
     } else {
       $("reviewTexFiles").style.display = "none";
     }
-
     const chunks = r.fallback_chunked_files || [];
     $("reviewChunkWarn").innerHTML = chunks.map(f =>
       `<div class="alert alert-warn">Large file may need multiple requests: <code>${esc(f)}</code></div>`
     ).join("");
     $("reviewChunkWarn").style.display = chunks.length ? "" : "none";
     $("reviewProseInfo").style.display = "none";
-
-    $("btnStartProof").disabled = !r.ready;
-
   } else {
-    // prose
     $("reviewTitle").textContent = "Review Document";
     const fmtLabel = { docx: "Word (.docx)", rtf: "Rich text (.rtf)", txt: "Plain text" }[r.fmt] || r.fmt;
     $("reviewMetrics").innerHTML = [
-      metricCard("File", r.file_name),
+      metricCard("File", r.file),
       metricCard("Format", fmtLabel),
       metricCard("Paragraphs", r.paragraph_count),
+      metricCard("Words", r.word_count),
       metricCard("Projected Requests", r.projected_request_count),
       metricCard("Characters", r.char_count),
       metricCard("AI API Key", r.api_key_present ? "Present" : "Missing"),
@@ -401,10 +415,12 @@ function renderReview() {
     $("reviewTexFiles").style.display = "none";
     $("reviewChunkWarn").style.display = "none";
     $("reviewProseInfo").style.display = "";
-    $("btnStartProof").disabled = !r.ready;
+    $("reviewProseInfo").innerHTML = "Output: a clean corrected file plus a <code>.docx</code> with <b>native Word tracked changes</b> (Accept/Reject in Word).";
   }
-
-  $("reviewWarnings").innerHTML = "";   // warnings intentionally hidden from users
+  $("reviewWarnings").innerHTML = (r.warnings || []).map(w =>
+    `<div class="alert alert-warn">${esc(w)}</div>`
+  ).join("");
+  $("btnStartProof").disabled = !r.ready;
 }
 
 $("btnBackToUpload").addEventListener("click", () => { _reviewData = null; showStage("upload"); });
@@ -548,23 +564,28 @@ function renderResults(data, isError) {
       `<div class="alert alert-ok"><span class="mi fill ok-ico">check_circle</span> Proofreading completed successfully.</div>`;
   }
 
-  // Summary rows
+  // Summary rows — standardized for users: File(s) processed · Requests used · Duration.
   const rows = [];
   if (data) {
     if (data.files_processed != null)
-      rows.push(["Files processed", `${data.files_processed} / ${data.total_files}`]);
-    if (data.paragraphs != null)
-      rows.push(["Paragraphs proofread", data.paragraphs]);
+      rows.push(["Files processed", data.total_files > 1 ? `${data.files_processed} / ${data.total_files}` : String(data.files_processed)]);
     if (data.requests != null)
-      rows.push(["Requests used", `${data.requests} (projected ${data.projected || "?"})`]);
+      rows.push(["Requests used", data.requests]);
     if (data.duration != null)
       rows.push(["Duration", data.duration.toFixed(1) + " s"]);
-    if (data.model_usage) {
-      const total = Object.values(data.model_usage).reduce((a, b) => a + b, 0);
-      rows.push(["AI requests", total]);
+    // Admin-only extras
+    if (data.is_admin) {
+      if (data.paragraphs != null)
+        rows.push(["Paragraphs proofread", data.paragraphs]);
+      if (data.projected != null)
+        rows.push(["Projected requests", data.projected]);
+      if (data.model_usage) {
+        const total = Object.values(data.model_usage).reduce((a, b) => a + b, 0);
+        rows.push(["AI requests", total]);
+      }
+      if (isPartial && data.error)
+        rows.push(["Error", data.error]);
     }
-    if (isPartial && data.error)
-      rows.push(["Error", data.error]);
   }
   if (rows.length) {
     $("resultSummary").style.display = "";
@@ -575,7 +596,9 @@ function renderResults(data, isError) {
     $("resultSummary").style.display = "none";
   }
 
-  $("resultWarnings").innerHTML = "";   // warnings intentionally hidden from users
+  $("resultWarnings").innerHTML = (data && data.is_admin)
+    ? ((data.warnings || []).map(w => `<div class="alert alert-warn">${esc(w)}</div>`).join(""))
+    : "";   // warnings shown to admin only
 
   if (isProse) {
     $("dlLatex").style.display = "none";
