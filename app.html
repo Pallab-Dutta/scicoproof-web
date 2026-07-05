@@ -241,6 +241,8 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 const $ = id => document.getElementById(id);
 const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// Display-only: hide internal masking placeholders (@@MATH_1_0@@, @@CITE_x_y@@, @@EQN_n@@, …) from previews.
+const stripMasks = html => typeof html === "string" ? html.replace(/@@[A-Z]+(?:_\d+)*@@/g, "…") : html;
 
 let _stage = "upload";   // upload | review | running | results | privacy
 let _file  = null;       // the File object chosen by the user
@@ -402,9 +404,7 @@ function renderReview() {
     $("btnStartProof").disabled = !r.ready;
   }
 
-  $("reviewWarnings").innerHTML = (r.warnings || []).map(w =>
-    `<div class="alert alert-warn">${esc(w)}</div>`
-  ).join("");
+  $("reviewWarnings").innerHTML = "";   // warnings intentionally hidden from users
 }
 
 $("btnBackToUpload").addEventListener("click", () => { _reviewData = null; showStage("upload"); });
@@ -491,12 +491,12 @@ function streamJob(jobId) {
           $("runPreviewLabel").textContent = data.path
             ? `Live preview - ${data.path} (part ${data.part}/${data.part_total})`
             : `Batch ${data.part}/${data.part_total}`;
-          $("runPreviewHtml").innerHTML = data.html;
+          $("runPreviewHtml").innerHTML = stripMasks(data.html);
         }
 
       } else if (type === "proof") {
         if (data.html) {
-          _previews.unshift({ path: data.path, html: data.html, model: data.model, requests: data.requests });
+          _previews.unshift({ path: data.path, html: stripMasks(data.html), model: data.model, requests: data.requests });
           _previews = _previews.slice(0, 5);
           renderProofHistory();
         }
@@ -575,9 +575,7 @@ function renderResults(data, isError) {
     $("resultSummary").style.display = "none";
   }
 
-  $("resultWarnings").innerHTML = ((data && data.warnings) || []).map(w =>
-    `<div class="alert alert-warn">${esc(w)}</div>`
-  ).join("");
+  $("resultWarnings").innerHTML = "";   // warnings intentionally hidden from users
 
   if (isProse) {
     $("dlLatex").style.display = "none";
