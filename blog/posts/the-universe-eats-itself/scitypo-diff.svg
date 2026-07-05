@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 276" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" role="img" aria-label="Examples of scientific typos SciCoproof catches, shown as tracked changes.">
+  <defs>
+    <marker id="gar" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#9aa3b2"/></marker>
+  </defs>
+  <rect x="0" y="0" width="820" height="276" fill="#ffffff"/>
+  <text x="40" y="38" font-size="15" font-weight="700" fill="#262730">A few SciTypos &#8212; struck-through in <tspan fill="#b4232a">red</tspan>, corrected in <tspan fill="#1a7f4b">green</tspan></text>
+
+  <!-- rows: baselines at 90,138,186,234 -->
+  <g font-size="19">
+    <!-- 1 -->
+    <line x1="40" y1="60" x2="780" y2="60" stroke="#eef1f5"/>
+    <text x="52" y="90" fill="#b4232a" text-decoration="line-through">A</text>
+    <line x1="120" y1="84" x2="150" y2="84" stroke="#9aa3b2" stroke-width="1.5" marker-end="url(#gar)"/>
+    <text x="164" y="90" fill="#1a7f4b" font-weight="700">&#197;</text>
+    <text x="780" y="90" font-size="12.5" fill="#6B7280" text-anchor="end">a bare letter &#8594; the &#197;ngstr&#246;m unit</text>
+
+    <!-- 2 -->
+    <line x1="40" y1="108" x2="780" y2="108" stroke="#eef1f5"/>
+    <text x="52" y="138" fill="#b4232a" text-decoration="line-through">Velickovic</text>
+    <line x1="185" y1="132" x2="215" y2="132" stroke="#9aa3b2" stroke-width="1.5" marker-end="url(#gar)"/>
+    <text x="229" y="138" fill="#1a7f4b" font-weight="700">Veli&#269;kovi&#263;</text>
+    <text x="780" y="138" font-size="12.5" fill="#6B7280" text-anchor="end">an author&#8217;s name, diacritics restored</text>
+
+    <!-- 3 -->
+    <line x1="40" y1="156" x2="780" y2="156" stroke="#eef1f5"/>
+    <text x="52" y="186" fill="#b4232a" text-decoration="line-through">CO2</text>
+    <line x1="120" y1="180" x2="150" y2="180" stroke="#9aa3b2" stroke-width="1.5" marker-end="url(#gar)"/>
+    <text x="164" y="186" fill="#1a7f4b" font-weight="700">CO&#8322;</text>
+    <text x="780" y="186" font-size="12.5" fill="#6B7280" text-anchor="end">a chemical formula, proper subscript</text>
+
+    <!-- 4 -->
+    <line x1="40" y1="204" x2="780" y2="204" stroke="#eef1f5"/>
+    <text x="52" y="234" fill="#b4232a" text-decoration="line-through" font-family="Cambria Math,Georgia,serif" font-style="italic">x &#949; &#8477;</text>
+    <line x1="120" y1="228" x2="150" y2="228" stroke="#9aa3b2" stroke-width="1.5" marker-end="url(#gar)"/>
+    <text x="164" y="234" fill="#1a7f4b" font-weight="700" font-family="Cambria Math,Georgia,serif" font-style="italic">x &#8712; &#8477;</text>
+    <text x="780" y="234" font-size="12.5" fill="#6B7280" text-anchor="end">Greek &#949; posing as &#8220;element of&#8221; &#8712;</text>
+    <line x1="40" y1="252" x2="780" y2="252" stroke="#eef1f5"/>
+  </g>
+</svg>
