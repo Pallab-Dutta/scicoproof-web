@@ -40,6 +40,49 @@
   .result-summary .rs-row .rs-label { color: var(--muted) }
   .result-summary .rs-row .rs-val { font-weight: 600; color: var(--ink) }
 
+  /* ── Analysing overlay (Benjamin loading) ─────────────────────────────── */
+  #analysingOverlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0 36px;
+  }
+  .ben-wrap {
+    width: 148px;
+    animation: benjamin-bob 1.9s ease-in-out infinite;
+  }
+  .ben-wrap svg { width: 100%; height: auto; display: block }
+  /* Animate every stroke element: fade between muted and brand blue */
+  .ben-wrap svg line,
+  .ben-wrap svg path {
+    animation: benjamin-color 1.9s ease-in-out infinite;
+  }
+  /* Stagger the two lenses so they light up in sequence */
+  .ben-wrap svg circle:nth-of-type(1) {
+    animation: benjamin-color 1.9s ease-in-out infinite;
+    animation-delay: 0s;
+  }
+  .ben-wrap svg circle:nth-of-type(2) {
+    animation: benjamin-color 1.9s ease-in-out infinite;
+    animation-delay: 0.38s;
+  }
+  .ben-label {
+    margin-top: 20px;
+    font-size: .95rem;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+  @keyframes benjamin-bob {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-9px); }
+  }
+  @keyframes benjamin-color {
+    0%, 100% { stroke: #b8c4d4; }
+    50%       { stroke: var(--blue); }
+  }
+
   /* Privacy page */
   .privacy-wrap { max-width: 780px; margin: 48px auto; padding: 40px 28px;
                   border: 1px solid var(--line); border-radius: 16px; background: #fafaf8 }
@@ -77,7 +120,21 @@
         </div>
         <input type="file" id="fileInput" accept=".zip,.tex,.docx,.txt,.md,.rtf">
 
-        <div class="btn-row">
+        <!-- Shown while /analyze is in flight; hidden otherwise -->
+        <div id="analysingOverlay" style="display:none">
+          <div class="ben-wrap">
+            <svg version="1.1" viewBox="0 0 432 432" xmlns="http://www.w3.org/2000/svg">
+              <line fill="none" stroke="#b8c4d4" stroke-width="12" stroke-linecap="round" stroke-miterlimit="10" x1="33" y1="211.6" x2="24.6" y2="211.6"/>
+              <line fill="none" stroke="#b8c4d4" stroke-width="12" stroke-linecap="round" stroke-miterlimit="10" x1="407.6" y1="211.6" x2="399.1" y2="211.6"/>
+              <path fill="none" stroke="#b8c4d4" stroke-width="10" stroke-miterlimit="10" d="M174.6,177.3c26.3-18.3,56.7-18.3,83.1,0l0,0"/>
+              <circle fill="none" stroke="#b8c4d4" stroke-width="6" stroke-miterlimit="10" cx="111" cy="211.6" r="75"/>
+              <circle fill="none" stroke="#b8c4d4" stroke-width="6" stroke-miterlimit="10" cx="321.2" cy="211.6" r="75"/>
+            </svg>
+          </div>
+          <div class="ben-label">Analysing your document…</div>
+        </div>
+
+        <div class="btn-row" id="uploadBtnRow">
           <button class="btn btn-primary" id="btnReview" disabled>
             <span class="mi">search</span> Review Package
           </button>
@@ -326,8 +383,11 @@ function selectFile(file) {
 btnReview.addEventListener("click", async () => {
   if (!_file) return;
   btnReview.disabled = true;
-  btnReview.innerHTML = '<span class="mi">hourglass_empty</span> Analysing…';
   $("uploadError").style.display = "none";
+  // Show Benjamin loading animation; hide dropzone + button row
+  $("dropzone").style.display = "none";
+  $("uploadBtnRow").style.display = "none";
+  $("analysingOverlay").style.display = "";
   try {
     _reviewData = await window.SciCoProofAPI.analyze(_file);
     renderReview();
@@ -336,6 +396,10 @@ btnReview.addEventListener("click", async () => {
     $("uploadError").textContent = "Could not analyse file: " + (err.message || "unknown error");
     $("uploadError").style.display = "";
   } finally {
+    // Restore upload UI whether we succeeded (next stage visible) or failed
+    $("analysingOverlay").style.display = "none";
+    $("dropzone").style.display = "";
+    $("uploadBtnRow").style.display = "";
     btnReview.disabled = false;
     btnReview.innerHTML = '<span class="mi">search</span> Review Package';
   }
