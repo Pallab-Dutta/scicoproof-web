@@ -14,6 +14,19 @@
     return h;
   }
 
+  function _parseOrThrow(res, data, jsonErr) {
+    if (res.status === 401) throw { code: 401, message: "Please sign in." };
+    if (!res.ok) {
+      const detail = (data && data.detail) ? data.detail : { error: "request_failed" };
+      throw { code: res.status, detail, message: (typeof detail === "string" ? detail : (detail.error || res.statusText)) };
+    }
+    // Server returned 2xx but body wasn't valid JSON — likely a cold-start HTML page.
+    if (data === null && jsonErr) {
+      throw { code: 0, message: "The service may be starting up — please wait a moment and try again." };
+    }
+    return data;
+  }
+
   async function req(method, path, body) {
     const opts = { method, headers: await headers() };
     if (body) {
@@ -21,28 +34,18 @@
       opts.body = JSON.stringify(body);
     }
     const res = await fetch(BASE + path, opts);
-    if (res.status === 401) throw { code: 401, message: "Please sign in." };
-    let data = null;
-    try { data = await res.json(); } catch (_) {}
-    if (!res.ok) {
-      const detail = (data && data.detail) ? data.detail : { error: "request_failed" };
-      throw { code: res.status, detail, message: (typeof detail === "string" ? detail : (detail.error || res.statusText)) };
-    }
-    return data;
+    let data = null, jsonErr = null;
+    try { data = await res.json(); } catch (e) { jsonErr = e; }
+    return _parseOrThrow(res, data, jsonErr);
   }
 
   async function upload(path, file) {
     const form = new FormData();
     form.append("file", file);
     const res = await fetch(BASE + path, { method: "POST", headers: await headers(), body: form });
-    if (res.status === 401) throw { code: 401, message: "Please sign in." };
-    let data = null;
-    try { data = await res.json(); } catch (_) {}
-    if (!res.ok) {
-      const detail = (data && data.detail) ? data.detail : { error: "request_failed" };
-      throw { code: res.status, detail, message: (typeof detail === "string" ? detail : (detail.error || res.statusText)) };
-    }
-    return data;
+    let data = null, jsonErr = null;
+    try { data = await res.json(); } catch (e) { jsonErr = e; }
+    return _parseOrThrow(res, data, jsonErr);
   }
 
   async function download(path) {
