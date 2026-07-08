@@ -40,6 +40,64 @@
   .result-summary .rs-row .rs-label { color: var(--muted) }
   .result-summary .rs-row .rs-val { font-weight: 600; color: var(--ink) }
 
+  /* ── Benjamin proofreading animation (running stage) ──────────────────── */
+  #benRunOverlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 0 24px;
+  }
+  .ben-run-wrap {
+    width: 180px;
+    animation: ben-run-bob 2s ease-in-out infinite;
+  }
+  .ben-run-wrap svg { width: 100%; height: auto; display: block }
+
+  /* Left (error) lens: pulsing rose */
+  .ben-run-wrap .ben-lens-l {
+    animation: ben-lens-wrong 2s ease-in-out infinite;
+  }
+  /* Right (corrected) lens: pulsing green, half-cycle offset */
+  .ben-run-wrap .ben-lens-r {
+    animation: ben-lens-right 2s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+  /* Strikethrough line: draws in then fades, driving the "correction" rhythm */
+  .ben-run-wrap .ben-strike {
+    stroke-dasharray: 60 60;
+    stroke-dashoffset: 60;
+    animation: ben-strike 2s ease-in-out infinite;
+  }
+
+  .ben-run-label {
+    margin-top: 20px;
+    font-size: .96rem;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: .01em;
+    text-align: center;
+  }
+
+  @keyframes ben-run-bob {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-9px); }
+  }
+  @keyframes ben-lens-wrong {
+    0%, 100% { fill: #F9C7C7; }
+    45%       { fill: #f0a0a0; }
+  }
+  @keyframes ben-lens-right {
+    0%, 100% { fill: #CDE7C9; }
+    45%       { fill: #9dd19a; }
+  }
+  @keyframes ben-strike {
+    0%   { stroke-dashoffset: 60; opacity: 0; }
+    25%  { stroke-dashoffset: 0;  opacity: 1; }
+    65%  { stroke-dashoffset: 0;  opacity: 1; }
+    90%  { stroke-dashoffset: 0;  opacity: 0; }
+    100% { stroke-dashoffset: 60; opacity: 0; }
+  }
+
   /* ── Analysing overlay (Benjamin loading) ─────────────────────────────── */
   #analysingOverlay {
     display: flex;
@@ -208,6 +266,23 @@
             <div class="stage-title" id="stageTitle">Starting…</div>
             <div class="stage-sub" id="stageSub"></div>
           </div>
+        </div>
+
+        <!-- Benjamin proofreading animation — shown until first live preview -->
+        <div id="benRunOverlay" style="display:none">
+          <div class="ben-run-wrap">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432" xml:space="preserve">
+              <line fill="none" stroke="#7D7D7D" stroke-width="12" stroke-linecap="round" stroke-miterlimit="10" x1="33" y1="211.6" x2="24.6" y2="211.6"/>
+              <line fill="none" stroke="#7D7D7D" stroke-width="12" stroke-linecap="round" stroke-miterlimit="10" x1="407.6" y1="211.6" x2="399.1" y2="211.6"/>
+              <path fill="none" stroke="#7D7D7D" stroke-width="10" stroke-miterlimit="10" d="M174.6,177.3L174.6,177.3c26.3-18.3,56.7-18.3,83.1,0l0,0"/>
+              <circle class="ben-lens-l" fill="#F9C7C7" stroke="#7D7D7D" stroke-width="6" stroke-miterlimit="10" cx="111" cy="211.6" r="75"/>
+              <circle class="ben-lens-r" fill="#CDE7C9" stroke="#7D7D7D" stroke-width="6" stroke-miterlimit="10" cx="321.2" cy="211.6" r="75"/>
+              <text transform="matrix(1 0 0 1 87.1036 234.6891)" fill="#B33A3B" font-family="'MyriadPro-Regular'" font-size="80">A</text>
+              <text transform="matrix(1 0 0 1 298.1035 240.6891)" fill="#317B3C" font-family="'MyriadPro-Regular'" font-size="80">Å</text>
+              <line class="ben-strike" fill="#C9E2B0" stroke="#B33A3B" stroke-width="10" stroke-miterlimit="10" x1="82.1" y1="211.6" x2="140.1" y2="211.6"/>
+            </svg>
+          </div>
+          <div class="ben-run-label">Proofreading your document…</div>
         </div>
 
         <div id="runStats"></div>
@@ -521,6 +596,7 @@ function initRunningStage() {
   $("runPreviewHtml").innerHTML = "";
   $("proofHistory").style.display = "none";
   $("proofHistoryList").innerHTML = "";
+  $("benRunOverlay").style.display = "";
 }
 
 const STAGE_PROGRESS = {
@@ -567,6 +643,7 @@ function streamJob(jobId) {
           `<p class="run-stat">Requests used: <b>${_requestsUsed}</b> / projected <b>${_requestsProjected}</b></p>` +
           (data.part_total > 1 ? `<p class="run-stat">File part: <b>${data.part}/${data.part_total}</b></p>` : "");
         if (data.html) {
+          $("benRunOverlay").style.display = "none";
           $("runPreview").style.display = "";
           $("runPreviewLabel").textContent = data.path
             ? `Live preview - ${data.path} (part ${data.part}/${data.part_total})`
@@ -582,17 +659,20 @@ function streamJob(jobId) {
         }
 
       } else if (type === "done") {
+        $("benRunOverlay").style.display = "none";
         _jobData = data;
         setProgress("runOverallFill", 1);
         renderResults(data, false);
         showStage("results");
 
       } else if (type === "error") {
+        $("benRunOverlay").style.display = "none";
         renderResults(data, true);
         showStage("results");
       }
     },
     onError(err) {
+      $("benRunOverlay").style.display = "none";
       renderResults({ message: "Stream error (code " + (err.code||"?") + ")" }, true);
       showStage("results");
     },
