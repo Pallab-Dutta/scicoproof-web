@@ -41,8 +41,10 @@
   .result-summary .rs-row .rs-val { font-weight: 600; color: var(--ink) }
 
   /* ── Benjamin proofreading animation (running stage) ──────────────────── */
-  /* 5-step sequential story: (a) empty glasses → (b) black A → (c) red lens
-     + red strikethrough → (d) green lens + Å → (e) all fade out. 5 s cycle. */
+  /* 6-step sequential story on a 6 s loop:
+     (a) empty glasses → (b) black A in left lens → (c) left lens pink, A red,
+     strikethrough draws in → (d) left clears, black Å cross-fades into right
+     lens → (e) right lens fills green, Å turns green → (f) all fade out.    */
   #benRunOverlay {
     display: flex;
     flex-direction: column;
@@ -55,33 +57,34 @@
   }
   .ben-run-wrap svg { width: 100%; height: auto; display: block }
 
-  /* (a→b) Black "A" fades in, then (c) turns red, (e) fades out */
+  /* (b) black A fades in → (c) turns red → (d) fades out as Å cross-fades in */
   .ben-run-wrap .ben-a-text {
     fill: #222;
     opacity: 0;
-    animation: ben-a-seq 5s ease-in-out infinite;
+    animation: ben-a-seq 6s ease-in-out infinite;
   }
-  /* (c) Left lens fades in pink */
+  /* (c) left lens fills pink → (d) clears */
   .ben-run-wrap .ben-lens-l {
     fill: rgba(249,199,199,0);
-    animation: ben-lens-l-seq 5s ease-in-out infinite;
+    animation: ben-lens-l-seq 6s ease-in-out infinite;
   }
-  /* (c) Strikethrough draws in left-to-right */
+  /* (c) strikethrough draws in → (d) fades out */
   .ben-run-wrap .ben-strike {
     stroke-dasharray: 60 60;
     stroke-dashoffset: 60;
     opacity: 0;
-    animation: ben-strike-seq 5s ease-in-out infinite;
+    animation: ben-strike-seq 6s ease-in-out infinite;
   }
-  /* (d) Right lens fades in green */
+  /* (d) black Å fades in → (e) turns green → (f) fades out */
+  .ben-run-wrap .ben-ang-text {
+    fill: #222;
+    opacity: 0;
+    animation: ben-ang-seq 6s ease-in-out infinite;
+  }
+  /* (e) right lens fills green → (f) clears */
   .ben-run-wrap .ben-lens-r {
     fill: rgba(205,231,201,0);
-    animation: ben-lens-r-seq 5s ease-in-out infinite;
-  }
-  /* (d) "Å" fades in */
-  .ben-run-wrap .ben-ang-text {
-    opacity: 0;
-    animation: ben-ang-seq 5s ease-in-out infinite;
+    animation: ben-lens-r-seq 6s ease-in-out infinite;
   }
 
   .ben-run-label {
@@ -97,46 +100,50 @@
     0%, 100% { transform: translateY(0); }
     50%       { transform: translateY(-8px); }
   }
-  /* (b) black A in, (c) turns red, (e) out */
+  /* (b) 7-18 %: black A fades in; (c) 18-28 %: turns red; hold to 44 %;
+     (d) 44-55 %: fades out as Å cross-fades in; gone from 55 % onward      */
   @keyframes ben-a-seq {
-    0%,  8% { opacity: 0; fill: #222; }
+    0%,  7% { opacity: 0; fill: #222; }
     18%     { opacity: 1; fill: #222; }
     28%     { opacity: 1; fill: #B33A3B; }
-    68%     { opacity: 1; fill: #B33A3B; }
-    82%     { opacity: 0; fill: #B33A3B; }
+    44%     { opacity: 1; fill: #B33A3B; }
+    55%     { opacity: 0; fill: #B33A3B; }
     100%    { opacity: 0; fill: #222; }
   }
-  /* (c) left lens pink, (e) out */
+  /* (c) 18-30 %: left lens fills pink; hold to 44 %; (d) 44-55 %: clears   */
   @keyframes ben-lens-l-seq {
-    0%,  24% { fill: rgba(249,199,199,0); }
-    35%      { fill: rgba(249,199,199,1); }
-    68%      { fill: rgba(249,199,199,1); }
-    82%      { fill: rgba(249,199,199,0); }
+    0%,  18% { fill: rgba(249,199,199,0); }
+    30%      { fill: rgba(249,199,199,1); }
+    44%      { fill: rgba(249,199,199,1); }
+    55%      { fill: rgba(249,199,199,0); }
     100%     { fill: rgba(249,199,199,0); }
   }
-  /* (c) strikethrough draws left-to-right, (e) out */
+  /* (c) 30-44 %: draws in; (d) 44-55 %: fades out; reset dashoffset at 56 % */
   @keyframes ben-strike-seq {
-    0%,  34% { stroke-dashoffset: 60; opacity: 0; }
-    46%      { stroke-dashoffset: 0;  opacity: 1; }
-    68%      { stroke-dashoffset: 0;  opacity: 1; }
-    82%      { stroke-dashoffset: 0;  opacity: 0; }
+    0%,  30% { stroke-dashoffset: 60; opacity: 0; }
+    42%      { stroke-dashoffset: 0;  opacity: 1; }
+    44%      { stroke-dashoffset: 0;  opacity: 1; }
+    55%      { stroke-dashoffset: 0;  opacity: 0; }
+    56%      { stroke-dashoffset: 60; opacity: 0; }
     100%     { stroke-dashoffset: 60; opacity: 0; }
   }
-  /* (d) right lens green, (e) out */
-  @keyframes ben-lens-r-seq {
-    0%,  44% { fill: rgba(205,231,201,0); }
-    56%      { fill: rgba(205,231,201,1); }
-    68%      { fill: rgba(205,231,201,1); }
-    82%      { fill: rgba(205,231,201,0); }
-    100%     { fill: rgba(205,231,201,0); }
-  }
-  /* (d) Å fades in, (e) out */
+  /* (d) 50-60 %: black Å fades in; (e) 60-70 %: turns green;
+     hold to 78 %; (f) 78-93 %: fades out                                    */
   @keyframes ben-ang-seq {
-    0%,  48% { opacity: 0; }
-    60%      { opacity: 1; }
-    68%      { opacity: 1; }
-    82%      { opacity: 0; }
-    100%     { opacity: 0; }
+    0%,  50% { opacity: 0; fill: #222; }
+    60%      { opacity: 1; fill: #222; }
+    70%      { opacity: 1; fill: #317B3C; }
+    78%      { opacity: 1; fill: #317B3C; }
+    93%      { opacity: 0; fill: #317B3C; }
+    100%     { opacity: 0; fill: #222; }
+  }
+  /* (e) 60-70 %: right lens fills green; hold to 78 %; (f) 78-93 %: clears */
+  @keyframes ben-lens-r-seq {
+    0%,  60% { fill: rgba(205,231,201,0); }
+    70%      { fill: rgba(205,231,201,1); }
+    78%      { fill: rgba(205,231,201,1); }
+    93%      { fill: rgba(205,231,201,0); }
+    100%     { fill: rgba(205,231,201,0); }
   }
 
   /* ── Analysing overlay (Benjamin loading) ─────────────────────────────── */
