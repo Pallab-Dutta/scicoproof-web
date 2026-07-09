@@ -105,49 +105,44 @@
     0%, 100% { transform: translateY(0); }
     50%       { transform: translateY(-8px); }
   }
-  /* (b) 7-18 %: black A fades in; (c) 18-28 %: turns red; left side holds
-     through (d) and (e); (f) 80-94 %: fades out                            */
+  /* Left: 5-17% A appears; 17-29% A turns red + lens pink + strike draws (simultaneous); holds to 71%; 71-82% both hold; 82-95% fades */
   @keyframes ben-a-seq {
-    0%,  7% { opacity: 0; fill: #222; }
-    18%     { opacity: 1; fill: #222; }
-    28%     { opacity: 1; fill: #B33A3B; }
-    80%     { opacity: 1; fill: #B33A3B; }
-    94%     { opacity: 0; fill: #B33A3B; }
+    0%,  5% { opacity: 0; fill: #222; }
+    17%     { opacity: 1; fill: #222; }
+    29%     { opacity: 1; fill: #B33A3B; }
+    82%     { opacity: 1; fill: #B33A3B; }
+    95%     { opacity: 0; fill: #B33A3B; }
     100%    { opacity: 0; fill: #222; }
   }
-  /* (c) 18-30 %: fills pink; holds through (d)(e); (f) 80-94 %: clears     */
   @keyframes ben-lens-l-seq {
-    0%,  18% { fill: rgba(249,199,199,0); }
-    30%      { fill: rgba(249,199,199,1); }
-    80%      { fill: rgba(249,199,199,1); }
-    94%      { fill: rgba(249,199,199,0); }
+    0%,  17% { fill: rgba(249,199,199,0); }
+    29%      { fill: rgba(249,199,199,1); }
+    82%      { fill: rgba(249,199,199,1); }
+    95%      { fill: rgba(249,199,199,0); }
     100%     { fill: rgba(249,199,199,0); }
   }
-  /* (c) 30-42 %: draws in; holds through (d)(e); (f) 80-94 %: fades out   */
   @keyframes ben-strike-seq {
-    0%,  30% { stroke-dashoffset: 60; opacity: 0; }
-    42%      { stroke-dashoffset: 0;  opacity: 1; }
-    80%      { stroke-dashoffset: 0;  opacity: 1; }
-    94%      { stroke-dashoffset: 0;  opacity: 0; }
-    95%      { stroke-dashoffset: 60; opacity: 0; }
+    0%,  17% { stroke-dashoffset: 60; opacity: 0; }
+    29%      { stroke-dashoffset: 0;  opacity: 1; }
+    82%      { stroke-dashoffset: 0;  opacity: 1; }
+    95%      { stroke-dashoffset: 0;  opacity: 0; }
+    96%      { stroke-dashoffset: 60; opacity: 0; }
     100%     { stroke-dashoffset: 60; opacity: 0; }
   }
-  /* (d) 50-62 %: black Å fades in; (e) 62-72 %: turns green;
-     hold to 80 %; (f) 80-94 %: fades out                                   */
+  /* Right: 47-59% Å appears; 59-71% Å turns green + lens green (simultaneous); 71-82% both hold; 82-95% fades */
   @keyframes ben-ang-seq {
-    0%,  50% { opacity: 0; fill: #222; }
-    62%      { opacity: 1; fill: #222; }
-    72%      { opacity: 1; fill: #317B3C; }
-    80%      { opacity: 1; fill: #317B3C; }
-    94%      { opacity: 0; fill: #317B3C; }
+    0%,  47% { opacity: 0; fill: #222; }
+    59%      { opacity: 1; fill: #222; }
+    71%      { opacity: 1; fill: #317B3C; }
+    82%      { opacity: 1; fill: #317B3C; }
+    95%      { opacity: 0; fill: #317B3C; }
     100%     { opacity: 0; fill: #222; }
   }
-  /* (e) 62-72 %: right lens fills green; hold to 80 %; (f) 80-94 %: clears */
   @keyframes ben-lens-r-seq {
-    0%,  62% { fill: rgba(205,231,201,0); }
-    72%      { fill: rgba(205,231,201,1); }
-    80%      { fill: rgba(205,231,201,1); }
-    94%      { fill: rgba(205,231,201,0); }
+    0%,  59% { fill: rgba(205,231,201,0); }
+    71%      { fill: rgba(205,231,201,1); }
+    82%      { fill: rgba(205,231,201,1); }
+    95%      { fill: rgba(205,231,201,0); }
     100%     { fill: rgba(205,231,201,0); }
   }
 
