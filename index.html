@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 <style>
 /* ── KaTeX_Main font (same as Streamlit/LaTeX title) ─────────────────────── */
 @font-face{font-family:"KaTeX_Main";font-style:normal;font-weight:400;
@@ -30,8 +30,9 @@
   --ins-bg:#dcf3dd; --ins-text:#2f7a33;
   --shadow:0 8px 24px -12px rgba(44,36,22,.25);
   --radius:16px;
-  --font-serif:"Lora",Georgia,"Times New Roman",serif;
-  --font-sans:"Inter",-apple-system,"Segoe UI",sans-serif;
+  --font-serif:"Cutive Mono",monospace;
+  --font-sans:"Cutive Mono",monospace;
+  --font-prose:"Lora",Georgia,"Times New Roman",serif;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -147,7 +148,7 @@ img,svg{display:block;max-width:100%}
               padding:1.5rem 3.5rem;
               display:flex;gap:2.5rem}
 .hero__bgcol{flex:1;overflow:hidden}
-.hero__bgpara{font-family:var(--font-serif);font-size:.73rem;line-height:1.85;
+.hero__bgpara{font-family:var(--font-prose);font-size:.73rem;line-height:1.85;
               color:rgba(44,36,22,.09);margin-bottom:.7rem;text-align:justify}
 .hwm-del{text-decoration:line-through;color:rgba(178,58,58,.30)}
 .hwm-ins{color:rgba(47,122,51,.30);margin-left:.1em}
@@ -234,7 +235,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 
 /* Live diff in proofreading panel */
 .pf-diff-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:10px;
-             padding:.65rem .8rem;font-family:var(--font-serif);font-size:.84rem;line-height:1.7;
+             padding:.65rem .8rem;font-family:var(--font-prose);font-size:.84rem;line-height:1.7;
              min-height:68px;position:relative;overflow:hidden}
 .pf-diff-example{position:absolute;inset:0;padding:.65rem .8rem;opacity:0;
                  background:var(--bg-alt);
@@ -288,7 +289,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
                    transition:color .15s,border-color .15s,transform .4s}
 .diff-card__replay:hover{color:var(--accent);border-color:var(--accent)}
 .diff-card__replay:active{transform:rotate(-180deg)}
-.diff-card__text{font-family:var(--font-serif);font-size:1.05rem;line-height:1.75;flex-grow:1}
+.diff-card__text{font-family:var(--font-prose);font-size:1.05rem;line-height:1.75;flex-grow:1}
 .diff-card__verdict{font-size:.9rem;color:var(--muted);border-top:1px dashed var(--border);padding-top:.9rem}
 .verdict-icon{display:inline-flex;align-items:center;justify-content:center;
               width:1.3rem;height:1.3rem;border-radius:50%;background:var(--ins-bg);
