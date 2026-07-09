@@ -37,8 +37,10 @@
 
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--font-sans);background:var(--bg);color:var(--text);
+body{font-family:var(--font-sans);font-weight:700;background:var(--bg);color:var(--text);
      line-height:1.6;-webkit-font-smoothing:antialiased}
+/* Prose exceptions use real Lora — reset to normal weight */
+.hero__bgpara,.pf-diff-box,.diff-card__text,.diff-card__verdict{font-weight:400}
 a{color:inherit;text-decoration:none}
 sup,sub{font-size:.7em}
 code{font-family:"SFMono-Regular",Consolas,monospace;background:var(--bg-alt);
