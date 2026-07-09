@@ -19,7 +19,7 @@
   .benjamin-logo { display: block; width: auto }
   .benjamin-logo--title { height: 85px }
   .benjamin-logo--mini  { height: 50px }
-  .upload-desc { color: var(--muted); font-size: .95rem; margin: 0 0 22px; line-height: 1.7 }
+  .upload-desc { color: var(--muted); font-size: .85rem; margin: 0 0 22px; line-height: 1.7 }
   .upload-desc code { background: #f0f0f0; border-radius: 4px; padding: 1px 5px; font-size: .9em }
 
   /* ── Review stage ──────────────────────────────────────────────────────── */
@@ -230,7 +230,7 @@
 
         <p class="upload-desc">
           Upload any of:<br>
-          · a <b>ZIP package</b> or a single <code>.tex</code> file - full LaTeX proofreading with <code>latexdiff</code> tracked versions<br>
+          · a <b>LaTeX ZIP package</b> or a single <code>.tex</code> file - full LaTeX proofreading with <code>latexdiff</code> tracked versions<br>
           · a <code>.docx</code>, <code>.txt</code>/<code>.md</code>, or <code>.rtf</code> document - prose proofreading with <b>native Word tracked changes</b>
           <br><br>
           Benjamin produces a clean corrected file plus a tracked-changes version you can review.
@@ -388,6 +388,9 @@
               <span class="mi">download</span> Download Proofread ZIP
             </button>
           </div>
+          <p style="font-size:.86rem;color:var(--muted);margin:8px 0 0">
+            Compile the proofread <code>.tex</code> file with your usual LaTeX compiler — it will automatically generate a <b>tracked-changes PDF</b> highlighting every correction.
+          </p>
         </div>
 
         <div id="dlProse" style="display:none">
@@ -851,17 +854,21 @@ function attachDownload(btnId, kind, filename) {
   });
 }
 
-// The clean file keeps the source format's extension, so name it accordingly;
-// without an extension the OS treats the download as a damaged/unknown file.
-function cleanFileName() {
-  const ext = { docx: "docx", rtf: "rtf", txt: "txt" }[_reviewData && _reviewData.fmt] || "docx";
-  return "scicoproof_clean." + ext;
+function baseFileName() {
+  if (!_file) return "document";
+  return _file.name.replace(/\.[^.]+$/, "");
 }
+function proofreadZipName()  { return baseFileName() + "_proofread_benjamin.zip"; }
+function cleanFileName()     {
+  const ext = { docx: "docx", rtf: "rtf", txt: "txt" }[_reviewData && _reviewData.fmt] || "docx";
+  return baseFileName() + "_clean_benjamin." + ext;
+}
+function trackedFileName()   { return baseFileName() + "_proofread_benjamin.docx"; }
 
-attachDownload("dlZip",      "result",  "scicoproof_output.zip");
+attachDownload("dlZip",      "result",  proofreadZipName);
 attachDownload("dlClean",    "clean",   cleanFileName);
-attachDownload("dlTracked",  "tracked", "scicoproof_tracked.docx");
-attachDownload("dlBothZip",  "result",  "scicoproof_output.zip");
+attachDownload("dlTracked",  "tracked", trackedFileName);
+attachDownload("dlBothZip",  "result",  proofreadZipName);
 
 // New run button
 const btnNewRun = $("btnNewRun");
