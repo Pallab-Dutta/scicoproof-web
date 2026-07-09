@@ -180,6 +180,15 @@
     font-weight: 600;
     letter-spacing: .01em;
   }
+  .ben-step {
+    margin-top: 8px;
+    font-size: .82rem;
+    color: var(--muted);
+    font-style: italic;
+    opacity: 1;
+    transition: opacity 0.35s ease;
+    min-height: 1.2em;
+  }
   @keyframes benjamin-bob {
     0%, 100% { transform: translateY(0px); }
     50%       { transform: translateY(-9px); }
@@ -238,6 +247,7 @@
             </svg>
           </div>
           <div class="ben-label">Analysing your document…</div>
+          <div class="ben-step" id="analyseStep"></div>
         </div>
 
         <div class="btn-row" id="uploadBtnRow">
@@ -503,6 +513,37 @@ function selectFile(file) {
   $("uploadError").style.display = "none";
 }
 
+const _ANALYSE_STEPS = [
+  "Opening your document…",
+  "Reading the content…",
+  "Identifying text sections…",
+  "Checking document health…",
+  "Sizing up the work ahead…",
+  "Preparing your review…",
+];
+let _analyseStepTimer = null;
+
+function _startAnalyseSteps() {
+  let idx = 0;
+  const el = $("analyseStep");
+  el.style.opacity = "1";
+  el.textContent = _ANALYSE_STEPS[0];
+  _analyseStepTimer = setInterval(() => {
+    el.style.opacity = "0";
+    setTimeout(() => {
+      idx = (idx + 1) % _ANALYSE_STEPS.length;
+      el.textContent = _ANALYSE_STEPS[idx];
+      el.style.opacity = "1";
+    }, 360);
+  }, 2200);
+}
+
+function _stopAnalyseSteps() {
+  clearInterval(_analyseStepTimer);
+  _analyseStepTimer = null;
+  $("analyseStep").textContent = "";
+}
+
 btnReview.addEventListener("click", async () => {
   if (!_file) return;
   btnReview.disabled = true;
@@ -511,6 +552,7 @@ btnReview.addEventListener("click", async () => {
   $("dropzone").style.display = "none";
   $("uploadBtnRow").style.display = "none";
   $("analysingOverlay").style.display = "";
+  _startAnalyseSteps();
   try {
     _reviewData = await window.SciCoProofAPI.analyze(_file);
     renderReview();
@@ -520,6 +562,7 @@ btnReview.addEventListener("click", async () => {
     $("uploadError").style.display = "";
   } finally {
     // Restore upload UI whether we succeeded (next stage visible) or failed
+    _stopAnalyseSteps();
     $("analysingOverlay").style.display = "none";
     $("dropzone").style.display = "";
     $("uploadBtnRow").style.display = "";
