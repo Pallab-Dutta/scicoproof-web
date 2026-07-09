@@ -12,10 +12,10 @@
 
   /* 5–17 %: A appears black
      17–29 %: A turns red + left lens pink + strike draws (simultaneous)
-     29–47 %: left holds
-     47–59 %: Å appears black
-     59–71 %: Å turns green + right lens green (simultaneous)
-     71–82 %: both hold
+     29–41 %: left holds
+     41–53 %: Å appears black
+     53–65 %: Å turns green + right lens green (simultaneous)
+     65–82 %: both hold
      82–95 %: all fade out */
 
   @keyframes bn-a {
@@ -42,16 +42,16 @@
     100%     { stroke-dashoffset: 58; opacity: 0; }
   }
   @keyframes bn-ang {
-    0%,  47% { opacity: 0; fill: #222;    }
-    59%      { opacity: 1; fill: #222;    }
-    71%      { opacity: 1; fill: #317B3C; }
+    0%,  41% { opacity: 0; fill: #222;    }
+    53%      { opacity: 1; fill: #222;    }
+    65%      { opacity: 1; fill: #317B3C; }
     82%      { opacity: 1; fill: #317B3C; }
     95%      { opacity: 0; fill: #317B3C; }
     100%     { opacity: 0; fill: #222;    }
   }
   @keyframes bn-lens-r {
-    0%,  59% { fill: rgba(205,231,201,0); }
-    71%      { fill: rgba(205,231,201,1); }
+    0%,  53% { fill: rgba(205,231,201,0); }
+    65%      { fill: rgba(205,231,201,1); }
     82%      { fill: rgba(205,231,201,1); }
     95%      { fill: rgba(205,231,201,0); }
     100%     { fill: rgba(205,231,201,0); }
