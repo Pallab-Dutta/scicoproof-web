@@ -88,6 +88,8 @@ img,svg{display:block;max-width:100%}
 .benjamin-logo{display:block;width:auto}
 .benjamin-logo--nav{height:50px}
 .benjamin-logo--footer{height:50px}
+.benjamin-logo--hero{width:min(420px,85vw);height:auto}
+.hero__logo{margin:0 0 1.5rem}
 
 /* ── Diff animation primitives ───────────────────────────────────────────── */
 .diff-token,.diff-letter{display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
@@ -519,20 +521,8 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   <div class="hero__inner">
     <p class="hero__eyebrow reveal">AI proofreading for scientific writing</p>
 
-    <h1 class="brand-mark reveal" aria-label="SciCoproof">
-      <span class="brand-base">SciCo</span>
-      <span class="brand-scripts">
-        <span class="brand-sup">
-          <span class="diff-letter">
-            <span class="del-wrap"><span class="del-text">A</span><span class="strike-line"></span></span>
-            <span class="ins-wrap">Å</span>
-          </span>ngstr<span class="diff-letter">
-            <span class="del-wrap"><span class="del-text">o</span><span class="strike-line"></span></span>
-            <span class="ins-wrap">ö</span>
-          </span>m
-        </span>
-        <span class="brand-sub">proofreading</span>
-      </span>
+    <h1 class="hero__logo reveal" aria-label="Benjamin">
+      <img src="Benjamin_name_anim.svg" alt="Benjamin" class="benjamin-logo benjamin-logo--hero">
     </h1>
 
     <p class="hero__tagline reveal">Reads your manuscript like a meticulous co-author<br>not just a grammar/spell-checker.</p>
@@ -872,19 +862,6 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 document.addEventListener('DOMContentLoaded', () => {
   const pref = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ── Brand wordmark: measure corrected letters then loop ────────────── */
-  document.querySelectorAll('.brand-mark:not(.brand-mark--mini) .ins-wrap').forEach(el => {
-    el.style.setProperty('--ins-w', el.scrollWidth + 'px');
-  });
-
-  function replay(el) {
-    el.classList.remove('diff-play');
-    void el.offsetWidth;
-    requestAnimationFrame(() => el.classList.add('diff-play'));
-  }
-
-  const brand = document.querySelector('.brand-mark:not(.brand-mark--mini)');
-
   /* ── Scroll-reveal ──────────────────────────────────────────────────── */
   const revealObs = new IntersectionObserver((entries, obs) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); } });
@@ -895,15 +872,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const diffObs = new IntersectionObserver((entries, obs) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('diff-play'); obs.unobserve(e.target); } });
   }, { threshold: 0.35 });
-  document.querySelectorAll('.diff-card, .brand-mark:not(.brand-mark--mini)').forEach(el => diffObs.observe(el));
+  document.querySelectorAll('.diff-card').forEach(el => diffObs.observe(el));
 
   /* Replay buttons on individual diff cards */
   document.querySelectorAll('.diff-card__replay').forEach(btn => {
-    btn.addEventListener('click', () => replay(btn.closest('.diff-card')));
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.diff-card');
+      card.classList.remove('diff-play');
+      void card.offsetWidth;
+      requestAnimationFrame(() => card.classList.add('diff-play'));
+    });
   });
-
-  /* Loop the hero brand mark */
-  if (brand && !pref) setInterval(() => replay(brand), 6500);
 
   /* ── Nav scroll shadow ──────────────────────────────────────────────── */
   const nav = document.querySelector('.nav');
