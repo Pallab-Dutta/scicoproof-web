@@ -4,7 +4,7 @@
 	 viewBox="0 0 432 432" enable-background="new 0 0 432 432" xml:space="preserve">
 <rect fill="#F9C7C7" width="216" height="432"/>
 <rect x="216" fill="#C9E2B0" width="216" height="432"/>
-<text transform="matrix(1 0 0 1 -1.525879e-005 342.4287)" fill="#B33A3B" font-family="'MyriadPro-Regular'" font-size="350">A</text>
-<text transform="matrix(1 0 0 1 215.9999 342.4286)" fill="#317B3C" font-family="'MyriadPro-Regular'" font-size="350">Å</text>
-<line fill="#C9E2B0" stroke="#B33A3B" stroke-width="19.9128" stroke-miterlimit="10" x1="11.1" y1="227.7" x2="203.6" y2="227.7"/>
+<text transform="matrix(1 0 0 1 -5 342.4287)" fill="#B33A3B" font-family="'ArialMT'" font-size="350">A</text>
+<text transform="matrix(1 0 0 1 211.9999 342.4286)" fill="#317B3C" font-family="'ArialMT'" font-size="350">Å</text>
+<line fill="none" stroke="#B33A3B" stroke-width="45.0319" stroke-miterlimit="10" x1="6.1" y1="224.2" x2="211" y2="224.2"/>
 </svg>
