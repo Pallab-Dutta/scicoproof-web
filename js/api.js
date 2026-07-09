@@ -48,6 +48,29 @@
     return _parseOrThrow(res, data, jsonErr);
   }
 
+  // XHR-based upload so we get real byte-level progress events.
+  async function uploadWithProgress(path, file, onProgress) {
+    const hdrs = await headers();
+    return new Promise((resolve, reject) => {
+      const form = new FormData();
+      form.append("file", file);
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total);
+      };
+      xhr.onload = () => {
+        let data = null, jsonErr = null;
+        try { data = JSON.parse(xhr.responseText); } catch (e) { jsonErr = e; }
+        const res = { ok: xhr.status >= 200 && xhr.status < 300, status: xhr.status };
+        try { resolve(_parseOrThrow(res, data, jsonErr)); } catch (e) { reject(e); }
+      };
+      xhr.onerror = () => reject({ code: 0, message: "Network error" });
+      xhr.open("POST", BASE + path);
+      Object.entries(hdrs).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+      xhr.send(form);
+    });
+  }
+
   async function download(path) {
     const res = await fetch(BASE + path, { headers: await headers() });
     if (!res.ok) throw { code: res.status, message: res.statusText };
@@ -57,11 +80,11 @@
   window.SciCoProofAPI = {
     me() { return req("GET", "/me"); },
 
-    /** POST /analyze — returns review metadata without starting proofreading. */
-    analyze(file) { return upload("/analyze", file); },
+    /** POST /analyze — uploads file once, returns review metadata + file_id. */
+    analyze(file, onProgress) { return uploadWithProgress("/analyze", file, onProgress); },
 
-    /** POST /run — starts the pipeline, returns {job_id}. */
-    run(file) { return upload("/run", file); },
+    /** POST /run — starts the pipeline using the cached file_id, returns {job_id}. */
+    run(fileId) { return req("POST", "/run", { file_id: fileId }); },
 
     /** Download a finished job result. kind: "result"|"clean"|"tracked" */
     downloadResult(jobId, kind) {

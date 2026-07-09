@@ -180,15 +180,6 @@
     font-weight: 600;
     letter-spacing: .01em;
   }
-  .ben-step {
-    margin-top: 8px;
-    font-size: .82rem;
-    color: var(--muted);
-    font-style: italic;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-    min-height: 1.2em;
-  }
   .ben-pbar-wrap {
     margin-top: 18px;
     width: 180px;
@@ -261,8 +252,7 @@
               <circle fill="none" stroke="#b8c4d4" stroke-width="6" stroke-miterlimit="10" cx="321.2" cy="211.6" r="75"/>
             </svg>
           </div>
-          <div class="ben-label">Analysing your document…</div>
-          <div class="ben-step" id="analyseStep"></div>
+          <div class="ben-label" id="analyseLabel">Uploading your document…</div>
           <div class="ben-pbar-wrap">
             <div class="ben-pbar-fill" id="analysePbar"></div>
           </div>
@@ -531,68 +521,31 @@ function selectFile(file) {
   $("uploadError").style.display = "none";
 }
 
-// Steps reflect the real server-side sequence (open → read → scan → scope → ready).
-// Each fires once in order; the bar holds at the last % until the response arrives.
-const _ANALYSE_STEPS = [
-  { msg: "Opening your document…",              pct: 15 },
-  { msg: "Reading the contents…",               pct: 35 },
-  { msg: "Scanning text and structure…",        pct: 58 },
-  { msg: "Working out the proofreading scope…", pct: 78 },
-  { msg: "Almost ready…",                       pct: 90 },
-];
-const _ANALYSE_STEP_MS = 900;   // ms between steps
-let _analyseTimers = [];
-
-function _setAnalyseStep(msg, pct) {
-  const el = $("analyseStep");
-  el.style.opacity = "0";
-  setTimeout(() => { el.textContent = msg; el.style.opacity = "1"; }, 300);
-  $("analysePbar").style.width = pct + "%";
-}
-
-function _startAnalyseSteps() {
-  _analyseTimers = [];
-  $("analysePbar").style.width = "0%";
-  $("analyseStep").textContent = "";
-  _ANALYSE_STEPS.forEach((step, i) => {
-    _analyseTimers.push(setTimeout(() => _setAnalyseStep(step.msg, step.pct),
-      i === 0 ? 120 : i * _ANALYSE_STEP_MS));
-  });
-}
-
-function _stopAnalyseSteps(success) {
-  _analyseTimers.forEach(clearTimeout);
-  _analyseTimers = [];
-  if (success) {
-    $("analysePbar").style.width = "100%";
-    $("analyseStep").style.opacity = "0";
-  } else {
-    $("analysePbar").style.width = "0%";
-    $("analyseStep").textContent = "";
-    $("analyseStep").style.opacity = "1";
-  }
+function _onUploadProgress(ratio) {
+  $("analysePbar").style.width = (ratio * 100).toFixed(1) + "%";
+  if (ratio >= 1) $("analyseLabel").textContent = "Analysing…";
 }
 
 btnReview.addEventListener("click", async () => {
   if (!_file) return;
   btnReview.disabled = true;
   $("uploadError").style.display = "none";
-  // Show Benjamin loading animation; hide dropzone + button row
   $("dropzone").style.display = "none";
   $("uploadBtnRow").style.display = "none";
+  $("analyseLabel").textContent = "Uploading your document…";
+  $("analysePbar").style.width = "0%";
   $("analysingOverlay").style.display = "";
-  _startAnalyseSteps();
   try {
-    _reviewData = await window.SciCoProofAPI.analyze(_file);
+    _reviewData = await window.SciCoProofAPI.analyze(_file, _onUploadProgress);
     renderReview();
     showStage("review");
   } catch (err) {
     $("uploadError").textContent = "Could not analyse file: " + (err.message || "unknown error");
     $("uploadError").style.display = "";
   } finally {
-    // Restore upload UI whether we succeeded (next stage visible) or failed
-    _stopAnalyseSteps(!!_reviewData);
     $("analysingOverlay").style.display = "none";
+    $("analysePbar").style.width = "0%";
+    $("analyseLabel").textContent = "Uploading your document…";
     $("dropzone").style.display = "";
     $("uploadBtnRow").style.display = "";
     btnReview.disabled = false;
@@ -691,7 +644,7 @@ $("btnStartProof").addEventListener("click", async () => {
   initRunningStage();
   showStage("running");
   try {
-    const { job_id } = await window.SciCoProofAPI.run(_file);
+    const { job_id } = await window.SciCoProofAPI.run(_reviewData.file_id);
     _jobId = job_id;
     streamJob(job_id);
   } catch (err) {
