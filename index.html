@@ -847,6 +847,14 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 <script src="js/auth.js"></script>
 <script>
   (function(){
+    // If OAuth redirected back to the landing page (token in hash), auto-forward.
+    if (window.location.hash.includes('access_token')) {
+      window.SciCoProofAuth.onChange(function(user) {
+        if (user) location.href = 'app.html';
+      });
+      return;
+    }
+
     async function enterProofread(){
       try {
         var user = await window.SciCoProofAuth.getUser();
