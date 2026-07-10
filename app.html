@@ -519,7 +519,36 @@ fileInput.addEventListener("change", () => {
   if (fileInput.files.length) selectFile(fileInput.files[0]);
 });
 
+// Extensions the backend pipelines accept; anything else is rejected before upload.
+const ALLOWED_EXTS = [".zip", ".tex", ".docx", ".txt", ".text", ".md", ".markdown", ".rtf"];
+const VALID_FILETYPES_DISPLAY = ".zip, .tex, .docx, .txt, .md, .rtf";
+
+function extOf(name) {
+  const m = /\.[^.\/\\]+$/.exec(name || "");
+  return m ? m[0].toLowerCase() : "";
+}
+
+// Returns a user-facing rejection message, or null if the file type is allowed.
+function uploadRejectMessage(name) {
+  const ext = extOf(name);
+  if (ALLOWED_EXTS.includes(ext)) return null;
+  if (ext === ".pdf")
+    return "PDF isn't supported — converting it corrupts proofreading. Valid filetypes are: " + VALID_FILETYPES_DISPLAY;
+  const label = ext ? ext.slice(1).toUpperCase() : "That file type";
+  return label + " isn't supported. Valid filetypes are: " + VALID_FILETYPES_DISPLAY;
+}
+
 function selectFile(file) {
+  const rejectMsg = uploadRejectMessage(file.name);
+  if (rejectMsg) {
+    _file = null;
+    dropzone.classList.remove("has-file");
+    $("dzFileName").textContent = "";
+    btnReview.disabled = true;
+    $("uploadError").textContent = rejectMsg;
+    $("uploadError").style.display = "";
+    return;
+  }
   _file = file;
   $("dzFileName").innerHTML = `<span class="mi" style="font-size:1.2rem;vertical-align:middle;margin-right:5px">check_circle</span>${esc(file.name)}`;
   dropzone.classList.add("has-file");
