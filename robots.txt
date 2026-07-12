@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# app.html is the login-gated application (thin/auth-only content), not for indexing
+Disallow: /app.html
+
+Sitemap: https://benjamin.scicoagent.com/sitemap.xml

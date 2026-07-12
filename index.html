@@ -5,6 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Benjamin: AI proofreading for Scientific Manuscripts</title>
 <meta name="description" content="Benjamin reads your LaTeX, Word, plain-text, or RTF manuscript like a meticulous co-author, catching unit, notation, and sign errors most spell-checkers miss, with a full tracked-changes review.">
+<link rel="canonical" href="https://benjamin.scicoagent.com/">
+
+<!-- ── Open Graph ──────────────────────────────────────────────────────────── -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Benjamin">
+<meta property="og:title" content="Benjamin: AI proofreading for Scientific Manuscripts">
+<meta property="og:description" content="AI scientific proofreading for LaTeX, Word, plain-text, and RTF manuscripts. Benjamin catches unit, notation, and sign errors most spell-checkers miss, then returns a clean copy and a full tracked-changes review.">
+<meta property="og:url" content="https://benjamin.scicoagent.com/">
+<meta property="og:image" content="https://benjamin.scicoagent.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Benjamin — AI scientific proofreading with tracked changes">
+
+<!-- ── Twitter card ────────────────────────────────────────────────────────── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Benjamin: AI proofreading for Scientific Manuscripts">
+<meta name="twitter:description" content="AI scientific proofreading for LaTeX, Word, plain-text, and RTF manuscripts. Benjamin catches unit, notation, and sign errors most spell-checkers miss, then returns a full tracked-changes review.">
+<meta name="twitter:image" content="https://benjamin.scicoagent.com/og-image.png">
+<meta name="twitter:image:alt" content="Benjamin — AI scientific proofreading with tracked changes">
+
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -46,6 +66,9 @@ sup,sub{font-size:.7em}
 code{font-family:"SFMono-Regular",Consolas,monospace;background:var(--bg-alt);
      border:1px solid var(--border);border-radius:4px;padding:.05em .35em;font-size:.9em}
 img,svg{display:block;max-width:100%}
+/* Visually hidden but readable by search engines & screen readers */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+         clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4em;
@@ -321,6 +344,19 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 .feature-card h3{font-family:var(--font-serif);font-size:1.1rem;margin-bottom:.5rem}
 .feature-card p{color:var(--muted);font-size:.95rem}
 
+/* ── FAQ ──────────────────────────────────────────────────────────────────── */
+.faq__list{max-width:780px;margin:1rem auto 0;display:flex;flex-direction:column;gap:.9rem}
+.faq__item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+           padding:0 1.5rem;transition:box-shadow .2s}
+.faq__item[open]{box-shadow:var(--shadow)}
+.faq__q{font-family:var(--font-serif);font-size:1.05rem;font-weight:700;cursor:pointer;
+        list-style:none;padding:1.25rem 0;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.faq__q::-webkit-details-marker{display:none}
+.faq__q::after{content:"+";color:var(--accent);font-size:1.4rem;line-height:1;transition:transform .2s}
+.faq__item[open] .faq__q::after{transform:rotate(45deg)}
+.faq__a{color:var(--muted);font-size:.95rem;padding:0 0 1.35rem;margin-top:-.35rem}
+.faq__a a{color:var(--accent-dark);text-decoration:underline}
+
 /* ── CTA ──────────────────────────────────────────────────────────────────── */
 .cta__inner{text-align:center;background:#F9C7C7;transition:background .35s ease;
             border-radius:24px;padding:3.5rem 2rem;color:var(--text)}
@@ -368,6 +404,115 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   .brand-mark .del-wrap{color:#d13d3d!important}
 }
 </style>
+
+<!-- ── Structured data (JSON-LD) ───────────────────────────────────────────── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://benjamin.scicoagent.com/#software",
+      "name": "Benjamin",
+      "alternateName": "Benjamin by SciCoagent",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Proofreading",
+      "operatingSystem": "Web",
+      "url": "https://benjamin.scicoagent.com/",
+      "description": "AI scientific proofreading for LaTeX, Word, plain-text, and RTF manuscripts. Benjamin reads your document with full scientific context — units, equations, notation, and terminology — then returns a clean copy and a complete tracked-changes review.",
+      "featureList": [
+        "Proofreads LaTeX (.tex/.zip), Word (.docx), plain text (.txt), Markdown (.md), and RTF (.rtf)",
+        "Domain-aware corrections for units, equations, and notation",
+        "Word-native Track Changes and inline LaTeX diff",
+        "Accept or reject every suggestion",
+        "Resilient AI pipeline with automatic model fallback"
+      ],
+      "brand": {
+        "@type": "Brand",
+        "name": "Benjamin",
+        "slogan": "Reads your manuscript like a meticulous co-author."
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free to try — one document a month, up to 5,000 words.",
+        "url": "https://benjamin.scicoagent.com/pricing.html"
+      },
+      "publisher": { "@id": "https://scicoagent.com/#organization" }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://scicoagent.com/#organization",
+      "name": "SciCoagent",
+      "url": "https://scicoagent.com/",
+      "logo": "https://benjamin.scicoagent.com/apple-touch-icon.png"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://benjamin.scicoagent.com/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What file formats does Benjamin support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Benjamin proofreads LaTeX (a .tex file or a zipped .zip project), Microsoft Word (.docx), plain text (.txt), Markdown (.md), and rich text (.rtf). The format is detected automatically, with no setup required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why doesn't Benjamin accept PDF files?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A PDF has to be converted before it can be edited, and that conversion routinely scrambles equations, symbols, and layout, which would corrupt the proofreading. Benjamin works on your source file instead, so every correction lands exactly where it belongs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is Benjamin different from Grammarly?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Grammarly checks general English. Benjamin reads with scientific context: it understands units, equations, notation, and terminology, and flags the errors a generic grammar checker misses, such as A versus Å or a flipped sign. It is the Betternative built for research writing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will Benjamin change my equations or scientific meaning?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Benjamin flags notation, unit, and sign issues as suggestions and never silently rewrites your science. You review every edit as tracked changes and accept or reject each one."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I get tracked changes I can accept or reject?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Word files come back with native Track Changes, and LaTeX projects get an inline diff. You get a clean, publication-ready copy plus a full tracked-changes version, so you keep complete control."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Benjamin free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Benjamin is free to try — one document a month, up to 5,000 words. For unlimited proofreading, equation checks, and 95+ languages, see the Pro plan on the pricing page."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who is Benjamin for?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PhD students, postdocs, and faculty — anyone preparing manuscripts, theses, or papers who wants a meticulous scientific co-author reviewing their draft."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -382,6 +527,8 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <a href="#examples">Examples</a>
       <a href="#how-it-works">How it works</a>
       <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
+      <a href="pricing.html">Pricing</a>
       <a href="https://scicoagent.com/blog/tools/proofread/">Blog</a>
       <button class="btn btn--primary btn--sm nav__cta js-signin" type="button">Sign in with Google</button>
     </nav>
@@ -527,7 +674,8 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   <div class="hero__inner">
     <p class="hero__eyebrow reveal">AI proofreading for scientific writing</p>
 
-    <h1 class="hero__logo reveal" aria-label="Benjamin">
+    <h1 class="hero__logo reveal">
+      <span class="sr-only">Benjamin — AI scientific proofreading for LaTeX, Word, and plain-text manuscripts</span>
       <img src="Benjamin_name_anim.svg" alt="Benjamin" class="benjamin-logo benjamin-logo--hero">
     </h1>
 
@@ -819,6 +967,41 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <h3>Resilient AI pipeline</h3>
       <p>Automatic model fallback and rate-limit-aware retries keep your run going even when one engine is busy.</p>
     </article>
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
+<section class="faq" id="faq">
+  <h2 class="section-title reveal">Frequently asked questions</h2>
+  <div class="faq__list reveal">
+    <details class="faq__item">
+      <summary class="faq__q">What file formats does Benjamin support?</summary>
+      <p class="faq__a">Benjamin proofreads LaTeX (a <code>.tex</code> file or a zipped <code>.zip</code> project), Microsoft Word (<code>.docx</code>), plain text (<code>.txt</code>), Markdown (<code>.md</code>), and rich text (<code>.rtf</code>). The format is detected automatically, with no setup required.</p>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__q">Why doesn't Benjamin accept PDF files?</summary>
+      <p class="faq__a">A PDF has to be converted before it can be edited, and that conversion routinely scrambles equations, symbols, and layout — which would corrupt the proofreading. Benjamin works on your source file instead, so every correction lands exactly where it belongs.</p>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__q">How is Benjamin different from Grammarly?</summary>
+      <p class="faq__a">Grammarly checks general English. Benjamin reads with scientific context: it understands units, equations, notation, and terminology, and flags the errors a generic grammar checker misses, such as <em>A</em> versus <em>Å</em> or a flipped sign. It's the <strong>Betternative</strong> built for research writing.</p>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__q">Will Benjamin change my equations or scientific meaning?</summary>
+      <p class="faq__a">No. Benjamin flags notation, unit, and sign issues as suggestions — it never silently rewrites your science. You review every edit as tracked changes and accept or reject each one.</p>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__q">Do I get tracked changes I can accept or reject?</summary>
+      <p class="faq__a">Yes. Word files come back with native Track Changes, and LaTeX projects get an inline diff. You get a clean, publication-ready copy plus a full tracked-changes version, so you keep complete control.</p>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__q">Is Benjamin free?</summary>
+      <p class="faq__a">Benjamin is free to try — one document a month, up to 5,000 words. For unlimited proofreading, equation checks, and 95+ languages, see the Pro plan on the <a href="pricing.html">pricing page</a>.</p>
+    </details>
+    <details class="faq__item">
+      <summary class="faq__q">Who is Benjamin for?</summary>
+      <p class="faq__a">PhD students, postdocs, and faculty — anyone preparing manuscripts, theses, or papers who wants a meticulous scientific co-author reviewing their draft.</p>
+    </details>
   </div>
 </section>
 

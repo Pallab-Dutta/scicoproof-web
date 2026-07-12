@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — Benjamin: AI proofreading for Scientific Manuscripts</title>
+<meta name="description" content="Benjamin pricing. Free to start — one document a month up to 5,000 words. Go Pro for unlimited proofreading, equation checks, and 95+ languages on your LaTeX, Word, and plain-text manuscripts. Local pricing for India and worldwide.">
+<link rel="canonical" href="https://benjamin.scicoagent.com/pricing.html">
+
+<!-- ── Open Graph ──────────────────────────────────────────────────────────── -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Benjamin">
+<meta property="og:title" content="Pricing — Benjamin: AI proofreading for Scientific Manuscripts">
+<meta property="og:description" content="Free to start — one document a month up to 5,000 words. Go Pro for unlimited scientific proofreading, equation checks, and 95+ languages on your LaTeX, Word, and plain-text manuscripts.">
+<meta property="og:url" content="https://benjamin.scicoagent.com/pricing.html">
+<meta property="og:image" content="https://benjamin.scicoagent.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Benjamin — AI scientific proofreading with tracked changes">
+
+<!-- ── Twitter card ────────────────────────────────────────────────────────── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pricing — Benjamin: AI proofreading for Scientific Manuscripts">
+<meta name="twitter:description" content="Free to start — one document a month up to 5,000 words. Go Pro for unlimited scientific proofreading, equation checks, and 95+ languages.">
+<meta name="twitter:image" content="https://benjamin.scicoagent.com/og-image.png">
+<meta name="twitter:image:alt" content="Benjamin — AI scientific proofreading with tracked changes">
+
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+/* ── KaTeX_Main font (same as Streamlit/LaTeX title) ─────────────────────── */
+@font-face{font-family:"KaTeX_Main";font-style:normal;font-weight:400;
+  src:url("https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/KaTeX_Main-Regular.woff2")format("woff2");font-display:swap}
+@font-face{font-family:"KaTeX_Main";font-style:normal;font-weight:700;
+  src:url("https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/fonts/KaTeX_Main-Bold.woff2")format("woff2");font-display:swap}
+
+:root{
+  --bg:#faf6ee; --bg-alt:#f3ecdd; --surface:#fffdf8; --border:#e3d4b4;
+  --text:#2c2416; --muted:#6f6452;
+  --accent:#5576a6; --accent-dark:#3e5c85;
+  --del-bg:#fbe1e1; --del-text:#b23a3a;
+  --ins-bg:#dcf3dd; --ins-text:#2f7a33;
+  --shadow:0 8px 24px -12px rgba(44,36,22,.25);
+  --radius:16px;
+  --font-serif:"Cutive Mono",monospace;
+  --font-sans:"Cutive Mono",monospace;
+  --font-prose:"Lora",Georgia,"Times New Roman",serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);font-weight:700;background:var(--bg);color:var(--text);
+     line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+sup,sub{font-size:.7em}
+code{font-family:"SFMono-Regular",Consolas,monospace;background:var(--bg-alt);
+     border:1px solid var(--border);border-radius:4px;padding:.05em .35em;font-size:.9em}
+img,svg{display:block;max-width:100%}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4em;
+     font-family:var(--font-sans);font-weight:600;text-decoration:none;border-radius:999px;
+     border:1px solid transparent;cursor:pointer;
+     transition:transform .15s,box-shadow .15s,background-color .15s,color .15s;white-space:nowrap}
+.btn--primary{background:#F9C7C7;color:#B33A3B;box-shadow:none}
+.btn--primary:hover{background:#CDE7C9;color:#317B3C;transform:translateY(-1px)}
+.btn--ghost{background:transparent;border-color:var(--border);color:var(--text)}
+.btn--ghost:hover{border-color:#317B3C;color:#317B3C;transform:translateY(-1px)}
+.btn--lg{padding:.85rem 1.7rem;font-size:1rem}
+.btn--sm{padding:.5rem 1.1rem;font-size:.85rem}
+.btn--block{width:100%}
+
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(250,246,238,.7);
+     backdrop-filter:blur(10px);border-bottom:1px solid transparent;
+     transition:border-color .25s,box-shadow .25s}
+.nav--scrolled{border-bottom-color:var(--border);box-shadow:0 4px 20px -16px rgba(44,36,22,.4)}
+.nav__inner{max-width:1100px;margin:0 auto;padding:1rem 1.5rem;
+            display:flex;align-items:center;justify-content:space-between;gap:1.5rem}
+.nav__links{display:flex;align-items:center;gap:1.75rem;font-size:.95rem;font-weight:700}
+.nav__links a{color:#B33A3B;transition:color .2s}
+.nav__links a:hover,.nav__links a.active{color:#317B3C}
+.nav__cta{color:#B33A3B!important}
+.nav__cta:hover{color:#317B3C!important}
+.nav__toggle{display:none;flex-direction:column;justify-content:center;gap:5px;
+             width:36px;height:36px;background:transparent;border:1px solid var(--border);
+             border-radius:8px;cursor:pointer}
+.nav__toggle span{display:block;height:2px;width:18px;margin:0 auto;
+                  background:var(--text);transition:transform .2s,opacity .2s}
+.benjamin-logo{display:block;width:auto}
+.benjamin-logo--nav{height:50px}
+.benjamin-logo--footer{height:50px}
+
+/* ── Scroll-reveal ───────────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease-out,transform .7s ease-out}
+.reveal.in-view{opacity:1;transform:translateY(0)}
+
+/* ── Shared section ──────────────────────────────────────────────────────── */
+section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76px}
+.section-title{font-family:var(--font-serif);font-size:clamp(1.7rem,4vw,2.4rem);
+               text-align:center;margin-bottom:.75rem}
+.section-sub{text-align:center;color:var(--muted);max-width:650px;margin:0 auto 3rem;font-size:1rem}
+
+/* ── Pricing header ──────────────────────────────────────────────────────── */
+.pricing-hero{padding:4.5rem 1.5rem 1rem;text-align:center}
+.pricing-hero .section-sub{margin-bottom:1.5rem}
+.loc-note{display:inline-flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:600;
+          color:var(--muted);background:var(--surface);border:1px solid var(--border);
+          border-radius:999px;padding:.35rem .9rem}
+.loc-note .loc-flag{font-size:1rem;line-height:1}
+
+/* ── Billing period toggle ───────────────────────────────────────────────── */
+.billing-toggle{display:inline-flex;align-items:center;gap:.25rem;margin:1.5rem auto 0;
+                background:var(--bg-alt);border:1px solid var(--border);border-radius:999px;padding:.28rem}
+.billing-toggle button{font-family:var(--font-sans);font-weight:700;font-size:.9rem;
+                       border:0;background:transparent;color:var(--muted);cursor:pointer;
+                       border-radius:999px;padding:.5rem 1.2rem;transition:background .2s,color .2s}
+.billing-toggle button.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.billing-toggle .save-hint{font-size:.72rem;font-weight:700;color:var(--ins-text);margin-left:.25rem}
+
+/* ── Plan cards ──────────────────────────────────────────────────────────── */
+.plans{padding-top:2rem;padding-bottom:1.5rem}
+.plans__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+             gap:1.5rem;max-width:1040px;margin:0 auto}
+.plan-card{position:relative;display:flex;flex-direction:column;gap:1.1rem;
+           background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+           padding:2rem 1.75rem;transition:transform .2s,box-shadow .2s}
+.plan-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.plan-card--pro{border-color:var(--accent);box-shadow:0 0 0 2px rgba(85,118,166,.14),var(--shadow)}
+.plan-badge{position:absolute;top:-.8rem;left:50%;transform:translateX(-50%);
+            font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+            color:#fff;background:var(--accent);border-radius:999px;padding:.28rem .85rem}
+.plan-name{font-family:var(--font-serif);font-size:1.25rem}
+.plan-price{display:flex;align-items:baseline;gap:.3rem;flex-wrap:wrap}
+.plan-price .amount{font-family:var(--font-serif);font-size:2.6rem;line-height:1;color:var(--text)}
+.plan-price .unit{font-size:.95rem;color:var(--muted);font-weight:700}
+.plan-sub{font-size:.85rem;color:var(--muted);min-height:1.2em}
+.plan-save{display:inline-block;font-size:.75rem;font-weight:700;color:var(--ins-text);
+           background:var(--ins-bg);border-radius:999px;padding:.2rem .6rem;width:max-content}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:.6rem;
+            font-size:.9rem;font-weight:400;font-family:var(--font-prose);color:var(--text)}
+.plan-feats li{display:flex;align-items:flex-start;gap:.55rem}
+.plan-feats .tick{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+                  width:1.25rem;height:1.25rem;border-radius:50%;background:var(--ins-bg);
+                  color:var(--ins-text);font-size:.72rem;margin-top:.12em}
+.plan-feats li.na{color:var(--muted)}
+.plan-feats li.na .tick{background:var(--bg-alt);color:var(--muted)}
+.pro-pill{margin-left:auto;align-self:center;font-size:.6rem;font-weight:700;letter-spacing:.05em;
+          text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);
+          border-radius:999px;padding:.08rem .45rem}
+.plan-card .btn{margin-top:auto}
+.plan-fineprint{font-size:.75rem;color:var(--muted);text-align:center}
+
+/* ── Team & Enterprise ───────────────────────────────────────────────────── */
+.enterprise{max-width:1040px;padding-top:1rem}
+.enterprise__inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+                   gap:1.5rem;background:var(--surface);border:1px solid var(--border);
+                   border-radius:var(--radius);padding:2rem 2.25rem}
+.enterprise__text{flex:1 1 340px}
+.enterprise__text h2{font-family:var(--font-serif);font-size:1.35rem;margin-bottom:.5rem}
+.enterprise__text p{color:var(--muted);font-size:.95rem;font-weight:400;font-family:var(--font-prose)}
+
+/* ── Features ────────────────────────────────────────────────────────────── */
+.features__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:1rem}
+.feature-card{position:relative;border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem;
+              background:var(--surface);transition:transform .2s,box-shadow .2s}
+.feature-card--pro{border-color:var(--accent)}
+.feat-pro-badge{position:absolute;top:1.1rem;right:1.1rem;font-size:.6rem;font-weight:700;
+                letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--accent);
+                border-radius:999px;padding:.16rem .5rem}
+.feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.feature-card h3{font-family:var(--font-serif);font-size:1.1rem;margin-bottom:.5rem}
+.feature-card p{color:var(--muted);font-size:.95rem;font-weight:400;font-family:var(--font-prose)}
+/* Desktop: 4 across; the two Pro cards drop to a centered second row (cols 2 & 3). */
+@media(min-width:900px){
+  .features__grid{grid-template-columns:repeat(4,1fr)}
+  .features__grid .feature-card:nth-child(5){grid-column:2}
+  .features__grid .feature-card:nth-child(6){grid-column:3}
+}
+
+/* ── FAQ ─────────────────────────────────────────────────────────────────── */
+.faq{max-width:760px}
+.faq__item{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);
+           padding:1.1rem 1.35rem;margin-bottom:1rem}
+.faq__item summary{cursor:pointer;font-weight:700;font-size:1rem;list-style:none;
+                   display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.faq__item summary::-webkit-details-marker{display:none}
+.faq__item summary::after{content:"+";color:var(--accent);font-size:1.3rem;transition:transform .2s}
+.faq__item[open] summary::after{transform:rotate(45deg)}
+.faq__item p{margin-top:.85rem;color:var(--muted);font-size:.95rem;font-weight:400;font-family:var(--font-prose)}
+
+/* ── CTA ─────────────────────────────────────────────────────────────────── */
+.cta__inner{text-align:center;background:#F9C7C7;transition:background .35s ease;
+            border-radius:24px;padding:3.5rem 2rem;color:var(--text)}
+.cta__inner h2{font-family:var(--font-serif);font-size:clamp(1.5rem,3.5vw,2.1rem);margin-bottom:.5rem}
+.cta__inner p{opacity:.8;margin-bottom:1.75rem}
+.cta__inner:hover{background:#CDE7C9}
+.cta__inner .btn--primary{background:transparent;color:#B33A3B;border:2px solid #B33A3B}
+.cta__inner:hover .btn--primary{color:#317B3C;border-color:#317B3C}
+.cta__inner .btn--primary:hover{background:transparent;color:#317B3C;border-color:#317B3C;transform:translateY(-1px)}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.footer{border-top:1px solid var(--border);padding:2rem 1.5rem}
+.footer__inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;
+               align-items:center;justify-content:space-between;gap:.75rem}
+.footer__copy{color:var(--muted);font-size:.9rem}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media(max-width:760px){
+  .nav__links{position:absolute;top:100%;left:0;right:0;background:var(--surface);
+              border-bottom:1px solid var(--border);flex-direction:column;
+              align-items:stretch;gap:1rem;padding:1.25rem 1.5rem;display:none}
+  .nav--open .nav__links{display:flex}
+  .nav__links a{text-align:center}
+  .nav__cta{justify-content:center}
+  .nav__toggle{display:flex}
+  .nav--open .nav__toggle span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav--open .nav__toggle span:nth-child(2){opacity:0}
+  .nav--open .nav__toggle span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  section{padding:3.5rem 1.25rem}
+  .pricing-hero{padding:3rem 1.25rem 1rem}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{transition:none!important;opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────── -->
+<header class="nav" id="top">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo" aria-label="Benjamin">
+      <img src="Benjamin_name.svg" alt="Benjamin" class="benjamin-logo benjamin-logo--nav">
+    </a>
+    <nav class="nav__links" id="nav-links">
+      <a href="index.html#showcase">Demo</a>
+      <a href="index.html#how-it-works">How it works</a>
+      <a href="index.html#features">Features</a>
+      <a href="pricing.html" class="active">Pricing</a>
+      <a href="https://scicoagent.com/blog/tools/proofread/">Blog</a>
+      <button class="btn btn--primary btn--sm nav__cta js-signin" type="button">Sign in with Google</button>
+    </nav>
+    <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ── Pricing header ─────────────────────────────────────────────────────── -->
+<section class="pricing-hero" id="pricing">
+  <h1 class="section-title reveal">Simple pricing for serious science</h1>
+  <p class="section-sub reveal">Same expert proofreading quality on every plan. Paid tiers unlock equation proofreading, 95+ languages, and far more monthly words.</p>
+  <div class="reveal">
+    <span class="loc-note"><span class="loc-flag" id="loc-flag">🌎</span><span id="loc-text">Prices shown in USD, based on your location</span></span>
+  </div>
+  <div class="billing-toggle reveal" role="tablist" aria-label="Billing period">
+    <button type="button" data-period="monthly" role="tab">Monthly</button>
+    <button type="button" data-period="annual" class="active" role="tab" aria-selected="true">Annual<span class="save-hint" id="toggle-save">save 44%</span></button>
+  </div>
+</section>
+
+<!-- ── Plan cards ─────────────────────────────────────────────────────────── -->
+<section class="plans" aria-label="Plans">
+  <div class="plans__grid">
+
+    <!-- Free -->
+    <article class="plan-card reveal">
+      <h2 class="plan-name">Free</h2>
+      <div class="plan-price"><span class="amount">Free</span></div>
+      <p class="plan-sub">1 document / month · up to 5,000 words</p>
+      <ul class="plan-feats">
+        <li><span class="tick">✓</span> Context-aware proofreading of scientific notations, units &amp; author names</li>
+        <li><span class="tick">✓</span> All formats scientists use: LaTeX, Word (.docx), plain-text, Markdown, RTF</li>
+        <li><span class="tick">✓</span> Real tracked changes</li>
+      </ul>
+      <button class="btn btn--ghost btn--lg btn--block js-signin" type="button">Start free</button>
+    </article>
+
+    <!-- Pro -->
+    <article class="plan-card plan-card--pro reveal">
+      <span class="plan-badge">Most popular</span>
+      <h2 class="plan-name">Benjamin Pro</h2>
+      <div class="plan-price">
+        <span class="amount"><span id="pro-symbol">$</span><span id="pro-amount">168</span></span>
+        <span class="unit" id="pro-unit">/year</span>
+      </div>
+      <p class="plan-sub" id="pro-sub">≈ $14/mo · billed annually</p>
+      <span class="plan-save" id="pro-save">Save $132 / year</span>
+      <ul class="plan-feats">
+        <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Free</strong></li>
+        <li><span class="tick">✓</span> Proofreading of mathematical equations</li>
+        <li><span class="tick">✓</span> Supported in 95+ languages</li>
+        <li><span class="tick">✓</span> 70,000 words / month (nearly unlimited)</li>
+      </ul>
+      <button class="btn btn--primary btn--lg btn--block js-signin" type="button">Get Benjamin Pro</button>
+    </article>
+
+    <!-- Max -->
+    <article class="plan-card reveal">
+      <h2 class="plan-name">Benjamin Max</h2>
+      <div class="plan-price">
+        <span class="amount"><span id="max-symbol">$</span><span id="max-amount">756</span></span>
+        <span class="unit" id="max-unit">/year</span>
+      </div>
+      <p class="plan-sub" id="max-sub">≈ $63/mo · billed annually</p>
+      <span class="plan-save" id="max-save">Save $594 / year</span>
+      <ul class="plan-feats">
+        <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Pro, at 5× the volume</strong></li>
+        <li><span class="tick">✓</span> 350,000 words / month</li>
+        <li><span class="tick">✓</span> Proofreading of mathematical equations</li>
+        <li><span class="tick">✓</span> Supported in 95+ languages</li>
+        <li><span class="tick">✓</span> Priority access during high traffic</li>
+      </ul>
+      <button class="btn btn--ghost btn--lg btn--block js-signin" type="button">Get Benjamin Max</button>
+    </article>
+
+  </div>
+  <p class="plan-fineprint reveal" style="margin-top:1.5rem">Cancel anytime. Secure payments coming via Razorpay — sign in to get started.</p>
+</section>
+
+<!-- ── Team & Enterprise ──────────────────────────────────────────────────── -->
+<section class="enterprise" aria-label="Team and Enterprise">
+  <div class="enterprise__inner reveal">
+    <div class="enterprise__text">
+      <h2>Team &amp; Enterprise</h2>
+      <p>Equip your lab, department, or institution. Purchase any combination of Pro and Max accounts — at the same per-seat price, with no extra cost — under one centralized plan.</p>
+    </div>
+    <a class="btn btn--primary btn--lg" href="mailto:contact@productwatch.io?subject=Benjamin%20Team%20%26%20Enterprise">Talk to us</a>
+  </div>
+</section>
+
+<!-- ── Features ───────────────────────────────────────────────────────────── -->
+<section class="features" id="features">
+  <h2 class="section-title reveal">Every feature Benjamin offers</h2>
+  <p class="section-sub reveal">The same meticulous quality on every plan — with equation proofreading and 95+ languages unlocked on Pro and Max.</p>
+  <div class="features__grid">
+    <article class="feature-card reveal">
+      <h3>Scientist + Proofreader</h3>
+      <p>Meet Benjamin (named after B. Franklin), a scientist at heart, a proofreader by choice.</p>
+    </article>
+    <article class="feature-card reveal">
+      <h3>Every format scientists use</h3>
+      <p>LaTeX, Word (<code>.docx</code>), plain-text / Markdown, and RTF — no reformatting required.</p>
+    </article>
+    <article class="feature-card reveal">
+      <h3>Context-aware corrections</h3>
+      <p>Checks grammar, units, notations, and terminology in context, not just spelling.</p>
+    </article>
+    <article class="feature-card reveal">
+      <h3>Real tracked changes</h3>
+      <p>Native Word Track Changes or an inline LaTeX diff — review, accept, or reject every edit.</p>
+    </article>
+    <article class="feature-card feature-card--pro reveal">
+      <span class="feat-pro-badge">Pro</span>
+      <h3>Equation proofreading</h3>
+      <p>Checks the conceptual and formatting integrity of mathematical equations and rectifies them when needed.</p>
+    </article>
+    <article class="feature-card feature-card--pro reveal">
+      <span class="feat-pro-badge">Pro</span>
+      <h3>Multilingual ability</h3>
+      <p>We support proofreading in 95+ natural languages — language is no longer a barrier.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────────────────────── -->
+<section class="faq" id="faq">
+  <h2 class="section-title reveal">Questions</h2>
+  <div class="reveal">
+    <details class="faq__item">
+      <summary>Why do I see prices in ₹ or $?</summary>
+      <p>Prices are shown in your local currency based on where you're visiting from — ₹ for India and $ everywhere else. Your plan and every feature are identical regardless of currency.</p>
+    </details>
+    <details class="faq__item">
+      <summary>What does the free plan include?</summary>
+      <p>The free plan gives you one document per month, up to 5,000 words (or the equivalent). It includes Benjamin's context-aware grammar, unit, and notation checks with native tracked changes, at the same proofreading quality as the paid plans. Equation proofreading and 95+ language support are available on Pro and Max.</p>
+    </details>
+    <details class="faq__item">
+      <summary>What counts as a "document"?</summary>
+      <p>A single manuscript you submit for proofreading — a <code>.tex</code> project, a Word <code>.docx</code>, plain text / Markdown, or <code>.rtf</code>. Free allows one document a month up to 5,000 words; paid plans work off a generous monthly word budget instead — 70,000 words on Pro and 350,000 on Max.</p>
+    </details>
+    <details class="faq__item">
+      <summary>What's the difference between Pro and Max?</summary>
+      <p>Same features, same proofreading quality — the difference is volume. Pro includes 70,000 words per month (nearly unlimited for most researchers); Max gives you 5× that, 350,000 words per month, for heavy users and large groups.</p>
+    </details>
+    <details class="faq__item">
+      <summary>Can I buy plans for my lab or institution?</summary>
+      <p>Yes. Under Team &amp; Enterprise you can purchase any combination of Pro and Max accounts at the same per-seat price, with no extra cost, managed under one centralized plan. Get in touch and we'll set it up.</p>
+    </details>
+    <details class="faq__item">
+      <summary>Is the paid proofreading quality different from Free?</summary>
+      <p>No — the proofreading quality is identical on every plan. Paid tiers don't proofread "better"; they unlock additional capabilities (equation proofreading, 95+ languages) and a much larger monthly word budget.</p>
+    </details>
+    <details class="faq__item">
+      <summary>How do I pay, and can I cancel?</summary>
+      <p>Secure checkout is coming via Razorpay, supporting UPI, cards, and net-banking in India and international cards worldwide. You'll be able to cancel anytime.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────────────────── -->
+<section class="cta">
+  <div class="cta__inner reveal">
+    <h2>Give your manuscript a second pair of eyes.</h2>
+    <p>Start free — no card required. Upload a draft and see what Benjamin finds.</p>
+    <button class="btn btn--primary btn--lg js-signin" type="button">Open Benjamin →</button>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <span class="footer__logo">
+      <img src="Benjamin_name.svg" alt="Benjamin" class="benjamin-logo benjamin-logo--footer">
+    </span>
+    <span class="footer__copy">An AI proofreading assistant for scientific writing.</span>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
+<script>
+  /* ── Google sign-in (shared with landing page) ──────────────────────────── */
+  (function(){
+    if (window.location.hash.includes('access_token')) {
+      window.SciCoProofAuth.onChange(function(user){ if (user) location.href = 'app.html'; });
+      return;
+    }
+    async function enterProofread(){
+      try {
+        var user = await window.SciCoProofAuth.getUser();
+        if (user) { location.href = 'app.html'; return; }
+        await window.SciCoProofAuth.signInWithGoogle();
+      } catch (err) {
+        console.error('Google sign-in failed:', err);
+      }
+    }
+    document.querySelectorAll('.js-signin').forEach(function(button){
+      button.addEventListener('click', enterProofread);
+    });
+  })();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  /* ── Scroll-reveal ──────────────────────────────────────────────────── */
+  const revealObs = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); } });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+  /* ── Nav scroll shadow ──────────────────────────────────────────────── */
+  const nav = document.querySelector('.nav');
+  const onScroll = () => nav.classList.toggle('nav--scrolled', window.scrollY > 10);
+  onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ── Mobile nav toggle ──────────────────────────────────────────────── */
+  const toggle = document.getElementById('nav-toggle');
+  const links  = document.getElementById('nav-links');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('nav--open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  links.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => { nav.classList.remove('nav--open'); toggle.setAttribute('aria-expanded','false'); });
+  });
+
+  /* ── Pricing: currency auto-detect + billing period toggle ──────────── */
+  /* Max = 5× Pro usage at 4.5× Pro price. Annual discount % is identical across tiers. */
+  const PRICES = {
+    USD: {
+      symbol: '$',
+      pro: {
+        monthly: { amount: '25',  unit: '/month', sub: 'Billed monthly',              save: 'Save $132/yr with annual' },
+        annual:  { amount: '168', unit: '/year',  sub: '≈ $14/mo · billed annually',   save: 'Save $132 / year' }
+      },
+      max: {
+        monthly: { amount: '112.50', unit: '/month', sub: 'Billed monthly',            save: 'Save $594/yr with annual' },
+        annual:  { amount: '756',    unit: '/year',  sub: '≈ $63/mo · billed annually', save: 'Save $594 / year' }
+      },
+      toggleSave: 'save 44%'
+    },
+    INR: {
+      symbol: '₹',
+      pro: {
+        monthly: { amount: '750',   unit: '/month', sub: 'Billed monthly',               save: 'Save ₹5,000/yr with annual' },
+        annual:  { amount: '4,000', unit: '/year',  sub: '≈ ₹333/mo · billed annually',   save: 'Save ₹5,000 / year' }
+      },
+      max: {
+        monthly: { amount: '3,375',  unit: '/month', sub: 'Billed monthly',                save: 'Save ₹22,500/yr with annual' },
+        annual:  { amount: '18,000', unit: '/year',  sub: '≈ ₹1,500/mo · billed annually',  save: 'Save ₹22,500 / year' }
+      },
+      toggleSave: 'save 56%'
+    }
+  };
+
+  let currency = 'USD';
+  let period = 'annual';
+
+  const priceEl = key => ({
+    symbol: document.getElementById(key + '-symbol'),
+    amount: document.getElementById(key + '-amount'),
+    unit:   document.getElementById(key + '-unit'),
+    sub:    document.getElementById(key + '-sub'),
+    save:   document.getElementById(key + '-save')
+  });
+  const el = {
+    pro: priceEl('pro'),
+    max: priceEl('max'),
+    toggleSave: document.getElementById('toggle-save'),
+    locFlag: document.getElementById('loc-flag'),
+    locText: document.getElementById('loc-text')
+  };
+
+  function render(){
+    const c = PRICES[currency];
+    ['pro', 'max'].forEach(key => {
+      const p = c[key][period];
+      el[key].symbol.textContent = c.symbol;
+      el[key].amount.textContent = p.amount;
+      el[key].unit.textContent   = p.unit;
+      el[key].sub.textContent    = p.sub;
+      el[key].save.textContent   = p.save;
+    });
+    el.toggleSave.textContent = c.toggleSave;
+  }
+
+  function setLocationNote(){
+    if (currency === 'INR') {
+      el.locFlag.textContent = '🇮🇳';
+      el.locText.textContent = 'Prices shown in INR (₹), based on your location';
+    } else {
+      el.locFlag.textContent = '🌎';
+      el.locText.textContent = 'Prices shown in USD ($), based on your location';
+    }
+  }
+
+  // Billing period toggle
+  document.querySelectorAll('.billing-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      period = btn.dataset.period;
+      document.querySelectorAll('.billing-toggle button').forEach(b => {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', String(on));
+      });
+      render();
+    });
+  });
+
+  render();
+  setLocationNote();
+
+  // Auto-detect country → currency (GeoJS: free, no key, CORS-enabled). Fallback: USD.
+  (function detectCurrency(){
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3000);
+    fetch('https://get.geojs.io/v1/ip/country.json', { signal: ctrl.signal })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        const cc = (d && (d.country || d.country_code) || '').toUpperCase();
+        if (cc === 'IN') { currency = 'INR'; render(); setLocationNote(); }
+      })
+      .catch(() => { /* keep USD default */ })
+      .finally(() => clearTimeout(timer));
+  })();
+});
+</script>
+</body>
+</html>
