@@ -27,6 +27,10 @@
         <span class="mi">logout</span> Log Out
       </button>
 
+      <a class="sb-logout sb-plans" href="pricing.html">
+        <span class="mi">workspace_premium</span> Pricing &amp; Plans
+      </a>
+
       <hr style="border:0;border-top:1px solid var(--line);margin:0"/>
 
       <div class="sb-rate">

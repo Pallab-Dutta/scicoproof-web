@@ -194,6 +194,8 @@ body.sb-collapsed .sb-expand { display: inline-flex }
 }
 .sb-logout:hover { border-color: #BA5757; color: #BA5757 }
 .sb-logout .mi { font-size: 1.05rem }
+.sb-plans { text-decoration: none }
+.sb-plans:hover { border-color: var(--blue); color: var(--blue) }
 
 /* Section headers */
 .side-h {
