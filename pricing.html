@@ -127,6 +127,12 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 .billing-toggle button.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
 .billing-toggle .save-hint{font-size:.72rem;font-weight:700;color:var(--ins-text);margin-left:.25rem}
 
+/* ── Developer-only currency toggle ──────────────────────────────────────── */
+.dev-currency{display:inline-flex;align-items:center;gap:.6rem;margin-top:1rem}
+.dev-currency__tag{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+                   color:var(--accent);border:1px dashed var(--accent);border-radius:999px;padding:.2rem .55rem}
+.dev-currency .billing-toggle{margin-top:0}
+
 /* ── Plan cards ──────────────────────────────────────────────────────────── */
 .plans{padding-top:2rem;padding-bottom:1.5rem}
 .plans__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -271,6 +277,14 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   <div class="billing-toggle reveal" role="tablist" aria-label="Billing period">
     <button type="button" data-period="monthly" role="tab">Monthly</button>
     <button type="button" data-period="annual" class="active" role="tab" aria-selected="true">Annual<span class="save-hint" id="toggle-save">save 44%</span></button>
+  </div>
+  <!-- Developer-only: manual currency toggle (revealed only when GET /me returns is_admin). -->
+  <div class="dev-currency" id="dev-currency" hidden>
+    <span class="dev-currency__tag">🛠️ Dev</span>
+    <div class="billing-toggle" role="group" aria-label="Currency (developer)">
+      <button type="button" data-currency="USD" class="active">USD $</button>
+      <button type="button" data-currency="INR">INR ₹</button>
+    </div>
   </div>
 </section>
 
@@ -436,6 +450,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 <script src="js/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/auth.js"></script>
+<script src="js/api.js"></script>
 <script>
   /* ── Google sign-in (shared with landing page) ──────────────────────────── */
   (function(){
@@ -567,6 +582,47 @@ document.addEventListener('DOMContentLoaded', () => {
   render();
   setLocationNote();
 
+  // Developer override: the account whose email matches the backend DEV_EMAIL/ADMIN_EMAIL
+  // secret always sees USD pricing, regardless of their location. The check is done
+  // server-side via GET /me (which verifies the Supabase session and returns is_admin) —
+  // the developer's email is never exposed in this public page.
+  let devOverride = false;
+
+  function setDevLocationNote(){
+    el.locFlag.textContent = '🛠️';
+    el.locText.textContent = currency === 'INR'
+      ? 'Developer view · showing INR (₹) pricing'
+      : 'Developer view · showing USD ($) pricing';
+  }
+
+  function applyDevView(){
+    devOverride = true;
+    currency = 'USD';
+    render();
+    setDevLocationNote();
+    // Reveal the developer currency toggle and wire it up.
+    const devBox = document.getElementById('dev-currency');
+    devBox.hidden = false;
+    devBox.querySelectorAll('button[data-currency]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currency = btn.dataset.currency;
+        devBox.querySelectorAll('button[data-currency]').forEach(b =>
+          b.classList.toggle('active', b === btn));
+        render();
+        setDevLocationNote();
+      });
+    });
+  }
+
+  (async function detectDeveloper(){
+    try {
+      const token = await window.SciCoProofAuth.getToken();
+      if (!token) return;                       // not signed in — nothing to override
+      const me = await window.SciCoProofAPI.me();
+      if (me && me.is_admin) applyDevView();
+    } catch (_) { /* not the dev, or backend unavailable — ignore */ }
+  })();
+
   // Auto-detect country → currency (GeoJS: free, no key, CORS-enabled). Fallback: USD.
   (function detectCurrency(){
     const ctrl = new AbortController();
@@ -574,6 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('https://get.geojs.io/v1/ip/country.json', { signal: ctrl.signal })
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => {
+        if (devOverride) return;                // developer override wins over geo
         const cc = (d && (d.country || d.country_code) || '').toUpperCase();
         if (cc === 'IN') { currency = 'INR'; render(); setLocationNote(); }
       })
