@@ -566,11 +566,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Billing period toggle
-  document.querySelectorAll('.billing-toggle button').forEach(btn => {
+  // Billing period toggle — scope strictly to the period buttons so it never
+  // touches the developer currency toggle (which shares the .billing-toggle class).
+  const periodBtns = document.querySelectorAll('.billing-toggle button[data-period]');
+  periodBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       period = btn.dataset.period;
-      document.querySelectorAll('.billing-toggle button').forEach(b => {
+      periodBtns.forEach(b => {
         const on = b === btn;
         b.classList.toggle('active', on);
         b.setAttribute('aria-selected', String(on));
@@ -586,7 +588,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // secret always sees USD pricing, regardless of their location. The check is done
   // server-side via GET /me (which verifies the Supabase session and returns is_admin) —
   // the developer's email is never exposed in this public page.
-  let devOverride = false;
+  // Keep the developer currency toggle's active button in sync with `currency`
+  // (used both on reveal and whenever geo-detection updates the currency).
+  function syncDevToggle(){
+    const devBox = document.getElementById('dev-currency');
+    if (!devBox || devBox.hidden) return;
+    devBox.querySelectorAll('button[data-currency]').forEach(b =>
+      b.classList.toggle('active', b.dataset.currency === currency));
+  }
 
   function setDevLocationNote(){
     el.locFlag.textContent = '🛠️';
@@ -595,19 +604,16 @@ document.addEventListener('DOMContentLoaded', () => {
       : 'Developer view · showing USD ($) pricing';
   }
 
+  // Reveal the developer currency toggle. Does NOT force a currency — the page keeps
+  // whatever location-based currency was detected; the developer can then flip it.
   function applyDevView(){
-    devOverride = true;
-    currency = 'USD';
-    render();
-    setDevLocationNote();
-    // Reveal the developer currency toggle and wire it up.
     const devBox = document.getElementById('dev-currency');
     devBox.hidden = false;
+    syncDevToggle();                            // reflect the current (location-based) currency
     devBox.querySelectorAll('button[data-currency]').forEach(btn => {
       btn.addEventListener('click', () => {
-        currency = btn.dataset.currency;
-        devBox.querySelectorAll('button[data-currency]').forEach(b =>
-          b.classList.toggle('active', b === btn));
+        currency = btn.dataset.currency;         // respects the current monthly/annual period
+        syncDevToggle();
         render();
         setDevLocationNote();
       });
@@ -617,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
   (async function detectDeveloper(){
     try {
       const token = await window.SciCoProofAuth.getToken();
-      if (!token) return;                       // not signed in — nothing to override
+      if (!token) return;                       // not signed in — no dev toggle
       const me = await window.SciCoProofAPI.me();
       if (me && me.is_admin) applyDevView();
     } catch (_) { /* not the dev, or backend unavailable — ignore */ }
@@ -630,9 +636,8 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('https://get.geojs.io/v1/ip/country.json', { signal: ctrl.signal })
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => {
-        if (devOverride) return;                // developer override wins over geo
         const cc = (d && (d.country || d.country_code) || '').toUpperCase();
-        if (cc === 'IN') { currency = 'INR'; render(); setLocationNote(); }
+        if (cc === 'IN') { currency = 'INR'; render(); setLocationNote(); syncDevToggle(); }
       })
       .catch(() => { /* keep USD default */ })
       .finally(() => clearTimeout(timer));
