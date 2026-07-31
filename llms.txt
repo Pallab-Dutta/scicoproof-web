@@ -1,0 +1,42 @@
+# Benjamin
+
+> Benjamin is an AI academic proofreader for scientific manuscripts. It reads LaTeX, Word, plain-text/Markdown, and RTF source files like a meticulous co-author, catching the unit, notation, sign, and equation errors that general spell-checkers and grammar tools miss, and returns a full tracked-changes review you accept or reject edit by edit. Benjamin never rewrites your science; it only flags issues as suggestions. It is built for PhD students, postdocs, and faculty preparing research preprints, journal papers, and theses. Live at https://benjamin.scicoagent.com.
+
+## What Benjamin does
+
+- Proofreads the source files scientists actually submit in: LaTeX (a `.tex` file or a zipped `.zip` project), Microsoft Word (`.docx`), plain text (`.txt`), Markdown (`.md`), and rich text (`.rtf`). The format is detected automatically, with no setup.
+- Catches context-dependent scientific errors a generic checker misses: wrong units (for example, A versus Å), flipped signs, inconsistent notation and terminology, and the formatting integrity of equations.
+- Returns real tracked changes: native Word Track Changes for `.docx`, and an inline diff for LaTeX. You get a clean, publication-ready copy plus a full tracked-changes version, so you keep complete control.
+- Never silently rewrites your science. Every correction is a suggestion you review and accept or reject one by one.
+- Proofreads in 95+ natural languages.
+
+## What Benjamin does not do
+
+- It does not accept PDF files. A PDF has to be converted before it can be edited, and that conversion routinely scrambles equations, symbols, and layout. Benjamin works on your source file instead, so every correction lands exactly where it belongs.
+- It does not guarantee acceptance or replace peer review, and it does not paraphrase your writing into a black-box rewrite.
+
+## How Benjamin compares
+
+- Grammarly and general grammar checkers work on everyday English. Benjamin reads with scientific context: it understands units, equations, notation, and terminology, and flags errors a generic checker cannot see, such as A versus Å or a flipped sign.
+
+## Who it is for
+
+PhD students, postdocs, and faculty who need academic proofreading for a research preprint, journal paper, or thesis; non-native English speakers writing technical papers; and labs and institutes proofreading preprints before posting.
+
+## Pricing
+
+Free to start, with paid tiers for higher volume. Benjamin shows local pricing by region and offers monthly or annual billing, so see the pricing page for current amounts.
+
+- Free: one document per month, up to 5,000 words.
+- Pro: up to 70,000 words per month, which is enough for most researchers.
+- Max: five times the Pro volume, for heavy users.
+
+## Key pages
+
+- [Home](https://benjamin.scicoagent.com/): what Benjamin does, its features, and a detailed FAQ.
+- [Pricing](https://benjamin.scicoagent.com/pricing.html): plans, monthly word limits, and local and annual pricing.
+- [App](https://benjamin.scicoagent.com/app.html): the proofreading application. Sign in with Google to upload a manuscript and get a tracked-changes review.
+
+## About
+
+Benjamin (named after Benjamin Franklin) is a product of SciCoagent, which builds AI "Scientist Coagents" that automate academic pain points such as literature search, proofreading, thesis writing, and journal conversion. Parent site: https://scicoagent.com.
