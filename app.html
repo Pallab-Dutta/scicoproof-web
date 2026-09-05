@@ -604,9 +604,33 @@ btnReview.addEventListener("click", async () => {
 /* ═══════════════════════════════════════════════════════════════════════════
    REVIEW stage
    ═══════════════════════════════════════════════════════════════════════════ */
+// Developer-only tier picker: lets the admin run the SAME file as Free or Pro to test both
+// tiers. Inserted just above the Start button; non-admins never see it (and the backend
+// ignores any tier they send).
+function renderTierSelector(isAdmin) {
+  const btn = $("btnStartProof");
+  if (!btn) return;
+  let wrap = $("tierSelectWrap");
+  if (!isAdmin) { if (wrap) wrap.remove(); return; }
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.id = "tierSelectWrap";
+    wrap.style.cssText = "margin:12px 0;display:flex;align-items:center;gap:8px;font-size:14px;";
+    wrap.innerHTML =
+      '<span class="mi">science</span>' +
+      '<label for="tierSelect"><b>Developer tier</b> — run as:</label>' +
+      '<select id="tierSelect" style="padding:4px 8px;border-radius:6px;">' +
+      '<option value="pro">Pro (windowed equation Pass-2)</option>' +
+      '<option value="free">Free (isolation Pass-2)</option>' +
+      '</select>';
+    btn.parentNode.insertBefore(wrap, btn);
+  }
+}
+
 function renderReview() {
   const r = _reviewData;
   $("reviewError").style.display = "none";
+  renderTierSelector(r.is_admin);
   if (r.is_admin) { renderReviewAdmin(r); return; }
 
   // Standardized user view — same clean info for any file type, no infra leakage.
@@ -692,7 +716,10 @@ $("btnStartProof").addEventListener("click", async () => {
   initRunningStage();
   showStage("running");
   try {
-    const { job_id } = await window.SciCoProofAPI.run(_reviewData.file_id);
+    const _sel = $("tierSelect");
+    const _chosenTier = _sel ? _sel.value : undefined;   // admin-only; ignored server-side otherwise
+    const { job_id, tier } = await window.SciCoProofAPI.run(_reviewData.file_id, _chosenTier);
+    if (_sel && tier) console.log("[dev] proofreading tier in use:", tier);
     _jobId = job_id;
     streamJob(job_id);
   } catch (err) {

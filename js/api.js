@@ -83,8 +83,13 @@
     /** POST /analyze — uploads file once, returns review metadata + file_id. */
     analyze(file, onProgress) { return uploadWithProgress("/analyze", file, onProgress); },
 
-    /** POST /run — starts the pipeline using the cached file_id, returns {job_id}. */
-    run(fileId) { return req("POST", "/run", { file_id: fileId }); },
+    /** POST /run — starts the pipeline using the cached file_id, returns {job_id, tier}.
+     *  `tier` (optional) is an admin-only override ('free'/'pro'); ignored for non-admins. */
+    run(fileId, tier) {
+      const body = { file_id: fileId };
+      if (tier) body.tier = tier;
+      return req("POST", "/run", body);
+    },
 
     /** Download a finished job result. kind: "result"|"clean"|"tracked" */
     downloadResult(jobId, kind) {
