@@ -80,6 +80,13 @@
   window.SciCoProofAPI = {
     me() { return req("GET", "/me"); },
 
+    /** POST /billing/checkout — start a subscription. body: {tier:'pro'|'max', period, currency}.
+     *  Returns {provider:'razorpay', subscription_id, key_id} or {provider:'dodo', checkout_url}. */
+    checkout(body) { return req("POST", "/billing/checkout", body); },
+
+    /** POST /billing/cancel — cancel the current subscription (access lasts until period end). */
+    cancelSub() { return req("POST", "/billing/cancel", {}); },
+
     /** POST /analyze — uploads file once, returns review metadata + file_id. */
     analyze(file, onProgress) { return uploadWithProgress("/analyze", file, onProgress); },
 
