@@ -212,6 +212,31 @@
                   border: 1px solid var(--line); border-radius: 16px; background: #fafaf8 }
   .privacy-wrap h1 { color: var(--blue); font-size: 1.8rem; text-align: center; margin-bottom: 24px }
   .privacy-wrap p { color: var(--muted); line-height: 1.7 }
+
+  /* Top-right plan + word-budget HUD */
+  .main { position: relative; }
+  .plan-hud { position: absolute; top: 14px; right: 18px; z-index: 20;
+              display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+              padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px;
+              background: #fff; box-shadow: 0 1px 3px rgba(20,30,45,.06); min-width: 172px; }
+  .plan-hud .plan-badge { font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+              text-transform: uppercase; padding: 3px 10px; border-radius: 999px;
+              color: #5a6675; background: #eef1f5; }
+  .plan-hud .plan-badge.plan-pro { color: #fff; background: var(--blue); }
+  .plan-hud .plan-badge.plan-max { color: #fff; background: #6a3df6; }
+  .plan-hud .plan-upgrade { font-size: .74rem; font-weight: 600; color: var(--blue);
+              text-decoration: none; }
+  .plan-hud .plan-upgrade:hover { text-decoration: underline; }
+  .plan-hud .plan-budget { width: 100%; }
+  .plan-hud .pb-bar { height: 6px; border-radius: 999px; background: #eef1f5; overflow: hidden; }
+  .plan-hud .pb-fill { display: block; height: 100%; width: 0; border-radius: 999px;
+              background: var(--blue); transition: width .35s ease; }
+  .plan-hud .pb-fill.pb-danger { background: #d64545; }
+  .plan-hud .pb-label { font-size: .7rem; color: var(--muted); margin-top: 4px; text-align: right; }
+  @media (max-width: 720px) {
+    .plan-hud { position: static; align-items: stretch; margin: 0 0 14px; min-width: 0; }
+    .plan-hud .pb-label { text-align: left; }
+  }
 </style>
 <!-- ── Microsoft Clarity ────────────────────────────────────────────────────
      Session recordings + heatmaps for Benjamin (benjamin.scicoagent.com). The project ID is the last
@@ -233,6 +258,16 @@
   <button class="sb-expand" id="sbExpand" title="Show sidebar"><span class="mi">chevron_right</span></button>
 
   <main class="main">
+    <!-- Top-right plan + monthly word budget (filled by shell.js from /me) -->
+    <div class="plan-hud" id="planHud" hidden>
+      <span class="plan-badge" id="planBadge">Free</span>
+      <a class="plan-upgrade" id="planUpgrade" href="pricing.html" hidden>Upgrade</a>
+      <div class="plan-budget">
+        <div class="pb-bar"><span class="pb-fill" id="planBudgetFill"></span></div>
+        <div class="pb-label" id="planBudgetLabel">— / — words</div>
+      </div>
+    </div>
+
     <div class="content" id="mainContent">
 
       <!-- ═══════════════════════════════════════════════════════════════════
@@ -814,6 +849,7 @@ function streamJob(jobId) {
         setProgress("runOverallFill", 1);
         renderResults(data, false);
         showStage("results");
+        if (window.Shell && window.Shell.loadPlan) window.Shell.loadPlan();  // words consumed → refresh budget
 
       } else if (type === "error") {
         $("benRunOverlay").style.display = "none";

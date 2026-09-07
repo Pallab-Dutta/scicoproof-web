@@ -149,7 +149,39 @@
         } else {
           av.textContent = (name || "?").trim().charAt(0).toUpperCase();
         }
+        Shell.loadPlan();   // fill the top-right plan + budget HUD once we know the user
       });
+    },
+
+    /** Fetch /me and render the top-right plan badge + monthly word-budget bar. */
+    async loadPlan() {
+      const hud = document.getElementById("planHud");
+      if (!hud || !window.SciCoProofAPI) return;
+      let me;
+      try { me = await window.SciCoProofAPI.me(); } catch (_) { return; }
+
+      const tier = (me.tier || "free").toLowerCase();
+      const badge = document.getElementById("planBadge");
+      badge.textContent = { free: "Free", pro: "Pro", max: "Max" }[tier] || "Free";
+      badge.className = "plan-badge plan-" + tier;
+
+      const upgrade = document.getElementById("planUpgrade");
+      if (tier === "free")      { upgrade.textContent = "Upgrade to Pro"; upgrade.hidden = false; }
+      else if (tier === "pro")  { upgrade.textContent = "Upgrade to Max"; upgrade.hidden = false; }
+      else                      { upgrade.hidden = true; }
+
+      const limit = Number(me.word_limit || 0);
+      const used = Number(me.words_used || 0);
+      const remaining = me.words_remaining != null ? Number(me.words_remaining)
+                                                   : Math.max(0, limit - used);
+      const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+      const fill = document.getElementById("planBudgetFill");
+      fill.style.width = pct + "%";
+      fill.classList.toggle("pb-danger", pct >= 90);
+      document.getElementById("planBudgetLabel").textContent =
+        `${used.toLocaleString()} / ${limit.toLocaleString()} words · ${remaining.toLocaleString()} left`;
+
+      hud.hidden = false;
     },
   };
 
