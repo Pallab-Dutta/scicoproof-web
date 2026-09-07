@@ -170,16 +170,23 @@
       else if (tier === "pro")  { upgrade.textContent = "Upgrade to Max"; upgrade.hidden = false; }
       else                      { upgrade.hidden = true; }
 
-      const limit = Number(me.word_limit || 0);
-      const used = Number(me.words_used || 0);
-      const remaining = me.words_remaining != null ? Number(me.words_remaining)
-                                                   : Math.max(0, limit - used);
-      const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
-      const fill = document.getElementById("planBudgetFill");
-      fill.style.width = pct + "%";
-      fill.classList.toggle("pb-danger", pct >= 90);
-      document.getElementById("planBudgetLabel").textContent =
-        `${used.toLocaleString()} / ${limit.toLocaleString()} words · ${remaining.toLocaleString()} left`;
+      // Free tier currently has no word budget — show only the badge + upgrade CTA.
+      const budget = hud.querySelector(".plan-budget");
+      if (tier === "free") {
+        budget.hidden = true;
+      } else {
+        budget.hidden = false;
+        const limit = Number(me.word_limit || 0);
+        const used = Number(me.words_used || 0);
+        const remaining = me.words_remaining != null ? Number(me.words_remaining)
+                                                     : Math.max(0, limit - used);
+        const pct = limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+        const fill = document.getElementById("planBudgetFill");
+        fill.style.width = pct + "%";
+        fill.classList.toggle("pb-danger", pct >= 90);
+        document.getElementById("planBudgetLabel").textContent =
+          `${used.toLocaleString()} / ${limit.toLocaleString()} words · ${remaining.toLocaleString()} left`;
+      }
 
       hud.hidden = false;
     },
