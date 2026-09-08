@@ -98,7 +98,8 @@
       return req("POST", "/run", body);
     },
 
-    /** Download a finished job result. kind: "result"|"clean"|"tracked" */
+    /** Download a finished job result.
+     * kind: "result" (nested package ZIP) | "clean" | "tracked" | "bundle" (flat two-file ZIP) */
     downloadResult(jobId, kind) {
       kind = kind || "result";
       return download(`/jobs/${encodeURIComponent(jobId)}/${kind}`);

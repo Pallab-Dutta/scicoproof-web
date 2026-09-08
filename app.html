@@ -431,7 +431,14 @@
 
         <!-- Downloads -->
         <div id="dlLatex" style="display:none">
-          <div class="dl-row">
+          <!-- Single .tex: clean + tracked files separately, plus a flat ZIP (both files at root). -->
+          <div class="dl-row" id="dlLatexSingle">
+            <button class="dl-btn" id="dlTexClean"><span class="mi">description</span> Download Clean File (.tex)</button>
+            <button class="dl-btn" id="dlTexTracked"><span class="mi">track_changes</span> Download Tracked Changes (.tex)</button>
+            <button class="dl-btn full" id="dlTexBoth"><span class="mi">download</span> Download Both as ZIP</button>
+          </div>
+          <!-- Multi-file LaTeX package: keep the full nested package ZIP. -->
+          <div class="dl-row" id="dlLatexMulti" style="display:none">
             <button class="dl-btn full" id="dlZip">
               <span class="mi">download</span> Download Proofread ZIP
             </button>
@@ -936,6 +943,11 @@ function renderResults(data, isError) {
   } else {
     $("dlLatex").style.display = "";
     $("dlProse").style.display = "none";
+    // Single .tex → clean/tracked files + flat ZIP (like docx). Multi-file package (or unknown
+    // count, e.g. a partial run) → keep the nested package ZIP, whose downloads always work.
+    const single = data && data.total_files === 1;
+    $("dlLatexSingle").style.display = single ? "" : "none";
+    $("dlLatexMulti").style.display  = single ? "none" : "";
   }
 
   // Completed-file previews intentionally not shown on the results page;
@@ -969,11 +981,21 @@ function cleanFileName()     {
   return baseFileName() + "_clean_benjamin." + ext;
 }
 function trackedFileName()   { return baseFileName() + "_proofread_benjamin.docx"; }
+// LaTeX single-.tex download names (mirror the docx set, .tex extension).
+function texCleanName()      { return baseFileName() + "_clean_benjamin.tex"; }
+function texTrackedName()    { return baseFileName() + "_trackchanges_benjamin.tex"; }
+function texBundleName()     { return baseFileName() + "_proofread_benjamin.zip"; }
 
-attachDownload("dlZip",      "result",  proofreadZipName);
+// Prose downloads
 attachDownload("dlClean",    "clean",   cleanFileName);
 attachDownload("dlTracked",  "tracked", trackedFileName);
 attachDownload("dlBothZip",  "result",  proofreadZipName);
+// LaTeX single-.tex downloads (clean + tracked files, and a flat both-files ZIP)
+attachDownload("dlTexClean",   "clean",   texCleanName);
+attachDownload("dlTexTracked", "tracked", texTrackedName);
+attachDownload("dlTexBoth",    "bundle",  texBundleName);
+// LaTeX multi-file package fallback (nested clean/ + trackchanges/ ZIP)
+attachDownload("dlZip",      "result",  proofreadZipName);
 
 // New run button
 const btnNewRun = $("btnNewRun");
