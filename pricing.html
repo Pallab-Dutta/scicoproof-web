@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pricing — Benjamin: AI Academic Proofreading for Researchers</title>
-<meta name="description" content="See Benjamin pricing. Free to start, with Pro and Max tiers for higher-volume proofreading, equation checks, and 95+ languages. Local pricing worldwide.">
+<meta name="description" content="See Benjamin pricing. Free to start, with Pro and Max tiers for higher-volume proofreading, inline-math proofreading, and 95+ languages. Local pricing worldwide.">
 <link rel="canonical" href="https://benjamin.scicoagent.com/pricing.html">
 
 <!-- ── Open Graph ──────────────────────────────────────────────────────────── -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Benjamin">
 <meta property="og:title" content="Pricing — Benjamin: AI Academic Proofreading for Researchers">
-<meta property="og:description" content="Free to start — one document a month up to 5,000 words. Go Pro for unlimited scientific proofreading, equation checks, and 95+ languages on your LaTeX, Word, and plain-text manuscripts.">
+<meta property="og:description" content="Free to start — one document a month up to 5,000 words. Go Pro for unlimited scientific proofreading, inline-math proofreading, and 95+ languages on your LaTeX, Word, and plain-text manuscripts.">
 <meta property="og:url" content="https://benjamin.scicoagent.com/pricing.html">
 <meta property="og:image" content="https://benjamin.scicoagent.com/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -21,7 +21,7 @@
 <!-- ── Twitter card ────────────────────────────────────────────────────────── -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pricing — Benjamin: AI Academic Proofreading for Researchers">
-<meta name="twitter:description" content="Free to start — one document a month up to 5,000 words. Go Pro for unlimited scientific proofreading, equation checks, and 95+ languages.">
+<meta name="twitter:description" content="Free to start — one document a month up to 5,000 words. Go Pro for unlimited scientific proofreading, inline-math proofreading, and 95+ languages.">
 <meta name="twitter:image" content="https://benjamin.scicoagent.com/og-image.png">
 <meta name="twitter:image:alt" content="Benjamin — AI scientific proofreading with tracked changes">
 
@@ -182,6 +182,10 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
                   color:var(--ins-text);font-size:.72rem;margin-top:.12em}
 .plan-feats li.na{color:var(--muted)}
 .plan-feats li.na .tick{background:var(--bg-alt);color:var(--muted)}
+.plan-feats li.soon{color:var(--muted)}
+.plan-feats li.soon .tick{background:var(--bg-alt);color:var(--muted)}
+.soon-pill{align-self:center;font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+           color:var(--muted);border:1px dashed var(--border);border-radius:999px;padding:.08rem .45rem;white-space:nowrap}
 .pro-pill{margin-left:auto;align-self:center;font-size:.6rem;font-weight:700;letter-spacing:.05em;
           text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);
           border-radius:999px;padding:.08rem .45rem}
@@ -205,14 +209,16 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 .feat-pro-badge{position:absolute;top:1.1rem;right:1.1rem;font-size:.6rem;font-weight:700;
                 letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--accent);
                 border-radius:999px;padding:.16rem .5rem}
+.feature-card--soon{border-style:dashed}
+.feat-soon-badge{position:absolute;top:1.1rem;right:1.1rem;font-size:.6rem;font-weight:700;
+                 letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--bg-alt);
+                 border:1px dashed var(--border);border-radius:999px;padding:.12rem .5rem}
 .feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
 .feature-card h3{font-family:var(--font-serif);font-size:1.1rem;margin-bottom:.5rem}
 .feature-card p{color:var(--muted);font-size:.95rem;font-weight:400;font-family:var(--font-prose)}
-/* Desktop: 4 across; the two Pro cards drop to a centered second row (cols 2 & 3). */
+/* Desktop: 4 across; the Pro / coming-soon cards fill the second row. */
 @media(min-width:900px){
   .features__grid{grid-template-columns:repeat(4,1fr)}
-  .features__grid .feature-card:nth-child(5){grid-column:2}
-  .features__grid .feature-card:nth-child(6){grid-column:3}
 }
 
 /* ── FAQ ─────────────────────────────────────────────────────────────────── */
@@ -305,7 +311,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 <!-- ── Pricing header ─────────────────────────────────────────────────────── -->
 <section class="pricing-hero" id="pricing">
   <h1 class="section-title reveal">Simple pricing for serious science</h1>
-  <p class="section-sub reveal">Same expert proofreading quality on every plan. Paid tiers unlock equation proofreading, 95+ languages, and far more monthly words.</p>
+  <p class="section-sub reveal">Same expert proofreading quality on every plan. Paid tiers unlock inline-math proofreading, 95+ languages, and far more monthly words. Equation proofreading is coming soon.</p>
   <div class="reveal">
     <span class="loc-note"><span class="loc-flag" id="loc-flag">🌎</span><span id="loc-text">Prices shown in USD, based on your location</span></span>
   </div>
@@ -352,9 +358,10 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <span class="plan-save" id="pro-save">Save $132 / year</span>
       <ul class="plan-feats">
         <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Free</strong></li>
-        <li><span class="tick">✓</span> Proofreading of mathematical equations</li>
+        <li><span class="tick">✓</span> Proofreading of inline math (symbols, units, subscripts in text)</li>
         <li><span class="tick">✓</span> Supported in 95+ languages</li>
         <li><span class="tick">✓</span> 70,000 words / month (nearly unlimited)</li>
+        <li class="soon"><span class="tick">◷</span> Equation proofreading <span class="soon-pill">Coming soon</span></li>
       </ul>
       <button class="btn btn--primary btn--lg btn--block js-checkout" type="button" data-plan="pro">Get Benjamin Pro</button>
     </article>
@@ -371,9 +378,10 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <ul class="plan-feats">
         <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Pro, at 5× the volume</strong></li>
         <li><span class="tick">✓</span> 350,000 words / month</li>
-        <li><span class="tick">✓</span> Proofreading of mathematical equations</li>
+        <li><span class="tick">✓</span> Proofreading of inline math (symbols, units, subscripts in text)</li>
         <li><span class="tick">✓</span> Supported in 95+ languages</li>
         <li><span class="tick">✓</span> Priority access during high traffic</li>
+        <li class="soon"><span class="tick">◷</span> Equation proofreading <span class="soon-pill">Coming soon</span></li>
       </ul>
       <button class="btn btn--ghost btn--lg btn--block js-checkout" type="button" data-plan="max">Get Benjamin Max</button>
     </article>
@@ -396,7 +404,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 <!-- ── Features ───────────────────────────────────────────────────────────── -->
 <section class="features" id="features">
   <h2 class="section-title reveal">Every feature Benjamin offers</h2>
-  <p class="section-sub reveal">The same meticulous quality on every plan — with equation proofreading and 95+ languages unlocked on Pro and Max.</p>
+  <p class="section-sub reveal">The same meticulous quality on every plan — with inline-math proofreading and 95+ languages unlocked on Pro and Max, and equation proofreading coming soon.</p>
   <div class="features__grid">
     <article class="feature-card reveal">
       <h3>Scientist + Proofreader</h3>
@@ -416,8 +424,13 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     </article>
     <article class="feature-card feature-card--pro reveal">
       <span class="feat-pro-badge">Pro</span>
+      <h3>Inline math proofreading</h3>
+      <p>Proofreads the math inside your sentences — symbols, subscripts, units, and notation such as <code>$x_i$</code> or <code>kJ mol⁻¹</code> — in context with the prose around it.</p>
+    </article>
+    <article class="feature-card feature-card--soon reveal">
+      <span class="feat-soon-badge">Coming soon</span>
       <h3>Equation proofreading</h3>
-      <p>Checks the conceptual and formatting integrity of mathematical equations and rectifies them when needed.</p>
+      <p>Deep checks of the conceptual and formatting integrity of display equations, with corrections where needed.</p>
     </article>
     <article class="feature-card feature-card--pro reveal">
       <span class="feat-pro-badge">Pro</span>
@@ -453,7 +466,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     </details>
     <details class="faq__item">
       <summary>Is the paid proofreading quality different from Free?</summary>
-      <p>No — the proofreading quality is identical on every plan. Paid tiers don't proofread "better"; they unlock additional capabilities (equation proofreading, 95+ languages) and a much larger monthly word budget.</p>
+      <p>No — the proofreading quality is identical on every plan. Paid tiers don't proofread "better"; they unlock additional capabilities (inline-math proofreading, 95+ languages; equation proofreading is coming soon) and a much larger monthly word budget.</p>
     </details>
     <details class="faq__item">
       <summary>How do I pay, and can I cancel?</summary>

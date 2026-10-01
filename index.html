@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Proofreading for Scientists: LaTeX & Word | Benjamin</title>
-<meta name="description" content="Benjamin proofreads LaTeX and Word manuscripts like a meticulous co-author, catching the unit, notation, sign, and equation errors spell-checkers miss.">
+<meta name="description" content="Benjamin proofreads LaTeX and Word manuscripts like a meticulous co-author, catching the unit, notation, sign, and inline-math errors spell-checkers miss.">
 <link rel="canonical" href="https://benjamin.scicoagent.com/">
 
 <!-- ── Open Graph ──────────────────────────────────────────────────────────── -->
@@ -340,6 +340,11 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 .features__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:1rem}
 .feature-card{border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem;
               background:var(--surface);transition:transform .2s,box-shadow .2s}
+.feature-card{position:relative}
+.feature-card--soon{border-style:dashed}
+.feat-badge{position:absolute;top:1.1rem;right:1.1rem;font-size:.6rem;font-weight:700;letter-spacing:.06em;
+            text-transform:uppercase;color:#fff;background:var(--accent);border-radius:999px;padding:.16rem .5rem}
+.feat-badge--soon{color:var(--muted);background:var(--bg-alt);border:1px dashed var(--border)}
 .feature-card:nth-child(2){transition-delay:.05s}
 .feature-card:nth-child(3){transition-delay:.1s}
 .feature-card:nth-child(4){transition-delay:.15s}
@@ -422,7 +427,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       "applicationSubCategory": "Proofreading",
       "operatingSystem": "Web",
       "url": "https://benjamin.scicoagent.com/",
-      "description": "Academic proofreading for researchers. Benjamin gives LaTeX, Word, plain-text, and RTF manuscripts — research preprints, journal papers, and PhD theses — a full scientific-context review (units, equations, notation, and terminology), then returns a clean copy and a complete tracked-changes review.",
+      "description": "Academic proofreading for researchers. Benjamin gives LaTeX, Word, plain-text, and RTF manuscripts — research preprints, journal papers, and PhD theses — a full scientific-context review (units, inline math, notation, and terminology), then returns a clean copy and a complete tracked-changes review.",
       "keywords": "academic proofreading for researchers, scientific proofreading, research preprint proofreading, journal paper proofreading, thesis proofreading, LaTeX proofreading, manuscript editing, tracked changes",
       "audience": {
         "@type": "Audience",
@@ -430,7 +435,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       },
       "featureList": [
         "Proofreads LaTeX (.tex/.zip), Word (.docx), plain text (.txt), Markdown (.md), and RTF (.rtf)",
-        "Domain-aware corrections for units, equations, and notation",
+        "Domain-aware corrections for units, inline math, and notation",
         "Word-native Track Changes and inline LaTeX diff",
         "Accept or reject every suggestion",
         "Resilient AI pipeline with automatic model fallback"
@@ -481,7 +486,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
           "name": "How is Benjamin different from Grammarly?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Grammarly checks general English. Benjamin reads with scientific context: it understands units, equations, notation, and terminology, and flags the errors a generic grammar checker misses, such as A versus Å or a flipped sign. It is the Betternative built for research writing."
+            "text": "Grammarly checks general English. Benjamin reads with scientific context: it understands units, inline math, notation, and terminology, and flags the errors a generic grammar checker misses, such as A versus Å or a flipped sign. It is the Betternative built for research writing."
           }
         },
         {
@@ -505,7 +510,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
           "name": "Is Benjamin free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Benjamin is free to try — one document a month, up to 5,000 words. For unlimited proofreading, equation checks, and 95+ languages, see the Pro plan on the pricing page."
+            "text": "Benjamin is free to try — one document a month, up to 5,000 words. For unlimited proofreading, inline-math proofreading, and 95+ languages, see the Pro plan on the pricing page."
           }
         },
         {
@@ -705,7 +710,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     <p class="hero__desc reveal">
       Benjamin reviews LaTeX, Word, plain-text, and RTF manuscripts — from research
       preprints and journal papers to a full PhD thesis — with full scientific context
-      (units, equations, and terminology), then hands back a clean copy and a
+      (units, inline math, and terminology), then hands back a clean copy and a
       complete tracked-changes review.
     </p>
 
@@ -959,7 +964,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     <article class="how__step reveal">
       <span class="how__num">2</span>
       <h3>AI proofreads with context</h3>
-      <p>A context-aware AI reads the full document, checking grammar, units, equations, and terminology, with automatic fallback so a transient outage never stalls your run.</p>
+      <p>A context-aware AI reads the full document, checking grammar, units, inline math, and terminology, with automatic fallback so a transient outage never stalls your run.</p>
     </article>
     <article class="how__step reveal">
       <span class="how__num">3</span>
@@ -979,11 +984,21 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     </article>
     <article class="feature-card reveal">
       <h3>Domain-aware corrections</h3>
-      <p>Knows the difference between <em>A</em> and <em>Å</em> and flags notation errors in equations, going far beyond a generic grammar pass.</p>
+      <p>Knows the difference between <em>A</em> and <em>Å</em> and flags notation errors in inline math, going far beyond a generic grammar pass.</p>
     </article>
     <article class="feature-card reveal">
       <h3>Real tracked changes</h3>
       <p>Word-native Track Changes, or an inline LaTeX diff. Review every edit, then accept or reject exactly as you would from a human co-author.</p>
+    </article>
+    <article class="feature-card reveal">
+      <span class="feat-badge">Pro</span>
+      <h3>Inline math proofreading</h3>
+      <p>Proofreads the math inside your sentences — symbols, subscripts, units, and notation — in context with the prose around it.</p>
+    </article>
+    <article class="feature-card feature-card--soon reveal">
+      <span class="feat-badge feat-badge--soon">Coming soon</span>
+      <h3>Equation proofreading</h3>
+      <p>Deep checks of the conceptual and formatting integrity of display equations, with corrections where needed.</p>
     </article>
     <article class="feature-card reveal">
       <h3>Resilient AI pipeline</h3>
@@ -1006,7 +1021,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     </details>
     <details class="faq__item">
       <summary class="faq__q">How is Benjamin different from Grammarly?</summary>
-      <p class="faq__a">Grammarly checks general English. Benjamin reads with scientific context: it understands units, equations, notation, and terminology, and flags the errors a generic grammar checker misses, such as <em>A</em> versus <em>Å</em> or a flipped sign. It's the <strong>Betternative</strong> built for research writing.</p>
+      <p class="faq__a">Grammarly checks general English. Benjamin reads with scientific context: it understands units, inline math, notation, and terminology, and flags the errors a generic grammar checker misses, such as <em>A</em> versus <em>Å</em> or a flipped sign. It's the <strong>Betternative</strong> built for research writing.</p>
     </details>
     <details class="faq__item">
       <summary class="faq__q">Will Benjamin change my equations or scientific meaning?</summary>
@@ -1018,7 +1033,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     </details>
     <details class="faq__item">
       <summary class="faq__q">Is Benjamin free?</summary>
-      <p class="faq__a">Benjamin is free to try — one document a month, up to 5,000 words. For unlimited proofreading, equation checks, and 95+ languages, see the Pro plan on the <a href="pricing.html">pricing page</a>.</p>
+      <p class="faq__a">Benjamin is free to try — one document a month, up to 5,000 words. For unlimited proofreading, inline-math proofreading, and 95+ languages, see the Pro plan on the <a href="pricing.html">pricing page</a>.</p>
     </details>
     <details class="faq__item">
       <summary class="faq__q">Who is Benjamin for?</summary>
