@@ -150,6 +150,79 @@
           av.textContent = (name || "?").trim().charAt(0).toUpperCase();
         }
         Shell.loadPlan();   // fill the top-right plan + budget HUD once we know the user
+        Shell.requireTerms(user);
+      });
+    },
+
+    /** First sign-in (or after the Terms change): show Terms + Privacy and require agreement before
+     *  the app can be used. Acceptance is stored on the user's account (Supabase user_metadata:
+     *  terms_version + terms_accepted_at), so it follows the user across browsers and devices. */
+    TERMS_VERSION: "2026-10-02",
+    requireTerms(user) {
+      const md = (user && user.user_metadata) || {};
+      if (md.terms_version === Shell.TERMS_VERSION || document.getElementById("termsGate")) return;
+      const css = document.createElement("style");
+      css.textContent = `
+        #termsGate{position:fixed;inset:0;z-index:9999;background:rgba(44,36,22,.55);display:flex;
+          align-items:center;justify-content:center;padding:16px}
+        #termsGate .tg-card{background:#fffdf8;border:1px solid #e3d4b4;border-radius:16px;max-width:520px;
+          width:100%;padding:26px 26px 22px;box-shadow:0 18px 50px -20px rgba(44,36,22,.5);color:#2c2416;
+          font-family:Lora,Georgia,serif}
+        #termsGate h2{font-family:"Cutive Mono",monospace;font-size:1.35rem;margin:0 0 .6rem}
+        #termsGate p{margin:.4rem 0 .9rem;line-height:1.55;color:#6f6452}
+        #termsGate .tg-links{display:flex;gap:.6rem;flex-wrap:wrap;margin:.2rem 0 1rem}
+        #termsGate .tg-links a{border:1px solid #e3d4b4;border-radius:999px;padding:.35rem .9rem;color:#5576a6;
+          text-decoration:none;font-weight:600}
+        #termsGate label{display:flex;gap:.6rem;align-items:flex-start;line-height:1.45;cursor:pointer}
+        #termsGate input{margin-top:.25rem;width:1.05rem;height:1.05rem}
+        #termsGate .tg-row{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.2rem;flex-wrap:wrap}
+        #termsGate button{border-radius:999px;padding:.6rem 1.3rem;font-weight:700;cursor:pointer;
+          font-family:"Cutive Mono",monospace;border:1px solid #e3d4b4;background:transparent;color:#2c2416}
+        #termsGate button.tg-ok{background:#F9C7C7;color:#B33A3B;border-color:transparent}
+        #termsGate button.tg-ok:disabled{opacity:.45;cursor:not-allowed}
+        #termsGate .tg-err{color:#b23a3a;font-size:.9rem;margin-top:.6rem;display:none}`;
+      document.head.appendChild(css);
+      const gate = document.createElement("div");
+      gate.id = "termsGate";
+      gate.setAttribute("role", "dialog");
+      gate.setAttribute("aria-modal", "true");
+      gate.innerHTML = `
+        <div class="tg-card">
+          <h2>Before you start</h2>
+          <p>Please read Benjamin's Terms of Service and Privacy Policy. They explain how your documents
+             are processed (by Google's Gemini API), what you can expect from the AI suggestions, and how
+             plans, cancellation and refunds work.</p>
+          <div class="tg-links">
+            <a href="terms.html" target="_blank" rel="noopener">Terms of Service ↗</a>
+            <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy ↗</a>
+          </div>
+          <label><input type="checkbox" id="tgAgree">
+            <span>I have read and agree to the Terms of Service and the Privacy Policy.</span></label>
+          <div class="tg-err" id="tgErr">Could not save your agreement — please try again.</div>
+          <div class="tg-row">
+            <button type="button" id="tgDecline">Sign out</button>
+            <button type="button" class="tg-ok" id="tgAccept" disabled>Agree and continue</button>
+          </div>
+        </div>`;
+      document.body.appendChild(gate);
+      const box = document.getElementById("tgAgree"), ok = document.getElementById("tgAccept");
+      box.addEventListener("change", () => { ok.disabled = !box.checked; });
+      document.getElementById("tgDecline").addEventListener("click", async () => {
+        try { await window.SciCoProofAuth.signOut(); } catch (_) {}
+        location.href = "index.html";
+      });
+      ok.addEventListener("click", async () => {
+        ok.disabled = true;
+        try {
+          const c = window.SciCoProofAuth.client();
+          const { error } = await c.auth.updateUser({ data: {
+            terms_version: Shell.TERMS_VERSION, terms_accepted_at: new Date().toISOString() } });
+          if (error) throw error;
+          gate.remove();
+        } catch (_) {
+          document.getElementById("tgErr").style.display = "block";
+          ok.disabled = false;
+        }
       });
     },
 
