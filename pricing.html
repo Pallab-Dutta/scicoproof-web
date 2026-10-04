@@ -704,8 +704,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (me.tier === tier && (me.plan.period || period) === period) {
         alert('You already have ' + names[tier] + ' (' + period + ').'); return;
       }
+      const charge = { pro: { monthly: 25, annual: 150 }, max: { monthly: 90, annual: 540 } };
+      const cheaper = charge[tier][period] < ((charge[me.tier] || {})[me.plan.period] || 0);
       const ok = confirm('Change your plan from ' + names[me.tier] + ' (' + (me.plan.period || '') + ') to ' +
-        names[tier] + ' (' + period + ')? The price difference is charged (or credited) now, on your existing subscription.');
+        names[tier] + ' (' + period + ')?\n\n' + (cheaper
+          ? 'You keep your current plan until the end of the period you have paid for; the new plan starts at your next renewal.'
+          : 'Your existing subscription is upgraded now: the unused part of your current billing period is credited and the new plan is charged today.'));
       if (!ok) return;
     }
     let res;
@@ -721,6 +725,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (res.changed) {
       alert('Done — your plan is now ' + names[res.tier] + ' (' + res.period + ').');
       location.href = 'app.html';
+      return;
+    }
+    if (res.scheduled) {
+      const when = res.effective ? new Date(res.effective).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : 'your next renewal';
+      alert('Scheduled — you switch to ' + names[res.tier] + ' (' + res.period + ') on ' + when + ', when your current paid period ends.');
+      return;
+    }
+    if (res.pending) {
+      if (res.payment_link) { location.href = res.payment_link; return; }   // authorise the charge
+      alert("The payment for the upgrade didn't go through, so your plan is unchanged. Please check your payment method and try again.");
       return;
     }
     if (res.provider === 'razorpay') {
