@@ -727,18 +727,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Auto-detect country → currency (GeoJS: free, no key, CORS-enabled). Fallback: USD.
+  // Country → currency. Instant first guess (no network): the country detected on an earlier visit,
+  // else the browser's time zone (Asia/Kolkata → India). Then an IP lookup confirms it (two free
+  // providers, 8 s) and is remembered; it wins, so an Indian traveller abroad sees local pricing.
   (function detectCurrency(){
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 3000);
-    fetch('https://get.geojs.io/v1/ip/country.json', { signal: ctrl.signal })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(d => {
-        const cc = (d && (d.country || d.country_code) || '').toUpperCase();
-        if (cc === 'IN') { currency = 'INR'; render(); setLocationNote(); syncDevToggle(); }
+    function apply(cur) {
+      if (cur !== 'INR' && cur !== 'USD') return;
+      if (cur !== currency) { currency = cur; render(); setLocationNote(); syncDevToggle(); }
+    }
+    let guess = null;
+    try { guess = localStorage.getItem('benjamin.currency'); } catch (_) {}
+    if (!guess) {
+      let tz = '';
+      try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_) {}
+      guess = (tz === 'Asia/Kolkata' || tz === 'Asia/Calcutta') ? 'INR' : 'USD';
+    }
+    apply(guess);
+    function lookup(url, pick) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      return fetch(url, { signal: ctrl.signal })
+        .then(r => r.ok ? r.text() : Promise.reject())
+        .then(t => { const cc = pick(t); if (!cc) throw 0; return cc; })
+        .finally(() => clearTimeout(timer));
+    }
+    lookup('https://get.geojs.io/v1/ip/country.json', t => (JSON.parse(t).country || '').toUpperCase())
+      .catch(() => lookup('https://ipapi.co/country/', t => t.trim().toUpperCase().slice(0, 2)))
+      .then(cc => {
+        const cur = cc === 'IN' ? 'INR' : 'USD';
+        try { localStorage.setItem('benjamin.currency', cur); } catch (_) {}
+        apply(cur);
       })
-      .catch(() => { /* keep USD default */ })
-      .finally(() => clearTimeout(timer));
+      .catch(() => { /* keep the instant guess */ });
   })();
 });
 </script>

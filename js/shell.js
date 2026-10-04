@@ -149,7 +149,7 @@
         } else {
           av.textContent = (name || "?").trim().charAt(0).toUpperCase();
         }
-        Shell.loadPlan();   // fill the top-right plan + budget HUD once we know the user
+        Shell.loadPlan(user);   // plan HUD: instant from cache, then confirmed by /me
         Shell.requireTerms(user);
       });
     },
@@ -227,12 +227,28 @@
     },
 
     /** Fetch /me and render the top-right plan badge + monthly word-budget bar. */
-    async loadPlan() {
+    /** Fetch /me and render the plan HUD. Renders INSTANTLY first from the last plan seen for this
+     *  user (localStorage), or Free on a first visit, because /me can take seconds while the API
+     *  Space wakes up; the real answer then replaces it and is remembered for next time. */
+    async loadPlan(user) {
       const hud = document.getElementById("planHud");
       if (!hud || !window.SciCoProofAPI) return;
+      const key = "benjamin.plan." + ((user && user.id) || "anon");
+      let cached = null;
+      try { cached = JSON.parse(localStorage.getItem(key) || "null"); } catch (_) {}
+      Shell.renderPlan(cached || { tier: "free" });
       let me;
       try { me = await window.SciCoProofAPI.me(); } catch (_) { return; }
+      try {
+        localStorage.setItem(key, JSON.stringify({ tier: me.tier, word_limit: me.word_limit,
+          words_used: me.words_used, words_remaining: me.words_remaining }));
+      } catch (_) {}
+      Shell.renderPlan(me);
+    },
 
+    renderPlan(me) {
+      const hud = document.getElementById("planHud");
+      if (!hud) return;
       const tier = (me.tier || "free").toLowerCase();
       const badge = document.getElementById("planBadge");
       badge.textContent = { free: "Free", pro: "Pro", max: "Max" }[tier] || "Free";
