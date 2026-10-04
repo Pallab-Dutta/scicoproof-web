@@ -695,13 +695,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // Must be signed in first (checkout needs the user's identity for the webhook mapping).
     const user = await window.SciCoProofAuth.getUser();
     if (!user) { await window.SciCoProofAuth.signInWithGoogle(); return; }
+    // Already subscribed? Then this is a plan change on the SAME subscription (charged/credited
+    // pro rata) — ask first. A second, separate subscription is never created.
+    let me = null;
+    try { me = await window.SciCoProofAPI.me(); } catch (_) {}
+    const names = { pro: 'Benjamin Pro', max: 'Benjamin Max' };
+    if (me && me.plan && me.plan.status === 'active' && (me.tier === 'pro' || me.tier === 'max')) {
+      if (me.tier === tier && (me.plan.period || period) === period) {
+        alert('You already have ' + names[tier] + ' (' + period + ').'); return;
+      }
+      const ok = confirm('Change your plan from ' + names[me.tier] + ' (' + (me.plan.period || '') + ') to ' +
+        names[tier] + ' (' + period + ')? The price difference is charged (or credited) now, on your existing subscription.');
+      if (!ok) return;
+    }
     let res;
     try {
       res = await window.SciCoProofAPI.checkout({ tier, period, currency });
     } catch (err) {
-      alert(err && err.status === 503
-        ? 'Payments are being set up and will be available shortly.'
-        : 'Could not start checkout — please try again.');
+      const code = err && err.code;
+      alert(code === 503 ? 'Payments are being set up and will be available shortly.'
+          : (code === 409 || code === 502) && err.message ? err.message
+          : 'Could not start checkout — please try again.');
+      return;
+    }
+    if (res.changed) {
+      alert('Done — your plan is now ' + names[res.tier] + ' (' + res.period + ').');
+      location.href = 'app.html';
       return;
     }
     if (res.provider === 'razorpay') {

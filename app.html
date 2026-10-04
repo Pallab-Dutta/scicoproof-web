@@ -689,6 +689,19 @@ function renderReview() {
   $("reviewProseInfo").innerHTML = "You'll get a clean corrected file plus a tracked-changes version you can accept or reject.";
   $("reviewWarnings").innerHTML = "";
   $("btnStartProof").disabled = !r.ready;
+  showBudgetBlock(r);
+}
+
+/** Monthly words used up (or this document is bigger than what's left): explain, offer the upgrade,
+ *  and keep "Start" disabled. The server enforces the same rule on /run. */
+function showBudgetBlock(r) {
+  const b = r && r.budget;
+  if (!b) return;
+  const up = b.upgrade_to ? `<a class="btn btn-primary" href="pricing.html" style="margin-left:.6rem">Upgrade to ${b.upgrade_to === "max" ? "Max" : "Pro"}</a>` : "";
+  $("reviewWarnings").innerHTML =
+    `<div class="alert alert-warn" style="display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap">` +
+    `<span>${esc(b.message)}</span>${up}</div>`;
+  $("btnStartProof").disabled = true;
 }
 
 // Admin-only: full technical review (readiness, engine state, warnings).
@@ -767,6 +780,10 @@ $("btnStartProof").addEventListener("click", async () => {
   } catch (err) {
     $("benRunOverlay").style.display = "none";
     showStage("review");
+    if (err && err.code === 402 && err.detail && err.detail.code === "word_budget") {
+      showBudgetBlock({ budget: err.detail });      // words ran out since the review step
+      return;
+    }
     $("reviewError").textContent = "Could not start run: " + (err.message || "unknown error");
     $("reviewError").style.display = "";
     $("btnStartProof").disabled = false;
