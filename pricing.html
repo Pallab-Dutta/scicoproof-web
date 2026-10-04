@@ -170,6 +170,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 .plan-name{font-family:var(--font-serif);font-size:1.25rem}
 .plan-price{display:flex;align-items:baseline;gap:.3rem;flex-wrap:wrap}
 .plan-price .amount{font-family:var(--font-serif);font-size:2.6rem;line-height:1;color:var(--text)}
+.plan-price.long .amount{font-size:2.05rem}
 .plan-price .unit{font-size:.95rem;color:var(--muted);font-weight:700}
 .plan-sub{font-size:.85rem;color:var(--muted);min-height:1.2em}
 .plan-save{display:inline-block;font-size:.75rem;font-weight:700;color:var(--ins-text);
@@ -317,7 +318,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   </div>
   <div class="billing-toggle reveal" role="tablist" aria-label="Billing period">
     <button type="button" data-period="monthly" role="tab">Monthly</button>
-    <button type="button" data-period="annual" class="active" role="tab" aria-selected="true">Annual<span class="save-hint" id="toggle-save">save up to 52%</span></button>
+    <button type="button" data-period="annual" class="active" role="tab" aria-selected="true">Annual<span class="save-hint" id="toggle-save">save 50%</span></button>
   </div>
   <!-- Developer-only: manual currency toggle (revealed only when GET /me returns is_admin). -->
   <div class="dev-currency" id="dev-currency" hidden>
@@ -351,11 +352,11 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <span class="plan-badge">Most popular</span>
       <h2 class="plan-name">Benjamin Pro</h2>
       <div class="plan-price">
-        <span class="amount"><span id="pro-symbol">$</span><span id="pro-amount">12</span></span>
+        <span class="amount"><span id="pro-symbol">$</span><span id="pro-amount">12.50</span></span>
         <span class="unit" id="pro-unit">/month</span>
       </div>
-      <p class="plan-sub" id="pro-sub">Billed $144 annually</p>
-      <span class="plan-save" id="pro-save">Save $156 / year</span>
+      <p class="plan-sub" id="pro-sub">Billed $150 annually</p>
+      <span class="plan-save" id="pro-save">Save $150 / year</span>
       <ul class="plan-feats">
         <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Free</strong></li>
         <li><span class="tick">✓</span> Proofreading of inline math (symbols, units, subscripts in text)</li>
@@ -370,11 +371,11 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     <article class="plan-card reveal">
       <h2 class="plan-name">Benjamin Max</h2>
       <div class="plan-price">
-        <span class="amount"><span id="max-symbol">$</span><span id="max-amount">40</span></span>
+        <span class="amount"><span id="max-symbol">$</span><span id="max-amount">43.75</span></span>
         <span class="unit" id="max-unit">/month</span>
       </div>
-      <p class="plan-sub" id="max-sub">Billed $480 annually</p>
-      <span class="plan-save" id="max-save">Save $420 / year</span>
+      <p class="plan-sub" id="max-sub">Billed $525 annually</p>
+      <span class="plan-save" id="max-save">Save $525 / year</span>
       <ul class="plan-feats">
         <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Pro, at 5× the volume</strong></li>
         <li><span class="tick">✓</span> 350,000 words / month</li>
@@ -551,26 +552,26 @@ document.addEventListener('DOMContentLoaded', () => {
     USD: {
       symbol: '$',
       pro: {
-        monthly: { amount: '25',  unit: '/month', sub: 'Billed monthly',              save: 'Save $156/yr with annual' },
-        annual:  { amount: '12', unit: '/month', sub: 'Billed $144 annually',   save: 'Save $156 / year' }
+        monthly: { amount: '25',  unit: '/month', sub: 'Billed monthly',          save: 'Save $150/yr with annual' },
+        annual:  { amount: '12.50', unit: '/month', sub: 'Billed $150 annually',  save: 'Save $150 / year' }
       },
       max: {
-        monthly: { amount: '75', unit: '/month', sub: 'Billed monthly',            save: 'Save $420/yr with annual' },
-        annual:  { amount: '40',    unit: '/month',  sub: 'Billed $480 annually', save: 'Save $420 / year' }
+        monthly: { amount: '87.50', unit: '/month', sub: 'Billed monthly',        save: 'Save $525/yr with annual' },
+        annual:  { amount: '43.75', unit: '/month', sub: 'Billed $525 annually',  save: 'Save $525 / year' }
       },
-      toggleSave: 'save up to 52%'
+      toggleSave: 'save 50%'
     },
     INR: {
       symbol: '₹',
       pro: {
-        monthly: { amount: '750',   unit: '/month', sub: 'Billed monthly',               save: 'Save ₹5,000/yr with annual' },
-        annual:  { amount: '333', unit: '/month',  sub: 'Billed ₹4,000 annually',   save: 'Save ₹5,000 / year' }
+        monthly: { amount: '750',   unit: '/month', sub: 'Billed monthly',          save: 'Save ₹4,500/yr with annual' },
+        annual:  { amount: '375',   unit: '/month', sub: 'Billed ₹4,500 annually',  save: 'Save ₹4,500 / year' }
       },
       max: {
-        monthly: { amount: '3,375',  unit: '/month', sub: 'Billed monthly',                save: 'Save ₹22,500/yr with annual' },
-        annual:  { amount: '1,500', unit: '/month',  sub: 'Billed ₹18,000 annually',  save: 'Save ₹22,500 / year' }
+        monthly: { amount: '2,625', unit: '/month', sub: 'Billed monthly',          save: 'Save ₹15,750/yr with annual' },
+        annual:  { amount: '1,312.50', unit: '/month', sub: 'Billed ₹15,750 annually', save: 'Save ₹15,750 / year' }
       },
-      toggleSave: 'save 56%'
+      toggleSave: 'save 50%'
     }
   };
 
@@ -598,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const p = c[key][period];
       el[key].symbol.textContent = c.symbol;
       el[key].amount.textContent = p.amount;
+      el[key].amount.closest('.plan-price').classList.toggle('long', p.amount.length >= 7);
       el[key].unit.textContent   = p.unit;
       el[key].sub.textContent    = p.sub;
       el[key].save.textContent   = p.save;
