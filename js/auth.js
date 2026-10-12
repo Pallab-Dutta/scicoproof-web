@@ -23,6 +23,28 @@
       });
     },
 
+    // Email sign-in (no password): Supabase emails a one-time link AND a 6-digit code (when the
+    // "Magic Link" email template includes {{ .Token }}). The same address as a Google account
+    // signs in to that same account (Supabase links identities with the same verified email).
+    async signInWithEmail(email) {
+      const c = getClient();
+      if (!c) throw new Error("Supabase not configured");
+      const { error } = await c.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: cfg.REDIRECT_URL || window.location.origin + "/app.html",
+                   shouldCreateUser: true },
+      });
+      if (error) throw error;
+    },
+
+    async verifyEmailCode(email, code) {
+      const c = getClient();
+      if (!c) throw new Error("Supabase not configured");
+      const { data, error } = await c.auth.verifyOtp({ email: email, token: code, type: "email" });
+      if (error) throw error;
+      return data;
+    },
+
     async handleCallback() {
       return false;
     },
