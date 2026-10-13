@@ -27,7 +27,7 @@
   .esi__link[disabled]{color:var(--muted,#6f6452);text-decoration:none;cursor:default}
   .esi__msg{min-height:1.2em;font-size:.85rem;margin:8px 0 0;font-family:"Lora",Georgia,serif}
   .esi .esi__msg--err{color:var(--del-text,#b23a3a)} .esi .esi__msg--ok{color:var(--ins-text,#2f7a33)}
-  .esi__close{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.4rem;line-height:1;
+  .esi__close{position:absolute;z-index:2;top:10px;right:12px;padding:4px 8px;background:none;border:0;font-size:1.4rem;line-height:1;
        cursor:pointer;color:var(--muted,#6f6452)}
   .esi-alt{display:block;margin-top:12px;font-size:.9rem}
   .hero__actions + .esi-alt{margin:-1.4rem 0 2rem}
