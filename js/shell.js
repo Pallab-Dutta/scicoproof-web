@@ -213,14 +213,24 @@
       });
       ok.addEventListener("click", async () => {
         ok.disabled = true;
+        const c = window.SciCoProofAuth.client();
+        const save = () => c.auth.updateUser({ data: {
+          terms_version: Shell.TERMS_VERSION, terms_accepted_at: new Date().toISOString() } });
         try {
-          const c = window.SciCoProofAuth.client();
-          const { error } = await c.auth.updateUser({ data: {
-            terms_version: Shell.TERMS_VERSION, terms_accepted_at: new Date().toISOString() } });
+          let { error } = await save();
+          if (error) {                       // a stale/expired session: refresh once and retry
+            console.warn("[terms] save failed, retrying after a session refresh:", error);
+            await c.auth.refreshSession();
+            ({ error } = await save());
+          }
           if (error) throw error;
           gate.remove();
-        } catch (_) {
-          document.getElementById("tgErr").style.display = "block";
+        } catch (e) {
+          console.error("[terms] could not save the agreement:", e);
+          const msg = (e && (e.message || e.error_description)) || String(e || "");
+          const el = document.getElementById("tgErr");
+          el.textContent = "Could not save your agreement — please try again." + (msg ? " (" + msg + ")" : "");
+          el.style.display = "block";
           ok.disabled = false;
         }
       });
