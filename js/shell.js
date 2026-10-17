@@ -190,8 +190,7 @@
         <div class="tg-card">
           <h2>Before you start</h2>
           <p>Please read Benjamin's Terms of Service and Privacy Policy. They explain how your documents
-             are processed (by Google's Gemini API), what you can expect from the AI suggestions, and how
-             plans, cancellation and refunds work.</p>
+             are processed, and how plans, cancellation and refunds work.</p>
           <div class="tg-links">
             <a href="terms.html" target="_blank" rel="noopener">Terms of Service ↗</a>
             <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy ↗</a>
