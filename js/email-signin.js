@@ -131,6 +131,7 @@
       startResendTimer();
     } catch (err) {
       msg(form, friendly(err), "err");
+      if (window.SciCoSigninReport) window.SciCoSigninReport("email_send", (err && (err.message || err.msg)) || String(err), { email: email });
     } finally {
       busy(form, false);
     }
@@ -148,6 +149,7 @@
     } catch (err) {
       msg(fCode, friendly(err), "err");
       busy(fCode, false);
+      if (window.SciCoSigninReport) window.SciCoSigninReport("email_code", (err && (err.message || err.msg)) || String(err), { email: email });
     }
   }
 

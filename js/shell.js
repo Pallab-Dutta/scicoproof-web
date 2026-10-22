@@ -132,7 +132,13 @@
 
       // Auth guard + profile fill
       window.SciCoProofAuth.onChange(user => {
-        if (!user) { location.href = "index.html"; return; }
+        if (!user) {
+          if (window.__hadAuthCode && window.SciCoSigninReport && !Shell._codeReported) {
+            Shell._codeReported = true;               // sent with keepalive, so the redirect doesn't cut it off
+            window.SciCoSigninReport("code_exchange", "returned from Google with a code, but no session");
+          }
+          location.href = "index.html"; return;
+        }
         const md = user.user_metadata || {};
         const name = md.full_name || md.name || user.name || (user.email || "").split("@")[0];
         document.getElementById("sbName").textContent = name;
@@ -227,6 +233,7 @@
         } catch (e) {
           console.error("[terms] could not save the agreement:", e);
           const msg = (e && (e.message || e.error_description)) || String(e || "");
+          if (window.SciCoSigninReport) window.SciCoSigninReport("terms_save", msg);
           const el = document.getElementById("tgErr");
           el.textContent = "Could not save your agreement — please try again." + (msg ? " (" + msg + ")" : "");
           el.style.display = "block";
