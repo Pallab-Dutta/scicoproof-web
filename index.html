@@ -1087,7 +1087,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     // Came from an outreach email's free-run link (remembered by app.html before the sign-in redirect)?
     try {
       var tp = JSON.parse(localStorage.getItem('benjamin_trial') || 'null');
-      if (tp && tp.v === 'b' && Date.now() - (tp.at || 0) < 30 * 864e5) {
+      if (tp && (tp.v === 'b' || tp.v === 't') && Date.now() - (tp.at || 0) < 30 * 864e5) {
         document.getElementById('trialBannerPaper').textContent = 'arXiv:' + tp.paper;
         document.getElementById('trialBanner').hidden = false;
       }

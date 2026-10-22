@@ -580,7 +580,7 @@ let _trialRunLink = null;   // the link whose free run is in progress (for the '
 (function captureTrialLink() {
   const q = new URLSearchParams(location.search);
   const paper = q.get("paper"), v = q.get("v"), t = q.get("t");
-  if (!paper || !t || (v !== "a" && v !== "b")) return;
+  if (!paper || !t || !["a", "b", "t"].includes(v)) return;   // t = test link (version B)
   const prev = Trial.get();
   if (!prev || prev.paper !== paper || prev.v !== v) Trial.set({ paper, v, t, at: Date.now() });
   window.SciCoProofAPI.trialEvent({ paper, v, t, event: "open" }).catch(() => {});
@@ -602,13 +602,13 @@ window.SciCoProofAuth.onChange(user => {
     Trial.set(p);
     window.SciCoProofAPI.trialEvent({ paper: p.paper, v: p.v, t: p.t, event: "signed_in" }).catch(() => {});
   }
-  if (p.v !== "b") { Trial.set(null); return; }      // variant A: nothing to offer, just counted
+  if (p.v === "a") { Trial.set(null); return; }      // variant A: nothing to offer, just counted
   if (_stage === "upload" && !p.hidden) showTrialCard(p);
 });
 
 $("btnBackToUpload").addEventListener("click", () => {   // back from the review: offer it again if unused
   const p = Trial.get();
-  if (p && p.v === "b" && !p.hidden) showTrialCard(p);
+  if (p && p.v !== "a" && !p.hidden) showTrialCard(p);
 });
 
 $("btnTrialHide").addEventListener("click", () => {
