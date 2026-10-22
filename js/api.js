@@ -98,6 +98,14 @@
       return req("POST", "/run", body);
     },
 
+    /** Free run from an outreach email (A/B test). link = {paper, v, t}.
+     *  trialEvent: funnel counting ('open' needs no sign-in; 'signed_in' / 'done' do).
+     *  trialAnalyze: loads the paper from arXiv, returns the same shape as analyze() + trial:true.
+     *  trialRun: starts the one free Pro run (doesn't use the monthly words). */
+    trialEvent(link) { return req("POST", "/trial/event", link); },
+    trialAnalyze(link) { return req("POST", "/trial/analyze", { paper: link.paper, v: link.v, t: link.t }); },
+    trialRun(fileId) { return req("POST", "/trial/run", { file_id: fileId }); },
+
     /** Download a finished job result.
      * kind: "result" (nested package ZIP) | "clean" | "tracked" | "bundle" (flat two-file ZIP) */
     downloadResult(jobId, kind) {

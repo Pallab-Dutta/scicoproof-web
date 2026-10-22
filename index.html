@@ -714,6 +714,11 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       complete tracked-changes review.
     </p>
 
+    <!-- Shown only to visitors who came from an outreach email's free-run link -->
+    <div id="trialBanner" hidden style="max-width:560px;margin:0 auto 1.4rem;padding:.85rem 1.1rem;border:1px solid #c0cfe6;border-radius:14px;background:#eef3fa;color:#2c2416;text-align:left;line-height:1.5">
+      <b>Your free proofread of <span id="trialBannerPaper"></span> is waiting.</b><br>
+      Sign in below and Benjamin will load your paper from arXiv and proofread all of it, free.
+    </div>
     <div class="hero__actions reveal">
       <button class="btn btn--primary btn--lg js-signin" type="button">Sign in with Google</button>
       <a class="btn btn--ghost btn--lg" href="#showcase">See it in action</a>
@@ -1078,6 +1083,15 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       });
       return;
     }
+
+    // Came from an outreach email's free-run link (remembered by app.html before the sign-in redirect)?
+    try {
+      var tp = JSON.parse(localStorage.getItem('benjamin_trial') || 'null');
+      if (tp && tp.v === 'b' && Date.now() - (tp.at || 0) < 30 * 864e5) {
+        document.getElementById('trialBannerPaper').textContent = 'arXiv:' + tp.paper;
+        document.getElementById('trialBanner').hidden = false;
+      }
+    } catch (e) {}
 
     async function enterProofread(){
       try {

@@ -284,6 +284,17 @@
           Benjamin produces a clean corrected file plus a tracked-changes version you can review.
         </p>
 
+        <!-- Free run from an outreach email (shown only when the visitor came from that link) -->
+        <div id="trialCard" class="alert alert-info" style="display:none;margin-bottom:1rem">
+          <div style="font-weight:700;margin-bottom:.35rem"><span class="mi" style="vertical-align:-4px;margin-right:4px">redeem</span>Your free proofread is ready: <span id="trialPaper"></span></div>
+          <div style="margin-bottom:.7rem">Benjamin loads your paper straight from arXiv, so there's nothing to upload, and proofreads all of it at Pro quality. It's free and doesn't use your monthly allowance.</div>
+          <div class="btn-row" style="margin:0">
+            <button class="btn btn-primary" id="btnTrialLoad"><span class="mi">download</span> Load my paper</button>
+            <button class="btn btn-ghost" id="btnTrialHide">Not now</button>
+          </div>
+          <div id="trialError" style="display:none;margin-top:.6rem;color:#b23a3a"></div>
+        </div>
+
         <div class="dropzone" id="dropzone" title="Click to select a file or drag-and-drop">
           <div class="dz-icon"><span class="mi">upload_file</span></div>
           <div class="dz-label">Drag &amp; drop or click to upload</div>
@@ -547,6 +558,102 @@ if (new URLSearchParams(location.search).get("page") === "privacy") {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Free run from an outreach email (A/B test). The email links to
+   app.html?paper=<arXiv id>&v=<a|b>&t=<tag>. The link is remembered in this browser BEFORE the
+   sign-in redirect (sign-in always returns to a plain app.html), then picked up once signed in.
+   Visitors without such a link never see any of this.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const TRIAL_KEY = "benjamin_trial";
+const Trial = {
+  get() {
+    try {
+      const p = JSON.parse(localStorage.getItem(TRIAL_KEY) || "null");
+      return p && Date.now() - (p.at || 0) < 30 * 864e5 ? p : null;   // forget after 30 days
+    } catch (_) { return null; }
+  },
+  set(p) {
+    try { p ? localStorage.setItem(TRIAL_KEY, JSON.stringify(p)) : localStorage.removeItem(TRIAL_KEY); } catch (_) {}
+  },
+};
+let _trialRunLink = null;   // the link whose free run is in progress (for the 'done' count)
+
+(function captureTrialLink() {
+  const q = new URLSearchParams(location.search);
+  const paper = q.get("paper"), v = q.get("v"), t = q.get("t");
+  if (!paper || !t || (v !== "a" && v !== "b")) return;
+  const prev = Trial.get();
+  if (!prev || prev.paper !== paper || prev.v !== v) Trial.set({ paper, v, t, at: Date.now() });
+  window.SciCoProofAPI.trialEvent({ paper, v, t, event: "open" }).catch(() => {});
+  ["paper", "v", "t"].forEach(k => q.delete(k));
+  history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
+})();
+
+function showTrialCard(p) {
+  $("trialPaper").textContent = "arXiv:" + p.paper;
+  $("trialError").style.display = "none";
+  $("trialCard").style.display = "";
+}
+
+window.SciCoProofAuth.onChange(user => {
+  const p = user && Trial.get();
+  if (!p) return;
+  if (!p.signed) {                                   // count the sign-in once per link
+    p.signed = true;
+    Trial.set(p);
+    window.SciCoProofAPI.trialEvent({ paper: p.paper, v: p.v, t: p.t, event: "signed_in" }).catch(() => {});
+  }
+  if (p.v !== "b") { Trial.set(null); return; }      // variant A: nothing to offer, just counted
+  if (_stage === "upload" && !p.hidden) showTrialCard(p);
+});
+
+$("btnBackToUpload").addEventListener("click", () => {   // back from the review: offer it again if unused
+  const p = Trial.get();
+  if (p && p.v === "b" && !p.hidden) showTrialCard(p);
+});
+
+$("btnTrialHide").addEventListener("click", () => {
+  const p = Trial.get();
+  if (p) { p.hidden = true; Trial.set(p); }          // hidden on this device; the link brings it back
+  $("trialCard").style.display = "none";
+});
+
+$("btnTrialLoad").addEventListener("click", async () => {
+  const p = Trial.get();
+  if (!p) { $("trialCard").style.display = "none"; return; }
+  $("btnTrialLoad").disabled = true;
+  $("trialError").style.display = "none";
+  $("dropzone").style.display = "none";
+  $("uploadBtnRow").style.display = "none";
+  $("analyseLabel").textContent = "Fetching your paper from arXiv…";
+  $("analysePbar").style.width = "35%";
+  $("analysingOverlay").style.display = "";
+  try {
+    _reviewData = await window.SciCoProofAPI.trialAnalyze(p);
+    renderReview();
+    $("reviewProseInfo").innerHTML =
+      `<b>Free run</b>: ${esc(_reviewData.title || ("arXiv:" + p.paper))}. Pro quality, and it doesn't use your ` +
+      `monthly allowance. You'll get a clean corrected file plus a tracked-changes version.`;
+    $("trialCard").style.display = "none";
+    showStage("review");
+  } catch (err) {
+    const used = err && err.detail && err.detail.code === "trial_used";
+    $("trialError").textContent = (err && err.message) || "Couldn't load the paper. Please try again.";
+    $("trialError").style.display = "";
+    if (used || (err && err.code === 403)) {          // already used / bad link: stop offering it
+      Trial.set(null);
+      $("btnTrialLoad").style.display = "none";
+    }
+  } finally {
+    $("btnTrialLoad").disabled = false;
+    $("analysingOverlay").style.display = "none";
+    $("analysePbar").style.width = "0%";
+    $("analyseLabel").textContent = "Uploading your document…";
+    $("dropzone").style.display = "";
+    $("uploadBtnRow").style.display = "";
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Sidebar init (auth guard fires inside Shell.init)
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -773,7 +880,11 @@ $("btnStartProof").addEventListener("click", async () => {
   try {
     const _sel = $("tierSelect");
     const _chosenTier = _sel ? _sel.value : undefined;   // admin-only; ignored server-side otherwise
-    const { job_id, tier } = await window.SciCoProofAPI.run(_reviewData.file_id, _chosenTier);
+    const isTrial = !!_reviewData.trial;              // free run from an outreach email
+    const { job_id, tier } = isTrial
+      ? await window.SciCoProofAPI.trialRun(_reviewData.file_id)
+      : await window.SciCoProofAPI.run(_reviewData.file_id, _chosenTier);
+    if (isTrial) { _trialRunLink = Trial.get(); Trial.set(null); }   // used: don't offer it again
     if (_sel && tier) console.log("[dev] proofreading tier in use:", tier);
     _jobId = job_id;
     streamJob(job_id);
@@ -873,6 +984,11 @@ function streamJob(jobId) {
         setProgress("runOverallFill", 1);
         renderResults(data, false);
         showStage("results");
+        if (_trialRunLink) {                              // free run finished (A/B funnel count)
+          const l = _trialRunLink;
+          _trialRunLink = null;
+          window.SciCoProofAPI.trialEvent({ paper: l.paper, v: l.v, t: l.t, event: "done" }).catch(() => {});
+        }
         if (window.Shell && window.Shell.loadPlan) window.Shell.loadPlan();  // words consumed → refresh budget
 
       } else if (type === "error") {
@@ -989,7 +1105,7 @@ function attachDownload(btnId, kind, filename) {
 }
 
 function baseFileName() {
-  if (!_file) return "document";
+  if (!_file) return (_reviewData && _reviewData.arxiv) ? _reviewData.arxiv.replace("/", "_") : "document";
   return _file.name.replace(/\.[^.]+$/, "");
 }
 function proofreadZipName()  { return baseFileName() + "_proofread_benjamin.zip"; }
