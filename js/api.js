@@ -113,6 +113,20 @@
       return download(`/jobs/${encodeURIComponent(jobId)}/${kind}`);
     },
 
+    /** GET /jobs/{id}/pdf — the commented PDF (Pro LaTeX runs). Returns {status:'building'} while it's
+     *  being built, {status:'ready', blob, comments}, or throws (404 none, 422 couldn't compile). */
+    async jobPdf(jobId) {
+      const res = await fetch(BASE + `/jobs/${encodeURIComponent(jobId)}/pdf`, { headers: await headers() });
+      if (res.status === 202) return { status: "building" };
+      if (!res.ok) {
+        let data = null;
+        try { data = await res.json(); } catch (_) {}
+        const d = data && data.detail;
+        throw { code: res.status, message: (d && (d.error || d)) || res.statusText };
+      }
+      return { status: "ready", blob: await res.blob(), comments: +(res.headers.get("X-Benjamin-Comments") || 0) };
+    },
+
     /** POST /feedback */
     feedback(stars, comment) { return req("POST", "/feedback", { stars, comment }); },
 

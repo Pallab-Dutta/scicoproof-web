@@ -207,6 +207,26 @@
     50%       { stroke: var(--blue); }
   }
 
+  /* Commented PDF on the results page */
+  .pdf-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 22px 0 0 }
+  .pdf-head { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap }
+  .pdf-title { font-weight: 700; display: flex; align-items: center; gap: 6px }
+  .pdf-sub { font-size: .86rem; color: var(--muted); margin-top: 3px }
+  .pdf-wait { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--muted); padding: 18px 2px 6px }
+  .pdf-spin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--line);
+              border-top-color: var(--blue); animation: pdf-spin .9s linear infinite; flex: none }
+  @keyframes pdf-spin { to { transform: rotate(360deg) } }
+  .pdf-view { margin-top: 12px; max-height: 78vh; overflow: auto; background: #ece9e2; border-radius: 8px;
+              padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 12px }
+  .pdf-page { position: relative; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.18); max-width: 100% }
+  .pdf-page canvas { display: block; width: 100%; height: auto }
+  .pdf-hot { position: absolute; cursor: pointer; border-radius: 2px }
+  .pdf-hot:hover, .pdf-hot.on { outline: 2px solid rgba(85,118,166,.55); background: rgba(85,118,166,.10) }
+  .pdf-note { position: absolute; z-index: 5; width: min(320px, 86%); background: #fffdf8; color: #2c2416;
+              border: 1px solid #e3d4b4; border-radius: 10px; box-shadow: 0 6px 22px rgba(0,0,0,.18);
+              padding: 10px 12px; font-size: .86rem; line-height: 1.5; white-space: pre-wrap }
+  .pdf-note b { display: block; font-size: .76rem; color: var(--blue); margin-bottom: 4px }
+
   /* Privacy page */
   .privacy-wrap { max-width: 780px; margin: 48px auto; padding: 40px 28px;
                   border: 1px solid var(--line); border-radius: 16px; background: #fafaf8 }
@@ -470,6 +490,21 @@
           </p>
         </div>
 
+        <!-- Commented PDF (Pro LaTeX runs): built after the run, shown here when ready -->
+        <div id="pdfCard" class="pdf-card" style="display:none">
+          <div class="pdf-head">
+            <div>
+              <div class="pdf-title"><span class="mi">picture_as_pdf</span> Your proofread paper, with Benjamin's comments</div>
+              <div class="pdf-sub" id="pdfSub">Preparing the PDF…</div>
+            </div>
+            <button class="btn btn-primary" id="dlPdf" style="display:none"><span class="mi">download</span> Download PDF</button>
+          </div>
+          <div class="pdf-wait" id="pdfWait">
+            <span class="pdf-spin"></span><span id="pdfWaitLabel">Compiling your paper with the corrections marked…</span>
+          </div>
+          <div class="pdf-view" id="pdfView" style="display:none"></div>
+        </div>
+
         <!-- Recent tracked-change previews from this run -->
         <div id="resultPreviews"></div>
 
@@ -622,18 +657,29 @@ $("btnTrialLoad").addEventListener("click", async () => {
   if (!p) { $("trialCard").style.display = "none"; return; }
   $("btnTrialLoad").disabled = true;
   $("trialError").style.display = "none";
+  $("trialCard").style.display = "none";             // the loader replaces the card while it loads
   $("dropzone").style.display = "none";
   $("uploadBtnRow").style.display = "none";
-  $("analyseLabel").textContent = "Fetching your paper from arXiv…";
-  $("analysePbar").style.width = "35%";
   $("analysingOverlay").style.display = "";
+  // Loading from arXiv can take a while on a slow connection: keep the message and bar moving.
+  const steps = [[0, "Fetching your paper from arXiv…"], [4, "Unpacking the LaTeX source…"],
+                 [9, "Counting words and checking the files…"], [18, "Almost there. arXiv can be slow, hang on…"]];
+  const t0 = Date.now();
+  const tick = () => {
+    const sec = (Date.now() - t0) / 1000;
+    $("analyseLabel").textContent = steps.filter(([at]) => sec >= at).pop()[1];
+    $("analysePbar").style.width = (10 + 85 * (1 - Math.exp(-sec / 12))).toFixed(0) + "%";   // creeps toward 95%
+  };
+  tick();
+  const timer = setInterval(tick, 700);
+  let ok = false;
   try {
     _reviewData = await window.SciCoProofAPI.trialAnalyze(p);
     renderReview();
     $("reviewProseInfo").innerHTML =
       `<b>Free run</b>: ${esc(_reviewData.title || ("arXiv:" + p.paper))}. Pro quality, and it doesn't use your ` +
       `monthly allowance. You'll get a clean corrected file plus a tracked-changes version.`;
-    $("trialCard").style.display = "none";
+    ok = true;
     showStage("review");
   } catch (err) {
     const used = err && err.detail && err.detail.code === "trial_used";
@@ -644,6 +690,8 @@ $("btnTrialLoad").addEventListener("click", async () => {
       $("btnTrialLoad").style.display = "none";
     }
   } finally {
+    clearInterval(timer);
+    if (!ok) $("trialCard").style.display = "";       // failed: bring the card back with the error
     $("btnTrialLoad").disabled = false;
     $("analysingOverlay").style.display = "none";
     $("analysePbar").style.width = "0%";
@@ -984,6 +1032,7 @@ function streamJob(jobId) {
         setProgress("runOverallFill", 1);
         renderResults(data, false);
         showStage("results");
+        if (data.pdf && _jobId) startPdf(_jobId);         // Pro LaTeX: commented PDF, built after the run
         if (_trialRunLink) {                              // free run finished (A/B funnel count)
           const l = _trialRunLink;
           _trialRunLink = null;
@@ -1020,6 +1069,7 @@ function renderProofHistory() {
    RESULTS stage
    ═══════════════════════════════════════════════════════════════════════════ */
 function renderResults(data, isError) {
+  hidePdfCard();                                     // shown again by startPdf() when the run has one
   const isPartial = data && data.partial;
   const isProse   = _reviewData && _reviewData.kind === "prose";
 
@@ -1130,12 +1180,128 @@ attachDownload("dlTexBoth",    "bundle",  texBundleName);
 // LaTeX multi-file package fallback (nested clean/ + trackchanges/ ZIP)
 attachDownload("dlZip",      "result",  proofreadZipName);
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Commented PDF (Pro LaTeX runs). The backend compiles it after the run; we ask until it's ready,
+   then draw the pages with pdf.js (loaded only here) and show each Benjamin comment on tap.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+let _pdfRun = 0;            // bumps on every new result, so a stale poll stops
+let _pdfBlob = null;
+
+function hidePdfCard() { _pdfRun++; _pdfBlob = null; $("pdfCard").style.display = "none"; $("pdfView").innerHTML = ""; }
+
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return new Promise((ok, fail) => {
+    const sc = document.createElement("script");
+    sc.src = PDFJS + "pdf.min.js";
+    sc.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; ok(window.pdfjsLib); };
+    sc.onerror = () => fail(new Error("viewer unavailable"));
+    document.head.appendChild(sc);
+  });
+}
+
+async function startPdf(jobId) {
+  const run = ++_pdfRun;
+  _pdfBlob = null;
+  $("pdfCard").style.display = "";
+  $("pdfView").style.display = "none";
+  $("pdfView").innerHTML = "";
+  $("dlPdf").style.display = "none";
+  $("pdfWait").style.display = "";
+  $("pdfSub").textContent = "Preparing the PDF. Your files above are ready to download now.";
+  const t0 = Date.now();
+  const labels = [[0, "Compiling your paper with the corrections marked…"],
+                  [25, "Adding Benjamin's comments…"], [70, "Big papers take a little longer. Almost there…"]];
+  while (run === _pdfRun) {
+    const sec = (Date.now() - t0) / 1000;
+    $("pdfWaitLabel").textContent = labels.filter(([at]) => sec >= at).pop()[1];
+    let r;
+    try { r = await window.SciCoProofAPI.jobPdf(jobId); }
+    catch (err) {
+      if (run !== _pdfRun) return;
+      if (err && err.code === 404) { hidePdfCard(); return; }
+      $("pdfWait").style.display = "none";
+      $("pdfSub").textContent = "We couldn't make a PDF for this paper (" + (err.message || "error") +
+        "). Compile the tracked-changes .tex yourself to see every correction.";
+      return;
+    }
+    if (run !== _pdfRun) return;
+    if (r.status === "ready") { showPdf(r, run); return; }
+    if (sec > 900) { $("pdfWait").style.display = "none"; $("pdfSub").textContent = "The PDF is taking too long. Please use the files above."; return; }
+    await new Promise(res => setTimeout(res, 4000));
+  }
+}
+
+async function showPdf(r, run) {
+  _pdfBlob = r.blob;
+  $("dlPdf").style.display = "";
+  $("pdfSub").textContent = r.comments
+    ? `${r.comments} comment${r.comments === 1 ? "" : "s"} from Benjamin. Tap a highlight or a note icon to read why it changed.`
+    : "Corrections are marked in red (removed) and blue (added).";
+  let lib;
+  try { lib = await loadPdfJs(); }
+  catch (_) { $("pdfWait").style.display = "none"; $("pdfSub").textContent += " (Preview unavailable here; download the PDF to view it.)"; return; }
+  if (run !== _pdfRun) return;
+  const doc = await lib.getDocument({ data: new Uint8Array(await r.blob.arrayBuffer()) }).promise;
+  const view = $("pdfView");
+  $("pdfWait").style.display = "none";
+  view.style.display = "";
+  const width = Math.min(view.clientWidth - 24, 900);
+  for (let n = 1; n <= doc.numPages && run === _pdfRun; n++) {
+    const page = await doc.getPage(n);
+    const base = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: width / base.width });
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const box = document.createElement("div");
+    box.className = "pdf-page";
+    box.style.width = vp.width + "px";
+    const cv = document.createElement("canvas");
+    cv.width = Math.floor(vp.width * dpr);
+    cv.height = Math.floor(vp.height * dpr);
+    box.appendChild(cv);
+    view.appendChild(box);
+    await page.render({ canvasContext: cv.getContext("2d"), viewport: vp,
+                        transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null }).promise;
+    for (const a of await page.getAnnotations()) {
+      const text = a.contentsObj && a.contentsObj.str;
+      if (!text || !["Highlight", "Text"].includes(a.subtype)) continue;
+      const [x0, y0, x1, y1] = lib.Util.normalizeRect(vp.convertToViewportRectangle(a.rect));
+      const hot = document.createElement("div");
+      hot.className = "pdf-hot";
+      Object.assign(hot.style, { left: x0 + "px", top: y0 + "px", width: Math.max(x1 - x0, 14) + "px", height: Math.max(y1 - y0, 14) + "px" });
+      hot.title = "Benjamin's comment";
+      hot.addEventListener("click", e => { e.stopPropagation(); pdfNote(box, hot, text, x0, y1, vp.width); });
+      box.appendChild(hot);
+    }
+  }
+}
+
+function pdfNote(box, hot, text, x, y, w) {
+  document.querySelectorAll(".pdf-note").forEach(el => el.remove());
+  document.querySelectorAll(".pdf-hot.on").forEach(el => el.classList.remove("on"));
+  hot.classList.add("on");
+  const note = document.createElement("div");
+  note.className = "pdf-note";
+  note.innerHTML = "<b>Benjamin</b>" + esc(text);
+  note.style.left = Math.max(4, Math.min(x, w - Math.min(320, w * .86) - 4)) + "px";
+  note.style.top = (y + 6) + "px";
+  box.appendChild(note);
+}
+document.addEventListener("click", e => {
+  if (e.target.closest && e.target.closest(".pdf-note")) return;
+  document.querySelectorAll(".pdf-note").forEach(el => el.remove());
+  document.querySelectorAll(".pdf-hot.on").forEach(el => el.classList.remove("on"));
+});
+$("dlPdf").addEventListener("click", () => { if (_pdfBlob) saveBlob(_pdfBlob, baseFileName() + "_proofread_benjamin.pdf"); });
+
 // New run button
 const btnNewRun = $("btnNewRun");
 if (btnNewRun) btnNewRun.addEventListener("click", resetToUpload);
 
 function resetToUpload() {
   _file = null; _reviewData = null; _jobId = null; _jobData = null; _previews = [];
+  hidePdfCard();
   $("dzFileName").innerHTML = "";
   dropzone.classList.remove("has-file");
   $("fileInput").value = "";
