@@ -539,23 +539,50 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
 })(window, document, "clarity", "script", "y4p1gzg5xx");
 </script>
+<style>
+  .signin-wait{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+               flex-direction:column;gap:.5rem;background:rgba(250,246,238,.97);text-align:center;padding:16px}
+  .signin-wait.on{display:flex}
+  .signin-wait img{width:150px;height:auto;margin-bottom:.2rem}
+  .signin-wait__site{font-size:.9rem;color:#6f6452;font-weight:600;letter-spacing:.02em}
+  .signin-wait__msg{display:flex;align-items:center;gap:.6rem;margin-top:1.1rem;font-size:1rem;color:#2c2416}
+  .signin-wait__spin{width:20px;height:20px;border-radius:50%;border:3px solid #e3d4b4;border-top-color:#5576a6;
+                     animation:signin-spin .9s linear infinite}
+  @keyframes signin-spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){.signin-wait__spin{animation-duration:2.5s}}
+</style>
 <script>
-/* Sign-in buttons work from the first moment. The sign-in library loads at the end of the page (slow
-   on mobile); a click before it's ready is remembered here and finished as soon as it has loaded. */
+/* Sign-in click: a full-screen "Signing you in via Google" screen right away, while the browser goes
+   to Supabase and then Google (it keeps showing this page until Google's page arrives).
+   The sign-in library loads at the end of the page (slow on mobile); a click before it's ready is
+   remembered here and finished as soon as it has loaded. */
 (function () {
   window.__signinPending = null;
+  function waitScreen(on) {
+    var el = document.getElementById("signinWait");
+    if (!el && on) {
+      el = document.createElement("div");
+      el.id = "signinWait"; el.className = "signin-wait"; el.setAttribute("role", "status");
+      el.innerHTML = '<img src="Benjamin_name.svg" alt="Benjamin">' +
+        '<div class="signin-wait__site">scicoagent.com</div>' +
+        '<div class="signin-wait__msg"><span class="signin-wait__spin"></span>Signing you in via Google</div>';
+      document.body.appendChild(el);
+    }
+    if (el) el.classList.toggle("on", !!on);
+    document.querySelectorAll(".js-signin").forEach(function (b) { b.disabled = !!on; });
+  }
+  window.__signinWait = waitScreen;
   document.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest(".js-signin, .js-email-signin");
-    if (!t || window.__signinReady) return;
+    if (!t) return;
+    var google = t.classList.contains("js-signin");
+    if (google) waitScreen(true);
+    if (window.__signinReady) return;              // library loaded: the normal handler takes it from here
     e.preventDefault(); e.stopImmediatePropagation();
-    window.__signinPending = t.classList.contains("js-email-signin") ? "email" : "google";
-    if (window.__signinPending === "google") {
-      document.querySelectorAll(".js-signin").forEach(function (b) {
-        if (!b.dataset.label) b.dataset.label = b.textContent;
-        b.textContent = "Opening Google…"; b.disabled = true;
-      });
-    }
+    window.__signinPending = google ? "google" : "email";
   }, true);
+  // Back button from Google's page: the browser may restore this page as it was; hide the screen.
+  window.addEventListener("pageshow", function (e) { if (e.persisted) waitScreen(false); });
 })();
 </script>
 </head>
@@ -1123,9 +1150,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
         await window.SciCoProofAuth.signInWithGoogle();
       } catch (err) {
         console.error('Google sign-in failed:', err);
-        document.querySelectorAll('.js-signin').forEach(function(b){   // undo "Opening Google…"
-          if (b.dataset.label) { b.textContent = b.dataset.label; b.disabled = false; }
-        });
+        if (window.__signinWait) window.__signinWait(false);   // let them try again
       }
     }
     document.querySelectorAll('.js-signin').forEach(function(button){
