@@ -539,6 +539,25 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
 })(window, document, "clarity", "script", "y4p1gzg5xx");
 </script>
+<script>
+/* Sign-in buttons work from the first moment. The sign-in library loads at the end of the page (slow
+   on mobile); a click before it's ready is remembered here and finished as soon as it has loaded. */
+(function () {
+  window.__signinPending = null;
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest(".js-signin, .js-email-signin");
+    if (!t || window.__signinReady) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    window.__signinPending = t.classList.contains("js-email-signin") ? "email" : "google";
+    if (window.__signinPending === "google") {
+      document.querySelectorAll(".js-signin").forEach(function (b) {
+        if (!b.dataset.label) b.dataset.label = b.textContent;
+        b.textContent = "Opening Google…"; b.disabled = true;
+      });
+    }
+  }, true);
+})();
+</script>
 </head>
 <body>
 
@@ -1078,6 +1097,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   (function(){
     // If OAuth redirected back to the landing page (token in hash), auto-forward.
     if (window.location.hash.includes('access_token')) {
+      window.__signinReady = true;
       window.SciCoProofAuth.onChange(function(user) {
         if (user) location.href = 'app.html';
       });
@@ -1103,11 +1123,20 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
         await window.SciCoProofAuth.signInWithGoogle();
       } catch (err) {
         console.error('Google sign-in failed:', err);
+        document.querySelectorAll('.js-signin').forEach(function(b){   // undo "Opening Google…"
+          if (b.dataset.label) { b.textContent = b.dataset.label; b.disabled = false; }
+        });
       }
     }
     document.querySelectorAll('.js-signin').forEach(function(button){
       button.addEventListener('click', enterProofread);
     });
+    // The library is ready: finish a click made while it was still loading.
+    window.__signinReady = true;
+    var pending = window.__signinPending;
+    window.__signinPending = null;
+    if (pending === 'google') enterProofread();
+    else if (pending === 'email' && window.SciCoEmailSignIn) window.SciCoEmailSignIn.open();
   })();
 </script>
 <script>
