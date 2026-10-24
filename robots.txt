@@ -5,3 +5,4 @@ Allow: /
 Disallow: /app.html
 
 Sitemap: https://benjamin.scicoagent.com/sitemap.xml
+Sitemap: https://benjamin.scicoagent.com/blog/sitemap.xml

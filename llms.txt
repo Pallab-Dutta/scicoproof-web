@@ -35,6 +35,7 @@ Free to start, with paid tiers for higher volume. Benjamin shows local pricing b
 
 - [Home](https://benjamin.scicoagent.com/): what Benjamin does, its features, and a detailed FAQ.
 - [Pricing](https://benjamin.scicoagent.com/pricing.html): plans, monthly word limits, and local and annual pricing.
+- [Blog](https://benjamin.scicoagent.com/blog/): guides on proofreading scientific manuscripts, LaTeX, units and notation.
 - [App](https://benjamin.scicoagent.com/app.html): the proofreading application. Sign in with Google to upload a manuscript and get a tracked-changes review.
 
 ## About
