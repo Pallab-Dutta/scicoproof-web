@@ -128,11 +128,12 @@
     },
 
     /** POST /convert — TeX (.tex/.zip) -> .docx, or .docx -> LaTeX .zip. reference: optional .docx
-     *  style template. Returns {blob, name, notes:[...]}. Developer only for now. */
-    async convert(file, reference) {
+     *  style template; style: citation style (numeric | author-year | aps | nature | acs; empty = the paper's own). Returns {blob, name, notes:[...]}. Developer only for now. */
+    async convert(file, reference, style) {
       const form = new FormData();
       form.append("file", file);
       if (reference) form.append("reference", reference);
+      if (style) form.append("style", style);
       const res = await fetch(BASE + "/convert", { method: "POST", headers: await headers(), body: form });
       if (!res.ok) {
         let data = null;

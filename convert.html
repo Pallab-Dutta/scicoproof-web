@@ -23,7 +23,7 @@
   .conv-ref { margin: 16px 0 0; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 10px;
               font-size: .86rem; color: var(--muted) }
   .conv-ref label { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; cursor: pointer }
-  .conv-ref input { font: inherit; font-size: .82rem; max-width: 100% }
+  .conv-ref input, .conv-ref select { font: inherit; font-size: .82rem; max-width: 100% }
   .conv-row { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap }
   .conv-wait { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 18px;
                color: var(--muted); font-size: .92rem }
@@ -67,6 +67,15 @@
           <div class="conv-dir" id="convDir"></div>
 
           <div class="conv-ref" id="convRef" style="display:none">
+            <label style="margin-bottom:10px"><span class="mi">format_quote</span> Citation style:
+              <select id="styleSel">
+                <option value="">Same as the paper</option>
+                <option value="numeric">Numeric [1] (IEEE)</option>
+                <option value="author-year">Author–year (APA)</option>
+                <option value="aps">Physics (APS)</option>
+                <option value="nature">Nature (superscript)</option>
+                <option value="acs">Chemistry (ACS)</option>
+              </select></label>
             <label><span class="mi">style</span> Optional Word style template (.docx): its fonts and heading
               styles are used for the result.
               <input type="file" id="refInput" accept=".docx"></label>
@@ -81,7 +90,11 @@
 
           <div class="conv-keep">
             <b>Comes through:</b> sections, emphasis, lists, tables, footnotes, equations (as editable Word
-            equations / LaTeX), citations from the .bib, and figures (PDF/EPS figures become PNG).<br>
+            equations / LaTeX) and figures (PDF/EPS figures become PNG).<br>
+            <b>References:</b> to Word, citations are formatted from the .bib in the style you pick, or numbered
+            from the paper's reference list (.bbl / thebibliography). To LaTeX, Zotero/Mendeley/EndNote citations
+            become <code>\cite</code> + <code>refs.bib</code>, and a typed or numbered reference list becomes a
+            LaTeX bibliography with <code>\cite</code> in place of [1], [2, 3] or superscript numbers.<br>
             <b>Doesn't:</b> journal page layout (two columns, revtex/IEEE design), Word fonts and colours in
             LaTeX, TikZ drawings, and numbered cross-references (they become plain text).
           </div>
@@ -152,7 +165,7 @@ $("btnConvert").addEventListener("click", async () => {
   $("convWaitLabel").textContent = toWord ? "Converting to Word…" : "Converting to LaTeX…";
   const slow = setTimeout(() => { $("convWaitLabel").textContent += " (figures and citations take a little longer)"; }, 8000);
   try {
-    const r = await window.SciCoProofAPI.convert(_file, ref);
+    const r = await window.SciCoProofAPI.convert(_file, ref, toWord ? $("styleSel").value : "");
     saveBlob(r.blob, r.name);
     $("convResult").innerHTML =
       `<div class="alert alert-ok" style="margin-top:18px"><span class="mi fill ok-ico">check_circle</span> ` +
