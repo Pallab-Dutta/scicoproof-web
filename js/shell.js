@@ -31,6 +31,10 @@
         <span class="mi">workspace_premium</span> Pricing &amp; Plans
       </a>
 
+      <a class="sb-logout sb-plans" id="sbConvert" href="convert.html" style="display:none">
+        <span class="mi">swap_horiz</span> Convert TeX &#8644; Word
+      </a>
+
       <hr style="border:0;border-top:1px solid var(--line);margin:0"/>
 
       <div class="sb-rate">
@@ -88,7 +92,7 @@
         if (window.App && window.App.resetToUpload) {
           window.App.resetToUpload();
         } else {
-          location.reload();
+          location.href = "app.html";      // from another page (e.g. the converter)
         }
       });
 
@@ -260,6 +264,13 @@
           words_used: me.words_used, words_remaining: me.words_remaining }));
       } catch (_) {}
       Shell.renderPlan(me);
+      Shell.showTools(me);
+    },
+
+    /** Sidebar tools the account may use (the converter: developer only for now). */
+    showTools(me) {
+      const conv = document.getElementById("sbConvert");
+      if (conv) conv.style.display = me && me.can_convert ? "" : "none";
     },
 
     renderPlan(me) {

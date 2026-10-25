@@ -127,6 +127,26 @@
       return { status: "ready", blob: await res.blob(), comments: +(res.headers.get("X-Benjamin-Comments") || 0) };
     },
 
+    /** POST /convert — TeX (.tex/.zip) -> .docx, or .docx -> LaTeX .zip. reference: optional .docx
+     *  style template. Returns {blob, name, notes:[...]}. Developer only for now. */
+    async convert(file, reference) {
+      const form = new FormData();
+      form.append("file", file);
+      if (reference) form.append("reference", reference);
+      const res = await fetch(BASE + "/convert", { method: "POST", headers: await headers(), body: form });
+      if (!res.ok) {
+        let data = null;
+        try { data = await res.json(); } catch (_) {}
+        throw { code: res.status, message: (data && data.detail) || res.statusText ||
+                "The service may be starting up. Please try again in a moment." };
+      }
+      const cd = res.headers.get("Content-Disposition") || "";
+      const m = cd.match(/filename\*=UTF-8''([^;]+)/);
+      const notes = decodeURIComponent(res.headers.get("X-Convert-Notes") || "");
+      return { blob: await res.blob(), name: m ? decodeURIComponent(m[1]) : "converted",
+               notes: notes ? notes.split(" | ") : [] };
+    },
+
     /** POST /feedback */
     feedback(stars, comment) { return req("POST", "/feedback", { stars, comment }); },
 

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex">
+<title>Benjamin Converter</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=block" rel="stylesheet">
+<link href="css/shell.css" rel="stylesheet">
+<style>
+  .conv-col { width: 100%; max-width: 680px; margin: auto; padding: 32px 24px }
+  .page-title { display: flex; justify-content: center; margin-bottom: 18px }
+  .benjamin-logo { display: block; width: auto }
+  .benjamin-logo--title { height: 85px }
+  .conv-h { text-align: center; font-size: 1.35rem; margin: 0 0 6px }
+  .conv-desc { color: var(--muted); font-size: .86rem; line-height: 1.7; margin: 0 0 20px; text-align: center }
+  .conv-dir { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 14px 0 4px;
+              font-size: .95rem; min-height: 1.4em }
+  .conv-dir .mi { color: var(--blue) }
+  .conv-ref { margin: 16px 0 0; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 10px;
+              font-size: .86rem; color: var(--muted) }
+  .conv-ref label { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; cursor: pointer }
+  .conv-ref input { font: inherit; font-size: .82rem; max-width: 100% }
+  .conv-row { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap }
+  .conv-wait { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 18px;
+               color: var(--muted); font-size: .92rem }
+  .conv-spin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--line);
+               border-top-color: var(--blue); animation: conv-spin .9s linear infinite }
+  @keyframes conv-spin { to { transform: rotate(360deg) } }
+  .conv-notes { margin: 14px 0 0; padding-left: 1.2rem; font-size: .84rem; color: var(--muted); line-height: 1.6 }
+  .conv-keep { margin-top: 26px; font-size: .8rem; color: var(--muted); line-height: 1.65 }
+  .conv-keep b { color: var(--ink) }
+  #fileInput, #refInput[hidden] { display: none }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <button class="sb-expand" id="sbExpand" title="Show sidebar"><span class="mi">chevron_right</span></button>
+
+  <main class="main">
+    <div class="content">
+      <div class="conv-col">
+        <div class="page-title scicoproof-title"></div>
+        <h1 class="conv-h">Convert TeX &#8644; Word</h1>
+        <p class="conv-desc">Upload a LaTeX project (<code>.zip</code> or <code>.tex</code>) to get a Word file, or a
+          <code>.docx</code> to get a LaTeX project. Nothing is stored.</p>
+
+        <div id="convChecking" class="conv-wait"><span class="conv-spin"></span>Checking your account…</div>
+        <div id="convDenied" class="alert alert-info" style="display:none">
+          The converter isn't available for your account yet.
+          <a href="app.html">Back to proofreading</a>
+        </div>
+
+        <div id="convTool" style="display:none">
+          <div class="dropzone" id="dropzone" title="Click to select a file or drag-and-drop">
+            <div class="dz-icon"><span class="mi">swap_horiz</span></div>
+            <div class="dz-label">Drag &amp; drop or click to upload</div>
+            <div class="dz-sub">ZIP · TEX · DOCX</div>
+            <div class="dz-file" id="dzFileName"></div>
+          </div>
+          <input type="file" id="fileInput" accept=".zip,.tex,.docx">
+
+          <div class="conv-dir" id="convDir"></div>
+
+          <div class="conv-ref" id="convRef" style="display:none">
+            <label><span class="mi">style</span> Optional Word style template (.docx): its fonts and heading
+              styles are used for the result.
+              <input type="file" id="refInput" accept=".docx"></label>
+          </div>
+
+          <div class="conv-row">
+            <button class="btn btn-primary" id="btnConvert" disabled><span class="mi">sync_alt</span> Convert</button>
+          </div>
+
+          <div class="conv-wait" id="convWait" style="display:none"><span class="conv-spin"></span><span id="convWaitLabel">Converting…</span></div>
+          <div id="convResult"></div>
+
+          <div class="conv-keep">
+            <b>Comes through:</b> sections, emphasis, lists, tables, footnotes, equations (as editable Word
+            equations / LaTeX), citations from the .bib, and figures (PDF/EPS figures become PNG).<br>
+            <b>Doesn't:</b> journal page layout (two columns, revtex/IEEE design), Word fonts and colours in
+            LaTeX, TikZ drawings, and numbered cross-references (they become plain text).
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/signin-report.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/logo.js"></script>
+<script src="js/shell.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let _file = null;
+
+function saveBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+function pick(file) {
+  const ext = (file.name.match(/\.[^.]+$/) || [""])[0].toLowerCase();
+  $("convResult").innerHTML = "";
+  if (![".zip", ".tex", ".docx"].includes(ext)) {
+    _file = null;
+    $("btnConvert").disabled = true;
+    $("convDir").innerHTML = `<span style="color:#b23a3a">Please choose a .zip, .tex or .docx file.</span>`;
+    $("convRef").style.display = "none";
+    return;
+  }
+  _file = file;
+  const toWord = ext !== ".docx";
+  $("dzFileName").innerHTML = `<span class="mi" style="font-size:1.2rem;vertical-align:middle;margin-right:5px">check_circle</span>${esc(file.name)}`;
+  $("dropzone").classList.add("has-file");
+  $("convDir").innerHTML = toWord
+    ? `LaTeX <span class="mi">arrow_forward</span> Word (.docx)`
+    : `Word <span class="mi">arrow_forward</span> LaTeX project (.zip)`;
+  $("convRef").style.display = toWord ? "" : "none";
+  $("btnConvert").disabled = false;
+}
+
+const dz = $("dropzone");
+dz.addEventListener("click", () => $("fileInput").click());
+$("fileInput").addEventListener("change", e => { if (e.target.files[0]) pick(e.target.files[0]); });
+dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("drag-over"); });
+dz.addEventListener("dragleave", () => dz.classList.remove("drag-over"));
+dz.addEventListener("drop", e => {
+  e.preventDefault(); dz.classList.remove("drag-over");
+  if (e.dataTransfer.files[0]) pick(e.dataTransfer.files[0]);
+});
+
+$("btnConvert").addEventListener("click", async () => {
+  if (!_file) return;
+  const toWord = !/\.docx$/i.test(_file.name);
+  const ref = toWord && $("refInput").files[0] ? $("refInput").files[0] : null;
+  $("btnConvert").disabled = true;
+  $("convResult").innerHTML = "";
+  $("convWait").style.display = "";
+  $("convWaitLabel").textContent = toWord ? "Converting to Word…" : "Converting to LaTeX…";
+  const slow = setTimeout(() => { $("convWaitLabel").textContent += " (figures and citations take a little longer)"; }, 8000);
+  try {
+    const r = await window.SciCoProofAPI.convert(_file, ref);
+    saveBlob(r.blob, r.name);
+    $("convResult").innerHTML =
+      `<div class="alert alert-ok" style="margin-top:18px"><span class="mi fill ok-ico">check_circle</span> ` +
+      `Converted: <b>${esc(r.name)}</b> is downloading. <a href="#" id="dlAgain">Download again</a></div>` +
+      (r.notes.length ? `<ul class="conv-notes">${r.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>` : "");
+    $("dlAgain").addEventListener("click", e => { e.preventDefault(); saveBlob(r.blob, r.name); });
+  } catch (err) {
+    $("convResult").innerHTML = `<div class="alert alert-err" style="margin-top:18px">Couldn't convert: ` +
+      `${esc((err && err.message) || "unknown error")}</div>`;
+  } finally {
+    clearTimeout(slow);
+    $("convWait").style.display = "none";
+    $("btnConvert").disabled = false;
+  }
+});
+
+(function () {
+  Shell.init();
+  let checked = false;
+  window.SciCoProofAuth.onChange(async user => {
+    if (!user || checked) return;
+    checked = true;
+    let me = null;
+    try { me = await window.SciCoProofAPI.me(); } catch (_) {}
+    $("convChecking").style.display = "none";
+    Shell.showTools(me);
+    if (me && me.can_convert) { $("convTool").style.display = ""; return; }
+    if (!me) $("convDenied").innerHTML = "Couldn't reach the server (it may be waking up). Please reload in a moment.";
+    $("convDenied").style.display = "";
+  });
+})();
+</script>
+</body>
+</html>
