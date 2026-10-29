@@ -156,9 +156,9 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
 .dev-currency .billing-toggle{margin-top:0}
 
 /* ── Plan cards ──────────────────────────────────────────────────────────── */
-.plans{padding-top:2rem;padding-bottom:1.5rem}
-.plans__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-             gap:1.5rem;max-width:1040px;margin:0 auto}
+.plans{padding-top:2rem;padding-bottom:1.5rem;max-width:1260px}
+.plans__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+             gap:1.25rem;max-width:1200px;margin:0 auto}
 .plan-card{position:relative;display:flex;flex-direction:column;gap:1.1rem;
            background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
            padding:2rem 1.75rem;transition:transform .2s,box-shadow .2s}
@@ -348,21 +348,40 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <span class="esi-alt"><button type="button" class="js-email-signin">No Google account? Sign in with email</button></span>
     </article>
 
+    <!-- Lite: a one-off pack, not a subscription -->
+    <article class="plan-card reveal">
+      <h2 class="plan-name">Benjamin Lite</h2>
+      <div class="plan-price">
+        <span class="amount"><span id="lite-symbol">$</span><span id="lite-amount">9</span></span>
+        <span class="unit" id="lite-unit">one-off</span>
+      </div>
+      <p class="plan-sub" id="lite-sub">15,000 words · never expire</p>
+      <span class="plan-save" id="lite-save">No subscription</span>
+      <ul class="plan-feats">
+        <li><span class="tick">✓</span> <strong style="font-weight:600">One paper at Pro quality</strong></li>
+        <li><span class="tick">✓</span> 15,000 words that never expire</li>
+        <li><span class="tick">✓</span> Proofreading of inline math (symbols, units, subscripts in text)</li>
+        <li><span class="tick">✓</span> Supported in 95+ languages</li>
+        <li><span class="tick">✓</span> Buy again any time, or add to Pro and Max as a top-up</li>
+      </ul>
+      <button class="btn btn--ghost btn--lg btn--block js-checkout" type="button" data-plan="lite">Get Benjamin Lite</button>
+    </article>
+
     <!-- Pro -->
     <article class="plan-card plan-card--pro reveal">
       <span class="plan-badge">Most popular</span>
       <h2 class="plan-name">Benjamin Pro</h2>
       <div class="plan-price">
-        <span class="amount"><span id="pro-symbol">$</span><span id="pro-amount">12.50</span></span>
+        <span class="amount"><span id="pro-symbol">$</span><span id="pro-amount">6</span></span>
         <span class="unit" id="pro-unit">/month</span>
       </div>
-      <p class="plan-sub" id="pro-sub">Billed $150 annually</p>
-      <span class="plan-save" id="pro-save">Save $150 / year</span>
+      <p class="plan-sub" id="pro-sub">Billed $72 annually</p>
+      <span class="plan-save" id="pro-save">Save $72 / year</span>
       <ul class="plan-feats">
         <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Free</strong></li>
         <li><span class="tick">✓</span> Proofreading of inline math (symbols, units, subscripts in text)</li>
         <li><span class="tick">✓</span> Supported in 95+ languages</li>
-        <li><span class="tick">✓</span> 70,000 words / month (nearly unlimited)</li>
+        <li><span class="tick">✓</span> 25,000 words / month (2–3 papers)</li>
         <li class="soon"><span class="tick">◷</span> Equation proofreading <span class="soon-pill">Coming soon</span></li>
       </ul>
       <button class="btn btn--primary btn--lg btn--block js-checkout" type="button" data-plan="pro">Get Benjamin Pro</button>
@@ -372,24 +391,23 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     <article class="plan-card reveal">
       <h2 class="plan-name">Benjamin Max</h2>
       <div class="plan-price">
-        <span class="amount"><span id="max-symbol">$</span><span id="max-amount">45</span></span>
+        <span class="amount"><span id="max-symbol">$</span><span id="max-amount">12.50</span></span>
         <span class="unit" id="max-unit">/month</span>
       </div>
-      <p class="plan-sub" id="max-sub">Billed $540 annually</p>
-      <span class="plan-save" id="max-save">Save $540 / year</span>
+      <p class="plan-sub" id="max-sub">Billed $150 annually</p>
+      <span class="plan-save" id="max-save">Save $150 / year</span>
       <ul class="plan-feats">
-        <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Pro, at 5× the volume</strong></li>
-        <li><span class="tick">✓</span> 350,000 words / month</li>
+        <li><span class="tick">✓</span> <strong style="font-weight:600">Everything in Pro, at nearly 3× the volume</strong></li>
+        <li><span class="tick">✓</span> 70,000 words / month (nearly unlimited)</li>
         <li><span class="tick">✓</span> Proofreading of inline math (symbols, units, subscripts in text)</li>
         <li><span class="tick">✓</span> Supported in 95+ languages</li>
-        <li><span class="tick">✓</span> Priority access during high traffic</li>
         <li class="soon"><span class="tick">◷</span> Equation proofreading <span class="soon-pill">Coming soon</span></li>
       </ul>
       <button class="btn btn--ghost btn--lg btn--block js-checkout" type="button" data-plan="max">Get Benjamin Max</button>
     </article>
 
   </div>
-  <p class="plan-fineprint reveal" style="margin-top:1.5rem">Cancel anytime. Secure checkout — UPI &amp; cards in India, international cards worldwide.</p>
+  <p class="plan-fineprint reveal" style="margin-top:1.5rem">Pro and Max: cancel anytime. Lite is a one-off payment. Secure checkout — UPI &amp; cards in India, international cards worldwide.</p>
 </section>
 
 <!-- ── Team & Enterprise ──────────────────────────────────────────────────── -->
@@ -456,11 +474,15 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
     </details>
     <details class="faq__item">
       <summary>What counts as a "document"?</summary>
-      <p>A single manuscript you submit for proofreading — a <code>.tex</code> project, a Word <code>.docx</code>, plain text / Markdown, or <code>.rtf</code>. Free allows one document a month up to 2,500 words; paid plans work off a generous monthly word budget instead — 70,000 words on Pro and 350,000 on Max.</p>
+      <p>A single manuscript you submit for proofreading — a <code>.tex</code> project, a Word <code>.docx</code>, plain text / Markdown, or <code>.rtf</code>. Free allows one document a month up to 2,500 words; paid plans work off a monthly word budget instead — 25,000 words on Pro and 70,000 on Max — and Lite gives you 15,000 words once, which never expire.</p>
     </details>
     <details class="faq__item">
-      <summary>What's the difference between Pro and Max?</summary>
-      <p>Same features, same proofreading quality — the difference is volume. Pro includes 70,000 words per month (nearly unlimited for most researchers); Max gives you 5× that, 350,000 words per month, for heavy users and large groups.</p>
+      <summary>What's the difference between Lite, Pro and Max?</summary>
+      <p>Same features, same proofreading quality — the difference is volume and how you pay. Lite is a one-off 15,000 words (about one paper) that never expire, with no subscription. Pro includes 25,000 words per month (2–3 papers); Max gives you 70,000 words per month (nearly unlimited for most researchers) for frequent writers and groups.</p>
+    </details>
+    <details class="faq__item">
+      <summary>How do Lite words work?</summary>
+      <p>Lite words never expire and are used at Pro quality. On a paid plan, your monthly words are used first and Lite words after them, so Lite works as a top-up. Without a plan, each document uses your Lite words while they last; then your account carries on as a free account. You can buy Lite again any time.</p>
     </details>
     <details class="faq__item">
       <summary>Can I buy plans for my lab or institution?</summary>
@@ -551,29 +573,31 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ── Pricing: currency auto-detect + billing period toggle ──────────── */
-  /* Max = 5× Pro usage at 4.5× Pro price. Annual discount % is identical across tiers. */
+  /* Lite = one-off pack. Pro 25k / Max 70k words a month; the annual discount (50%) is the same for both. */
   const PRICES = {
     USD: {
       symbol: '$',
+      lite: { amount: '9', unit: 'one-off', sub: '15,000 words · never expire', save: 'No subscription' },
       pro: {
-        monthly: { amount: '25', unit: '/month', sub: 'Billed monthly',         save: 'Save $150/yr with annual' },
-        annual:  { amount: '12.50', unit: '/month', sub: 'Billed $150 annually', save: 'Save $150 / year' }
+        monthly: { amount: '12', unit: '/month', sub: 'Billed monthly',        save: 'Save $72/yr with annual' },
+        annual:  { amount: '6',  unit: '/month', sub: 'Billed $72 annually',   save: 'Save $72 / year' }
       },
       max: {
-        monthly: { amount: '90', unit: '/month', sub: 'Billed monthly',         save: 'Save $540/yr with annual' },
-        annual:  { amount: '45', unit: '/month', sub: 'Billed $540 annually',   save: 'Save $540 / year' }
+        monthly: { amount: '25',    unit: '/month', sub: 'Billed monthly',        save: 'Save $150/yr with annual' },
+        annual:  { amount: '12.50', unit: '/month', sub: 'Billed $150 annually',  save: 'Save $150 / year' }
       },
       toggleSave: 'save 50%'
     },
     INR: {
       symbol: '₹',
+      lite: { amount: '175', unit: 'one-off', sub: '15,000 words · never expire', save: 'No subscription' },
       pro: {
-        monthly: { amount: '750',   unit: '/month', sub: 'Billed monthly',          save: 'Save ₹4,500/yr with annual' },
-        annual:  { amount: '375',   unit: '/month', sub: 'Billed ₹4,500 annually',  save: 'Save ₹4,500 / year' }
+        monthly: { amount: '300', unit: '/month', sub: 'Billed monthly',          save: 'Save ₹1,800/yr with annual' },
+        annual:  { amount: '150', unit: '/month', sub: 'Billed ₹1,800 annually',  save: 'Save ₹1,800 / year' }
       },
       max: {
-        monthly: { amount: '2,700', unit: '/month', sub: 'Billed monthly',          save: 'Save ₹16,200/yr with annual' },
-        annual:  { amount: '1,350', unit: '/month', sub: 'Billed ₹16,200 annually', save: 'Save ₹16,200 / year' }
+        monthly: { amount: '750', unit: '/month', sub: 'Billed monthly',          save: 'Save ₹4,500/yr with annual' },
+        annual:  { amount: '375', unit: '/month', sub: 'Billed ₹4,500 annually',  save: 'Save ₹4,500 / year' }
       },
       toggleSave: 'save 50%'
     }
@@ -590,6 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
     save:   document.getElementById(key + '-save')
   });
   const el = {
+    lite: priceEl('lite'),
     pro: priceEl('pro'),
     max: priceEl('max'),
     toggleSave: document.getElementById('toggle-save'),
@@ -599,8 +624,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function render(){
     const c = PRICES[currency];
-    ['pro', 'max'].forEach(key => {
-      const p = c[key][period];
+    ['lite', 'pro', 'max'].forEach(key => {
+      const p = key === 'lite' ? c.lite : c[key][period];     // Lite has no billing period
       el[key].symbol.textContent = c.symbol;
       el[key].amount.textContent = p.amount;
       el[key].amount.closest('.plan-price').classList.toggle('long', p.amount.length >= 7);
@@ -701,6 +726,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!user) { await window.SciCoProofAuth.signInWithGoogle(); return; }
     // Already subscribed? Then this is a plan change on the SAME subscription (charged/credited
     // pro rata) — ask first. A second, separate subscription is never created.
+    if (tier === 'lite') {                 // one-off pack: no plan change, works on any account
+      let res;
+      try { res = await window.SciCoProofAPI.checkout({ tier: 'lite', currency }); }
+      catch (err) {
+        const code = err && err.code;
+        alert(code === 503 ? 'Payments are being set up and will be available shortly.'
+            : err && err.message ? err.message : 'Could not start checkout — please try again.');
+        return;
+      }
+      if (res && res.checkout_url) { location.href = res.checkout_url; return; }
+      alert('Could not start checkout — please try again.');
+      return;
+    }
     let me = null;
     try { me = await window.SciCoProofAPI.me(); } catch (_) {}
     const names = { pro: 'Benjamin Pro', max: 'Benjamin Max' };
@@ -708,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (me.tier === tier && (me.plan.period || period) === period) {
         alert('You already have ' + names[tier] + ' (' + period + ').'); return;
       }
-      const charge = { pro: { monthly: 25, annual: 150 }, max: { monthly: 90, annual: 540 } };
+      const charge = { pro: { monthly: 12, annual: 72 }, max: { monthly: 25, annual: 150 } };
       const cheaper = charge[tier][period] < ((charge[me.tier] || {})[me.plan.period] || 0);
       const ok = confirm('Change your plan from ' + names[me.tier] + ' (' + (me.plan.period || '') + ') to ' +
         names[tier] + ' (' + period + ')?\n\n' + (cheaper

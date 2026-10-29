@@ -28,8 +28,9 @@ PhD students, postdocs, and faculty who need academic proofreading for a researc
 Free to start, with paid tiers for higher volume. Benjamin shows local pricing by region and offers monthly or annual billing, so see the pricing page for current amounts.
 
 - Free: one document per month, up to 2,500 words.
-- Pro: up to 70,000 words per month, which is enough for most researchers.
-- Max: five times the Pro volume, for heavy users.
+- Lite: a one-off 15,000 words (about one paper) that never expire, with no subscription.
+- Pro: up to 25,000 words per month (2-3 papers).
+- Max: up to 70,000 words per month, for frequent writers and groups.
 
 ## Key pages
 

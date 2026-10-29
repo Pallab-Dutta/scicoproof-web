@@ -261,7 +261,7 @@
       try { me = await window.SciCoProofAPI.me(); } catch (_) { return; }
       try {
         localStorage.setItem(key, JSON.stringify({ tier: me.tier, word_limit: me.word_limit,
-          words_used: me.words_used, words_remaining: me.words_remaining }));
+          words_used: me.words_used, words_remaining: me.words_remaining, pack_words: me.pack_words }));
       } catch (_) {}
       Shell.renderPlan(me);
       Shell.showTools(me);
@@ -277,9 +277,11 @@
       const hud = document.getElementById("planHud");
       if (!hud) return;
       const tier = (me.tier || "free").toLowerCase();
+      const pack = Number(me.pack_words || 0);               // unused Lite words (never expire)
       const badge = document.getElementById("planBadge");
-      badge.textContent = { free: "Free", pro: "Pro", max: "Max" }[tier] || "Free";
-      badge.className = "plan-badge plan-" + tier;
+      const shown = tier === "free" && pack > 0 ? "lite" : tier;
+      badge.textContent = { free: "Free", lite: "Lite", pro: "Pro", max: "Max" }[shown] || "Free";
+      badge.className = "plan-badge plan-" + (shown === "lite" ? "pro" : shown);
 
       const upgrade = document.getElementById("planUpgrade");
       if (tier === "free")      { upgrade.textContent = "Upgrade to Pro"; upgrade.hidden = false; }
@@ -303,6 +305,17 @@
         document.getElementById("planBudgetLabel").textContent =
           `${used.toLocaleString()} / ${limit.toLocaleString()} words · ${remaining.toLocaleString()} left`;
       }
+
+      let packEl = document.getElementById("planPack");
+      if (!packEl) {
+        packEl = document.createElement("div");
+        packEl.id = "planPack";
+        packEl.className = "plan-pack";
+        packEl.style.cssText = "font-size:.78rem;opacity:.8;margin-top:.3rem";
+        budget.insertAdjacentElement("afterend", packEl);
+      }
+      packEl.textContent = `Lite: ${pack.toLocaleString()} words left`;
+      packEl.hidden = pack <= 0;
 
       hud.hidden = false;
     },
