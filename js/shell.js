@@ -141,15 +141,21 @@
             Shell._codeReported = true;               // sent with keepalive, so the redirect doesn't cut it off
             window.SciCoSigninReport("code_exchange", "returned from Google with a code, but no session");
           }
-          // A "Try Benjamin" link (app.html?try=1) is sign-in intent: start Google sign-in instead of
-          // bouncing to the home page. Never right after an OAuth return (?code), and only once (the
-          // OAuth redirect comes back to a plain app.html, so this cannot loop).
+          // Sign-in from a "Try Benjamin" link (app.html?try=1) is already under way. onChange fires
+          // more than once with no user (getUser AND the INITIAL_SESSION event), and the Google
+          // redirect is async, so a later tick must WAIT for it, not race it to the home page.
+          if (Shell._signinStarted) return;
+          // First no-user tick with sign-in intent: start Google sign-in instead of bouncing home.
+          // Not right after an OAuth return (?code); the redirect comes back to a plain app.html, so
+          // this cannot loop. Only an actual sign-in failure falls back to the home page.
           let wantSignin = false;
           try { wantSignin = new URLSearchParams(location.search).get("try") === "1"; } catch (e) {}
-          if (wantSignin && !window.__hadAuthCode && !Shell._signinStarted &&
+          if (wantSignin && !window.__hadAuthCode &&
               window.SciCoProofAuth && window.SciCoProofAuth.signInWithGoogle) {
             Shell._signinStarted = true;
-            try { window.SciCoProofAuth.signInWithGoogle(); return; } catch (e) {}
+            Promise.resolve(window.SciCoProofAuth.signInWithGoogle())
+              .catch(() => { location.href = "index.html"; });
+            return;
           }
           location.href = "index.html"; return;
         }
