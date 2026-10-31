@@ -141,6 +141,16 @@
             Shell._codeReported = true;               // sent with keepalive, so the redirect doesn't cut it off
             window.SciCoSigninReport("code_exchange", "returned from Google with a code, but no session");
           }
+          // A "Try Benjamin" link (app.html?try=1) is sign-in intent: start Google sign-in instead of
+          // bouncing to the home page. Never right after an OAuth return (?code), and only once (the
+          // OAuth redirect comes back to a plain app.html, so this cannot loop).
+          let wantSignin = false;
+          try { wantSignin = new URLSearchParams(location.search).get("try") === "1"; } catch (e) {}
+          if (wantSignin && !window.__hadAuthCode && !Shell._signinStarted &&
+              window.SciCoProofAuth && window.SciCoProofAuth.signInWithGoogle) {
+            Shell._signinStarted = true;
+            try { window.SciCoProofAuth.signInWithGoogle(); return; } catch (e) {}
+          }
           location.href = "index.html"; return;
         }
         const md = user.user_metadata || {};
