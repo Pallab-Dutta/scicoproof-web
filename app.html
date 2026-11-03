@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&family=Lora:wght@400;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=block" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <link href="css/shell.css" rel="stylesheet">
 <style>
@@ -533,12 +533,45 @@
   </main>
 </div><!-- /app -->
 
+<!-- Signed-out visitor who came through an emailed free-run link (version B): sign in here, on this
+     page, instead of being sent to the home page. Shown by __signedOutLanding (below). -->
+<div id="trialLanding" class="tl" hidden>
+  <div class="tl__card">
+    <img class="tl__logo" src="Benjamin_name.svg" alt="Benjamin">
+    <div class="tl__offer">
+      <b>Your free proofread of <span id="tlPaper"></span> is waiting.</b><br>
+      Sign in below and Benjamin will load your paper from arXiv and proofread all of it, free.
+    </div>
+    <button id="tlSignin" class="tl__btn js-signin-open" type="button">Sign in to continue</button>
+    <p class="tl__note">New to Benjamin? Signing in creates your free account. <a href="index.html">What is Benjamin?</a></p>
+  </div>
+</div>
+<style>
+  .tl{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:16px;
+      background:#faf6ee;overflow:auto}
+  .tl[hidden]{display:none}
+  .tl__card{width:100%;max-width:480px;text-align:center}
+  .tl__logo{display:block;width:min(220px,60vw);height:auto;margin:0 auto 1.6rem}
+  .tl__offer{padding:1rem 1.2rem;border:1px solid #c0cfe6;border-radius:14px;background:#eef3fa;color:#2c2416;
+      text-align:left;line-height:1.55;font-family:Lora,Georgia,serif;font-size:1rem}
+  .tl__offer b{font-weight:600}
+  .tl__btn{display:block;width:100%;margin:1.3rem 0 0;min-height:50px;padding:12px 18px;border-radius:12px;
+      border:1px solid #F9C7C7;background:#F9C7C7;color:#B33A3B;cursor:pointer;
+      font:700 1.05rem/1.2 "Cutive Mono",monospace;letter-spacing:.02em}
+  .tl__btn:hover{background:#f5b5b5}
+  .tl__btn:focus-visible{outline:2px solid #5576a6;outline-offset:2px}
+  .tl__btn[disabled]{opacity:.7;cursor:default}
+  .tl__note{margin:1rem 0 0;font-family:Lora,Georgia,serif;font-size:.88rem;color:#6f6452;line-height:1.5}
+  .tl__note a{color:#5576a6}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script src="js/config.js"></script>
 <script src="js/signin-report.js"></script>
 <script src="js/signin-steps.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/auth.js"></script>
+<script src="js/email-signin.js"></script>
 <script src="js/api.js"></script>
 <script src="js/logo.js"></script>
 <script src="js/shell.js"></script>
@@ -634,6 +667,32 @@ let _trialRunLink = null;   // the link whose free run is in progress (for the '
   ["paper", "v", "t"].forEach(k => q.delete(k));
   history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
 })();
+
+// Signed out, and just came through a version-B (or test) link: show the sign-in landing on this page.
+// Returns true when shown (the auth guard then doesn't send the visitor to the home page).
+window.__signedOutLanding = function () {
+  const p = Trial.get();
+  if (!p || p.v === "a" || !Trial.fresh(p)) return false;
+  const el = $("trialLanding");
+  if (el.hidden) {
+    $("tlPaper").textContent = "arXiv:" + p.paper;
+    el.hidden = false;
+    document.title = "Your free proofread · Benjamin";
+    if (window.SciCoSigninSteps) window.SciCoSigninSteps.step("page", "trial");
+  }
+  return true;
+};
+// While the browser heads to Google, say so on the button (there's no home-page waiting screen here).
+window.__signinWait = function (on) {
+  const b = $("tlSignin");
+  if (!b) return;
+  b.disabled = !!on;
+  b.textContent = on ? "Signing you in via Google…" : "Sign in to continue";
+};
+document.addEventListener("click", e => {
+  if (e.target.closest && e.target.closest(".esi__google") && !$("trialLanding").hidden) window.__signinWait(true);
+}, true);
+window.addEventListener("pageshow", e => { if (e.persisted) window.__signinWait(false); });
 
 function showTrialCard(p) {
   $("trialPaper").textContent = "arXiv:" + p.paper;

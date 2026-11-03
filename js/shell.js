@@ -157,6 +157,8 @@
               .catch(() => { location.href = "index.html"; });
             return;
           }
+          // Came through an emailed free-run link (B): app.html shows its own sign-in landing instead.
+          if (window.__signedOutLanding && window.__signedOutLanding()) return;
           location.href = "index.html"; return;
         }
         const md = user.user_metadata || {};
