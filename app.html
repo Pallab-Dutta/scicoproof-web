@@ -538,9 +538,13 @@
 <div id="trialLanding" class="tl" hidden>
   <div class="tl__card">
     <img class="tl__logo" src="Benjamin_name.svg" alt="Benjamin">
-    <div class="tl__offer">
-      Your free proofread of <strong id="tlPaper"></strong> is waiting.<br>
-      Sign in below and Benjamin will load your paper from arXiv and proofread all of it, free.
+    <div class="tl__offer trial-offer">
+      <div class="trial-offer__title">Your free proofread of <strong id="tlPaper"></strong> is waiting.</div>
+      <ul>
+        <li>The whole paper, loaded from arXiv for you</li>
+        <li>A clean corrected copy + tracked changes</li>
+        <li>Free, no card needed</li>
+      </ul>
     </div>
     <button id="tlSignin" class="tl__btn js-signin-open" type="button">Sign in to continue</button>
     <p class="tl__note">New to Benjamin? Signing in creates your free account. <a href="index.html">What is Benjamin?</a></p>
@@ -552,16 +556,21 @@
   .tl[hidden]{display:none}
   .tl__card{width:100%;max-width:480px;text-align:center}
   .tl__logo{display:block;width:min(220px,60vw);height:auto;margin:0 auto 1.6rem}
-  .tl__offer{padding:1rem 1.2rem;border:1px solid #c0cfe6;border-radius:14px;background:#eef3fa;color:#2c2416;
-      text-align:left;line-height:1.55;font-family:Lora,Georgia,serif;font-size:1rem;font-weight:400}
-  .tl__offer strong{font-weight:700;color:#1f1a10}
+  .trial-offer{padding:1.1rem 1.25rem;border:1px solid #c0cfe6;border-left:5px solid #5576a6;border-radius:14px;
+      background:#eef3fa;color:#4a4232;text-align:left;font-family:Lora,Georgia,serif;font-weight:400}
+  .trial-offer__title{font:700 1.4rem/1.3 Lora,Georgia,serif;margin:0 0 .7rem;color:#1f1a10;letter-spacing:0}
+  .trial-offer__title strong{color:#5576a6;font-weight:700;white-space:nowrap}
+  .trial-offer ul{list-style:none;margin:0;padding:0}
+  .trial-offer li{margin:.35rem 0;line-height:1.45;font-size:1rem;padding-left:1.1em;text-indent:-1.1em}
+  .trial-offer li::before{content:"\2713\00a0 ";color:#317B3C;font-weight:700}
+  @media (max-width:420px){.trial-offer__title{font-size:1.25rem}}
   .tl__btn{display:block;width:100%;margin:1.3rem 0 0;min-height:50px;padding:12px 18px;border-radius:12px;
       border:1px solid #F9C7C7;background:#F9C7C7;color:#B33A3B;cursor:pointer;
       font:700 1.05rem/1.2 "Cutive Mono",monospace;letter-spacing:.02em}
   .tl__btn:hover{background:#f5b5b5}
   .tl__btn:focus-visible{outline:2px solid #5576a6;outline-offset:2px}
   .tl__btn[disabled]{opacity:.7;cursor:default}
-  .tl__note{margin:1rem 0 0;font-family:Lora,Georgia,serif;font-size:.88rem;color:#6f6452;line-height:1.5}
+  .tl__note{margin:1rem 0 0;font-family:Lora,Georgia,serif;font-size:.88rem;color:#6f6452;line-height:1.5;font-weight:400}
   .tl__note a{color:#5576a6}
 </style>
 
