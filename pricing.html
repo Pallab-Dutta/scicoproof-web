@@ -299,7 +299,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <a href="index.html#faq">FAQ</a>
       <a href="pricing.html" class="active">Pricing</a>
       <a href="/blog/">Blog</a>
-      <button class="btn btn--primary btn--sm nav__cta js-signin" type="button">Sign in with Google</button>
+      <button class="btn btn--primary btn--sm nav__cta js-signin-open" type="button">Sign in</button>
     </nav>
     <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -344,8 +344,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
         <li><span class="tick">✓</span> All formats scientists use: LaTeX, Word (.docx), plain-text, Markdown, RTF</li>
         <li><span class="tick">✓</span> Real tracked changes</li>
       </ul>
-      <button class="btn btn--ghost btn--lg btn--block js-signin" type="button">Start free</button>
-      <span class="esi-alt"><button type="button" class="js-email-signin">No Google account? Sign in with email</button></span>
+      <button class="btn btn--ghost btn--lg btn--block js-signin-open" type="button">Start free</button>
     </article>
 
     <!-- Lite: a one-off pack, not a subscription -->
@@ -504,8 +503,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   <div class="cta__inner reveal">
     <h2>Give your manuscript a second pair of eyes.</h2>
     <p>Start free — no card required. Upload a draft and see what Benjamin finds.</p>
-    <button class="btn btn--primary btn--lg js-signin" type="button">Open Benjamin →</button>
-    <span class="esi-alt"><button type="button" class="js-email-signin">No Google account? Sign in with email</button></span>
+    <button class="btn btn--primary btn--lg js-signin-open" type="button">Open Benjamin →</button>
   </div>
 </section>
 
@@ -725,7 +723,11 @@ document.addEventListener('DOMContentLoaded', () => {
   async function startCheckout(tier){
     // Must be signed in first (checkout needs the user's identity for the webhook mapping).
     const user = await window.SciCoProofAuth.getUser();
-    if (!user) { await window.SciCoProofAuth.signInWithGoogle(); return; }
+    if (!user) {
+      if (window.SciCoEmailSignIn) window.SciCoEmailSignIn.open();
+      else await window.SciCoProofAuth.signInWithGoogle();
+      return;
+    }
     // Already subscribed? Then this is a plan change on the SAME subscription (charged/credited
     // pro rata) — ask first. A second, separate subscription is never created.
     if (tier === 'lite') {                 // one-off pack: no plan change, works on any account

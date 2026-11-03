@@ -576,7 +576,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   }
   window.__signinWait = waitScreen;
   document.addEventListener("click", function (e) {
-    var t = e.target.closest && e.target.closest(".js-signin, .js-email-signin");
+    var t = e.target.closest && e.target.closest(".js-signin, .js-email-signin, .js-signin-open");
     if (!t) return;
     var google = t.classList.contains("js-signin");
     if (google) waitScreen(true);
@@ -609,7 +609,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       <a href="#faq">FAQ</a>
       <a href="pricing.html">Pricing</a>
       <a href="/blog/">Blog</a>
-      <button class="btn btn--primary btn--sm nav__cta js-signin" type="button">Sign in with Google</button>
+      <button class="btn btn--primary btn--sm nav__cta js-signin-open" type="button">Sign in</button>
     </nav>
     <button class="nav__toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -773,10 +773,9 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
       Sign in below and Benjamin will load your paper from arXiv and proofread all of it, free.
     </div>
     <div class="hero__actions reveal">
-      <button class="btn btn--primary btn--lg js-signin" type="button">Sign in with Google</button>
+      <button class="btn btn--primary btn--lg js-signin-open" type="button">Sign in</button>
       <a class="btn btn--ghost btn--lg" href="#showcase">See it in action</a>
     </div>
-    <span class="esi-alt"><button type="button" class="js-email-signin">No Google account? Sign in with email</button></span>
 
     <div class="hero__formats reveal" aria-label="Supported file formats">
       <span class="format-pill">.tex</span>
@@ -1106,8 +1105,7 @@ section{padding:5rem 1.5rem;max-width:1100px;margin:0 auto;scroll-margin-top:76p
   <div class="cta__inner reveal">
     <h2>Give your manuscript a second pair of eyes.</h2>
     <p>Free to try. Upload a draft and see what Benjamin finds.</p>
-    <button class="btn btn--primary btn--lg js-signin" type="button">Open Benjamin →</button>
-    <span class="esi-alt"><button type="button" class="js-email-signin">No Google account? Sign in with email</button></span>
+    <button class="btn btn--primary btn--lg js-signin-open" type="button">Open Benjamin →</button>
   </div>
 </section>
 

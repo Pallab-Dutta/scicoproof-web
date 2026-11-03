@@ -1,5 +1,6 @@
-/* "Sign in with email": a small dialog for passwordless sign-in, opened by any .js-email-signin
-   element. Step 1 sends a one-time link + code to the address; step 2 accepts the code (for when the
+/* The sign-in window, opened by any .js-signin-open (or older .js-email-signin) element: "Continue
+   with Google" (the usual Google redirect) or "Continue with email" (passwordless).
+   Email: Step 1 sends a one-time link + code to the address; step 2 accepts the code (for when the
    email is opened on another device, or a mail filter breaks the link). Google sign-in is untouched. */
 (function () {
   const Auth = window.SciCoProofAuth;
@@ -29,6 +30,24 @@
   .esi .esi__msg--err{color:var(--del-text,#b23a3a)} .esi .esi__msg--ok{color:var(--ins-text,#2f7a33)}
   .esi__close{position:absolute;z-index:2;top:10px;right:12px;padding:4px 8px;background:none;border:0;font-size:1.4rem;line-height:1;
        cursor:pointer;color:var(--muted,#6f6452)}
+  .esi__body{text-align:left}
+  .esi__logo{display:block;height:56px;width:auto;margin:4px auto 10px}
+  .esi__step--email h2{text-align:center;margin-bottom:2px}
+  .esi__lead{text-align:center;margin-bottom:18px!important}
+  .esi__google,.esi__emailbtn{display:flex;width:100%;align-items:center;justify-content:center;gap:10px;
+       min-height:46px;padding:10px 16px;border-radius:10px;font:600 .98rem/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       cursor:pointer;box-sizing:border-box}
+  .esi__google{background:#fff;color:#1f1f1f;border:1px solid #c9c2b3}
+  .esi__google:hover{background:#f7f4ee;border-color:#a99f8b}
+  .esi__emailbtn{background:#F9C7C7;color:#B33A3B;border:1px solid #F9C7C7}
+  .esi__emailbtn:hover{background:#f5b5b5}
+  .esi__google:focus-visible,.esi__emailbtn:focus-visible{outline:2px solid var(--accent,#5576a6);outline-offset:2px}
+  .esi__google[disabled],.esi__emailbtn[disabled]{opacity:.6;cursor:default}
+  .esi__or{display:flex;align-items:center;gap:12px;margin:16px 0 14px;color:var(--muted,#6f6452);
+       font-family:"Cutive Mono",monospace;font-size:.85rem}
+  .esi__or::before,.esi__or::after{content:"";flex:1;height:1px;background:var(--border,#e3d4b4)}
+  .esi .esi__fine{font-size:.8rem;line-height:1.45;margin:10px 0 0;text-align:center}
+  .esi .esi__fine a{color:var(--accent,#5576a6)}
   .esi-alt{display:block;margin-top:12px;font-size:.9rem}
   .hero__actions + .esi-alt{margin:-1.4rem 0 2rem}
   .esi-alt button{background:none;border:0;padding:0;font:inherit;color:var(--muted,#6f6452);text-decoration:underline;cursor:pointer}
@@ -45,14 +64,23 @@
       <dialog class="esi" aria-labelledby="esi-title">
         <button class="esi__close" type="button" aria-label="Close">×</button>
         <div class="esi__body">
-          <form class="esi__step esi__step--email">
-            <h2 id="esi-title">Sign in with email</h2>
-            <p>No password: we email you a sign-in link and a code. Use the address of your Google account
-               if you already have one, to keep the same plan and history.</p>
+          <form class="esi__step esi__step--email" novalidate>
+            <img class="esi__logo" src="Benjamin_name.svg" alt="Benjamin">
+            <h2 id="esi-title">Sign in to Benjamin</h2>
+            <p class="esi__lead">Free to start. No card needed.</p>
+            <button class="esi__google js-signin" type="button">
+              <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+              Continue with Google
+            </button>
+            <div class="esi__or"><span>or</span></div>
             <label for="esi-email">Email address</label>
             <input id="esi-email" type="email" autocomplete="email" required placeholder="you@university.edu">
-            <div class="esi__row"><button class="btn btn--primary" type="submit">Send sign-in link</button></div>
+            <button class="esi__emailbtn" type="submit">Continue with email</button>
             <p class="esi__msg" role="status"></p>
+            <p class="esi__fine">With email there's no password: we send you a sign-in link and a code. Already
+               use Google with Benjamin? Use that same address to keep your plan and history.</p>
+            <p class="esi__fine">By continuing you agree to the <a href="terms.html">Terms</a> and
+               <a href="privacy.html">Privacy Policy</a>.</p>
           </form>
           <form class="esi__step esi__step--code" hidden>
             <h2>Check your inbox</h2>
@@ -78,6 +106,7 @@
     fCode.addEventListener("submit", async e => { e.preventDefault(); await verify(fCode); });
     dlg.querySelector(".esi__resend").addEventListener("click", () => send(fEmail, fCode, true));
     dlg.querySelector(".esi__other").addEventListener("click", () => showStep(fEmail, fCode, "email"));
+    dlg.querySelector(".esi__google").addEventListener("click", google);
   }
 
   function msg(form, text, kind) {
@@ -120,6 +149,7 @@
     const input = fEmail.querySelector("input");
     if (!resend) email = input.value.trim().toLowerCase();
     if (!email || !input.checkValidity()) { msg(fEmail, "Please enter a valid email address.", "err"); return; }
+    if (!resend && window.SciCoSigninSteps) window.SciCoSigninSteps.step("email_click");
     const form = resend ? fCode : fEmail;
     busy(form, true);
     msg(form, resend ? "Sending a new link…" : "Sending…");
@@ -153,6 +183,22 @@
     }
   }
 
+  // "Continue with Google": the same redirect sign-in the page buttons used to start. The page's own
+  // click listener (index.html) already put up the "Signing you in via Google" screen; the window
+  // closes so that screen is visible.
+  async function google() {
+    if (dlg.open) dlg.close();
+    try {
+      const user = await Auth.getUser();
+      if (user) { location.href = "app.html"; return; }
+      await Auth.signInWithGoogle();
+    } catch (err) {
+      if (window.SciCoSigninReport) window.SciCoSigninReport("google_start", (err && err.message) || String(err));
+      if (window.__signinWait) window.__signinWait(false);
+      open();                                   // back to the choice so they can try again
+    }
+  }
+
   async function open() {
     try {
       const user = await Auth.getUser();
@@ -162,11 +208,12 @@
     const fEmail = dlg.querySelector(".esi__step--email"), fCode = dlg.querySelector(".esi__step--code");
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
     showStep(fEmail, fCode, "email");
+    dlg.querySelector(".esi__google").focus();     // not the email box: on phones that pops up the keyboard
   }
 
   window.SciCoEmailSignIn = { open: open };
   document.addEventListener("click", e => {
-    const t = e.target.closest && e.target.closest(".js-email-signin");
+    const t = e.target.closest && e.target.closest(".js-email-signin, .js-signin-open");
     if (t) { e.preventDefault(); open(); }
   });
 })();

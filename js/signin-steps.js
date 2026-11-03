@@ -1,7 +1,8 @@
 /* Counts the sign-in steps a visitor reaches (seen on Telegram with /signins). No dependencies; never
    shows anything to the visitor and never throws. Each step counts once per visitor per day on the
    server; the visitor is a random id kept in this browser (no email, no name).
-   Steps: page (a signed-out visitor saw the home or pricing page), google_click, email_click,
+   Steps: page (a signed-out visitor saw the home or pricing page), window_open (the sign-in window),
+   google_click, email_click ("Continue with email" pressed),
    email_sent, onetap_offered / onetap_picked / onetap_failed / onetap_skipped, signed_in (+ how). */
 (function () {
   var cfg = window.SCICOPROOF_CONFIG || {};
@@ -85,10 +86,10 @@
 
   document.addEventListener("click", function (e) {
     try {
-      var t = e.target.closest && e.target.closest(".js-signin, .js-email-signin");
+      var t = e.target.closest && e.target.closest(".js-signin, .js-signin-open");
       if (!t || signedInHere()) return;
-      if (t.classList.contains("js-signin")) { step("google_click"); setVia("google"); }
-      else step("email_click");
+      if (t.classList.contains("js-signin-open")) step("window_open");
+      else { step("google_click"); setVia("google"); }
     } catch (err) {}
   }, true);
 })();
