@@ -11,4 +11,9 @@ window.SCICOPROOF_CONFIG = {
 
   // Where Google OAuth returns to (must be registered in Supabase Auth URL config).
   REDIRECT_URL: "https://benjamin.scicoagent.com/app.html",
+
+  // Google One Tap (js/onetap.js). The public client id of the Google OAuth client Supabase already
+  // uses (it appears in every Google sign-in address). ONETAP: false turns the card off.
+  GOOGLE_CLIENT_ID: "448902031483-mtc6cskfd6vcqg56csubso8bfv4svrok.apps.googleusercontent.com",
+  ONETAP: true,
 };
