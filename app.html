@@ -611,6 +611,14 @@ const Trial = {
   set(p) {
     try { p ? localStorage.setItem(TRIAL_KEY, JSON.stringify(p)) : localStorage.removeItem(TRIAL_KEY); } catch (_) {}
   },
+  // Offered only right after the emailed link was clicked: in that tab, or within 2 hours (time to sign
+  // in, also through an email link that opens a new tab). Later visits to Benjamin don't show it; the
+  // link brings it back. The saved link itself is kept (30 days) for the sign-in count and the free run.
+  fresh(p) {
+    if (!p) return false;
+    try { if (sessionStorage.getItem(TRIAL_KEY + "_tab") === p.paper) return true; } catch (_) {}
+    return Date.now() - (p.clicked || 0) < 2 * 3600e3;
+  },
 };
 let _trialRunLink = null;   // the link whose free run is in progress (for the 'done' count)
 
@@ -619,7 +627,9 @@ let _trialRunLink = null;   // the link whose free run is in progress (for the '
   const paper = q.get("paper"), v = q.get("v"), t = q.get("t");
   if (!paper || !t || !["a", "b", "t"].includes(v)) return;   // t = test link (version B)
   const prev = Trial.get();
-  if (!prev || prev.paper !== paper || prev.v !== v) Trial.set({ paper, v, t, at: Date.now() });
+  if (!prev || prev.paper !== paper || prev.v !== v) Trial.set({ paper, v, t, at: Date.now(), clicked: Date.now() });
+  else Trial.set({ ...prev, clicked: Date.now(), hidden: false });   // the link again: offer it again
+  try { sessionStorage.setItem(TRIAL_KEY + "_tab", paper); } catch (_) {}
   window.SciCoProofAPI.trialEvent({ paper, v, t, event: "open" }).catch(() => {});
   ["paper", "v", "t"].forEach(k => q.delete(k));
   history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
@@ -640,12 +650,12 @@ window.SciCoProofAuth.onChange(user => {
     window.SciCoProofAPI.trialEvent({ paper: p.paper, v: p.v, t: p.t, event: "signed_in" }).catch(() => {});
   }
   if (p.v === "a") { Trial.set(null); return; }      // variant A: nothing to offer, just counted
-  if (_stage === "upload" && !p.hidden) showTrialCard(p);
+  if (_stage === "upload" && !p.hidden && Trial.fresh(p)) showTrialCard(p);
 });
 
 $("btnBackToUpload").addEventListener("click", () => {   // back from the review: offer it again if unused
   const p = Trial.get();
-  if (p && p.v !== "a" && !p.hidden) showTrialCard(p);
+  if (p && p.v !== "a" && !p.hidden && Trial.fresh(p)) showTrialCard(p);
 });
 
 $("btnTrialHide").addEventListener("click", () => {

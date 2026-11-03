@@ -32,7 +32,10 @@
   function fromOutreach() {
     try {
       var p = JSON.parse(load("benjamin_trial") || "null");
-      return !!(p && p.paper);
+      if (!p || !p.paper) return false;
+      var tab = null;
+      try { tab = sessionStorage.getItem("benjamin_trial_tab"); } catch (e) {}
+      return tab === p.paper || Date.now() - (p.clicked || 0) < 2 * 3600e3;   // came through the link just now
     } catch (e) { return false; }
   }
 
